@@ -11,19 +11,20 @@ $dataproduk = $dataraw["produk"];
 // $dataongkir = $dataraw["ongkir"];
 
 foreach ($dataproduk as $i => $key) {
-    $getproduk[] = $conn->query("SELECT b.id_master, b.judul_master,b.image_master,a.id_variant,
+    $getproduk[] = $conn->query("SELECT a.id as id_cart, b.id_master, b.judul_master,b.image_master,a.id_variant,
     c.keterangan_varian,b.harga_master, b.diskon_rupiah, c.harga_varian, c.diskon_rupiah_varian, 
     a.qty, c.diskon_rupiah_varian, d.berat as berat_buku, e.berat as berat_fisik, 
     b.status_master_detail, a.id_gudang, COUNT(a.id) as jumlah_produk FROM user_keranjang a
-JOIN master_item b ON a.id_barang = b.id_master
-LEFT JOIN variant c ON a.id_variant = c.id_variant
-LEFT JOIN master_buku_detail d ON b.id_master = d.id_master
-LEFT JOIN master_fisik_detail e ON b.id_master = e.id_master
-WHERE a.id = '$key[id_cart]'")->fetch_object();
+    JOIN master_item b ON a.id_barang = b.id_master
+    LEFT JOIN variant c ON a.id_variant = c.id_variant
+    LEFT JOIN master_buku_detail d ON b.id_master = d.id_master
+    LEFT JOIN master_fisik_detail e ON b.id_master = e.id_master
+    WHERE a.id = '$key[id_cart]'")->fetch_object();
 }
 foreach ($getproduk as $u) {
 
     $datamaster = "SELECT * FROM master_item WHERE id_master = 
+    
                 '$u->id_master'";
     $cekitemdata = $conn->query($datamaster);
     $data2 = $cekitemdata->fetch_object();
@@ -37,34 +38,13 @@ foreach ($getproduk as $u) {
         $diskon = ($u->harga_varian) - ($u->diskon_rupiah_varian);
         $diskon_format = rupiah($diskon);
         $harga_master = rupiah($u->harga_varian);
-        //? Harga Product
-        $getprodukcoba[] = [
-            'id_cart' => $key['id_cart'],
-            'id_master' => $u->id_master,
-            'judul_master' => $u->judul_master,
-            'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $u->image_master : $getimagefisik . $u->image_master,
-            'id_variant' => $u->id_variant,
-            'keterangan_varian' => $u->keterangan_varian != null ? $u->keterangan_varian : "",
-            'qty' => $u->qty,
-            'harga_produk' => $harga_master,
-            'harga_tampil' => $u->diskon_rupiah_varian != 0 ? $diskon_format : $harga_master
-        ];
+       
     } else {
         $diskon = ($u->harga_master) - ($u->diskon_rupiah);
         $diskon_format = rupiah($diskon);
         $harga_master = rupiah($u->harga_master);
-        //? Harga Product
-        $getprodukcoba[] = [
-            'id_cart' => $key['id_cart'],
-            'id_master' => $u->id_master,
-            'judul_master' => $u->judul_master,
-            'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $u->image_master : $getimagefisik . $u->image_master,
-            'id_variant' => $u->id_variant,
-            'keterangan_varian' => $u->keterangan_varian != null ? $u->keterangan_varian : "",
-            'qty' => $u->qty,
-            'harga_produk' => $harga_master,
-            'harga_tampil' => $u->diskon_rupiah_varian != 0 ? $diskon_format : $harga_master
-        ];
+       
+        
         // $getprodukcoba[] = [
         //     'id_cart' => $key['id_cart'],
         //     'id_master' => $u->id_master,
@@ -77,6 +57,18 @@ foreach ($getproduk as $u) {
         //     'harga_tampil' => $u->diskon_rupiah != 0 ? $diskon_format : $harga_master
         // ];
     }
+     //? Harga Product
+        $getprodukcoba[] = [
+            'id_cart' => $u->id_cart,
+            'id_master' => $u->id_master,
+            'judul_master' => $u->judul_master,
+            'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $u->image_master : $getimagefisik . $u->image_master,
+            'id_variant' => $u->id_variant,
+            'keterangan_varian' => $u->keterangan_varian != null ? $u->keterangan_varian : "",
+            'qty' => $u->qty,
+            'harga_produk' => $harga_master,
+            'harga_tampil' => $u->diskon_rupiah_varian != 0 ? $diskon_format : $harga_master
+        ];
 }
 
 
