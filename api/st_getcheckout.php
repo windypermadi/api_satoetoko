@@ -55,7 +55,7 @@ foreach ($getproduk as $u) {
     }
 //? Harga Product
  $getprodukcoba[] = [
-            'id_cart' => $key['id_cart'],
+            'id_cart' => $u->id_cart,
             'id_master' => $u->id_master,
             'judul_master' => $u->judul_master,
             'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $u->image_master : $getimagefisik . $u->image_master,
