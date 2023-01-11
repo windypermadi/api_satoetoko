@@ -203,14 +203,14 @@ if (isset($id_login)) {
                 $response->sukses(200);
             }
             break;
-        case 'dibatalkan':
+        case 'sebelum':
             $data = $conn->query("SELECT a.id_transaksi, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, c.harga_master, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian FROM transaksi a
             JOIN transaksi_detail b ON a.id_transaksi = b.id_transaksi
             JOIN master_item c ON b.id_barang = c.id_master 
             JOIN stok d ON c.id_master = d.id_barang 
             JOIN cabang e ON d.id_warehouse = e.id_cabang
             LEFT JOIN variant f ON b.id_barang = f.id_variant
-            WHERE a.id_user = '$id_login' AND a.status_transaksi = '9' GROUP BY a.id_transaksi ORDER BY a.tanggal_transaksi DESC;");
+            WHERE a.id_user = '$id_login' AND a.status_transaksi = '9' GROUP BY a.id_transaksi ORDER BY a.tanggal_transaksi DESC");
 
             //status transaksi | total produk | batas transaksi
             $status_transaksi = 'Transaksi Dibatalkan';
