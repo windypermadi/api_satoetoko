@@ -47,6 +47,7 @@ foreach ($getproduk as $u) {
             'id_variant' => $u->id_variant,
             'keterangan_varian' => $u->keterangan_varian != null ? $u->keterangan_varian : "",
             'qty' => $u->qty,
+            'status_diskon' => $u->diskon_rupiah_varian != 0 ? 'Y' : 'N',
             'harga_produk' => $harga_master,
             'harga_tampil' => $u->diskon_rupiah_varian != 0 ? $diskon_format : $harga_master
         ];
@@ -64,8 +65,9 @@ foreach ($getproduk as $u) {
             'id_variant' => $u->id_variant,
             'keterangan_varian' => $u->keterangan_varian != null ? $u->keterangan_varian : "",
             'qty' => $u->qty,
+            'status_diskon' => $u->diskon_rupiah != 0 ? 'Y' : 'N',
             'harga_produk' => $harga_master,
-            'harga_tampil' => $u->diskon_rupiah_varian != 0 ? $diskon_format : $harga_master
+            'harga_tampil' => $u->diskon_rupiah != 0 ? $diskon_format : $harga_master
         ];
        
         
