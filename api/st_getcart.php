@@ -104,7 +104,8 @@ if (isset($id_login)) {
             case 'diskon':
             $data = $conn->query("SELECT * FROM user_keranjang a
     JOIN master_item b ON a.id_barang = b.id_master
-    WHERE a.id_user = '$id_login' AND b.diskon_persen != 0");
+    LEFT JOIN variant c ON a.id_variant = c.id_variant
+    WHERE a.id_user = '$id_login'");
             $datalist = array();
 
             foreach ($data as $key) {
