@@ -34,7 +34,7 @@ foreach ($getproduk as $u) {
     } else if ($u->status_master_detail == '3') {
         $berat += $u->berat_fisik * $u->qty;
     }
-    if ($u->id_variant != null) {
+    if (($u->id_variant != null OR !empty($u->id_variant))) {
         $diskon = ($u->harga_varian) - ($u->diskon_rupiah_varian);
         $diskon_format = rupiah($diskon);
         $harga_master = rupiah($u->harga_varian);
