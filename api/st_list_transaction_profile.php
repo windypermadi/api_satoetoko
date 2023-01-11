@@ -322,9 +322,9 @@ if (isset($id_login)) {
                 } else {
                     $judul_master = $value['judul_master'];
                     if ($getstatusmaster['status_master_detail'] == '2') {
-                        $image = $getimagebukufisik . $value['image_varian'];
+                        $image = $getimagebukufisik . $value['image_master'];
                     } else {
-                        $image = $getimagefisik . $value['image_varian'];
+                        $image = $getimagefisik . $value['image_master'];
                     }
                 }
 
