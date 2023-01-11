@@ -35,24 +35,27 @@ foreach ($getproduk as $u) {
     }
     if ($u->id_variant != null) {
         $diskon = ($u->harga_varian) - ($u->diskon_rupiah_varian);
-        $diskon_format = "Rp" . number_format($diskon, 0, ',', '.');
-        $harga_varian = "Rp" . number_format($u->harga_varian, 0, ',', '.');
-        $getprodukcoba[] = [
-            'id_cart' => $key['id_cart'],
-            'id_master' => $u->id_master,
-            'judul_master' => $u->judul_master,
-            'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $u->image_master : $getimagefisik . $u->image_master,
-            'id_variant' => $u->id_variant,
-            'keterangan_varian' => $u->keterangan_varian != null ? $u->keterangan_varian : "",
-            'qty' => $u->qty,
-            'harga_produk' => "Rp" . number_format($u->harga_varian, 0, ',', '.'),
-            'harga_tampil' => $u->diskon_rupiah_varian != 0 ? ($diskon_format) : $harga_varian
-        ];
+        $diskon_format = rupiah($diskon);
+        $harga_master = rupiah($u->harga_varian);
     } else {
         $diskon = ($u->harga_master) - ($u->diskon_rupiah);
-        $diskon_format = "Rp" . number_format($diskon, 0, ',', '.');
-        $harga_master = "Rp" . number_format($u->harga_master, 0, ',', '.');
-        $getprodukcoba[] = [
+        $diskon_format = rupiah($diskon);
+        $harga_master = rupiah($u->harga_master);
+        // $getprodukcoba[] = [
+        //     'id_cart' => $key['id_cart'],
+        //     'id_master' => $u->id_master,
+        //     'judul_master' => $u->judul_master,
+        //     'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $u->image_master : $getimagefisik . $u->image_master,
+        //     'id_variant' => $u->id_variant,
+        //     'keterangan_varian' => $u->keterangan_varian != null ? $u->keterangan_varian : "",
+        //     'qty' => $u->qty,
+        //     'harga_produk' => $harga_master,
+        //     'harga_tampil' => $u->diskon_rupiah != 0 ? $diskon_format : $harga_master
+        // ];
+    }
+}
+//? Harga Product
+ $getprodukcoba[] = [
             'id_cart' => $key['id_cart'],
             'id_master' => $u->id_master,
             'judul_master' => $u->judul_master,
@@ -60,11 +63,9 @@ foreach ($getproduk as $u) {
             'id_variant' => $u->id_variant,
             'keterangan_varian' => $u->keterangan_varian != null ? $u->keterangan_varian : "",
             'qty' => $u->qty,
-            'harga_produk' => $u->harga_master,
-            'harga_tampil' => $u->diskon_rupiah != 0 ? ($diskon_format) : $harga_master
+            'harga_produk' => $harga_master,
+            'harga_tampil' => $u->diskon_rupiah_varian != 0 ? $diskon_format : $harga_master
         ];
-    }
-}
 
 //? ADDRESS
 $query_alamat = "SELECT * FROM user_alamat WHERE status_alamat_utama = 'Y' AND id_user = '$dataraw[id_user]'";

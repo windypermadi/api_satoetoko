@@ -309,10 +309,11 @@ if (isset($id_login)) {
                 LEFT JOIN variant d ON a.id_barang = d.id_variant WHERE a.id_transaksi = '$id_transaksi';");
 
             foreach ($getproduk as $key => $value) {
+
+                 $getstatusmaster = $conn->query("SELECT b.status_master_detail FROM variant a JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$value[id_variant]'")->fetch_assoc();
+                 
                 if ($value['id_variant'] != NULL) {
                     $judul_master = $value['keterangan_varian'];
-
-                    $getstatusmaster = $conn->query("SELECT b.status_master_detail FROM variant a JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$value[id_variant]'")->fetch_assoc();
 
                     if ($getstatusmaster['status_master_detail'] == '2') {
                         $image = $getimagebukufisik . $value['image_varian'];
