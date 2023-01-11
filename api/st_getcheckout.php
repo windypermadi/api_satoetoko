@@ -53,6 +53,7 @@ foreach ($getproduk as $u) {
         //     'harga_tampil' => $u->diskon_rupiah != 0 ? $diskon_format : $harga_master
         // ];
     }
+}
 //? Harga Product
  $getprodukcoba[] = [
             'id_cart' => $u->id_cart,
@@ -65,7 +66,6 @@ foreach ($getproduk as $u) {
             'harga_produk' => $harga_master,
             'harga_tampil' => $u->diskon_rupiah_varian != 0 ? $diskon_format : $harga_master
         ];
-}
 
 
 //? ADDRESS
