@@ -37,10 +37,34 @@ foreach ($getproduk as $u) {
         $diskon = ($u->harga_varian) - ($u->diskon_rupiah_varian);
         $diskon_format = rupiah($diskon);
         $harga_master = rupiah($u->harga_varian);
+        //? Harga Product
+        $getprodukcoba[] = [
+            'id_cart' => $key['id_cart'],
+            'id_master' => $u->id_master,
+            'judul_master' => $u->judul_master,
+            'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $u->image_master : $getimagefisik . $u->image_master,
+            'id_variant' => $u->id_variant,
+            'keterangan_varian' => $u->keterangan_varian != null ? $u->keterangan_varian : "",
+            'qty' => $u->qty,
+            'harga_produk' => $harga_master,
+            'harga_tampil' => $u->diskon_rupiah_varian != 0 ? $diskon_format : $harga_master
+        ];
     } else {
         $diskon = ($u->harga_master) - ($u->diskon_rupiah);
         $diskon_format = rupiah($diskon);
         $harga_master = rupiah($u->harga_master);
+        //? Harga Product
+        $getprodukcoba[] = [
+            'id_cart' => $key['id_cart'],
+            'id_master' => $u->id_master,
+            'judul_master' => $u->judul_master,
+            'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $u->image_master : $getimagefisik . $u->image_master,
+            'id_variant' => $u->id_variant,
+            'keterangan_varian' => $u->keterangan_varian != null ? $u->keterangan_varian : "",
+            'qty' => $u->qty,
+            'harga_produk' => $harga_master,
+            'harga_tampil' => $u->diskon_rupiah_varian != 0 ? $diskon_format : $harga_master
+        ];
         // $getprodukcoba[] = [
         //     'id_cart' => $key['id_cart'],
         //     'id_master' => $u->id_master,
@@ -54,18 +78,6 @@ foreach ($getproduk as $u) {
         // ];
     }
 }
-//? Harga Product
- $getprodukcoba[] = [
-            'id_cart' => $u->id_cart,
-            'id_master' => $u->id_master,
-            'judul_master' => $u->judul_master,
-            'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $u->image_master : $getimagefisik . $u->image_master,
-            'id_variant' => $u->id_variant,
-            'keterangan_varian' => $u->keterangan_varian != null ? $u->keterangan_varian : "",
-            'qty' => $u->qty,
-            'harga_produk' => $harga_master,
-            'harga_tampil' => $u->diskon_rupiah_varian != 0 ? $diskon_format : $harga_master
-        ];
 
 
 //? ADDRESS
