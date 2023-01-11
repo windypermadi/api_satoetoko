@@ -53,7 +53,6 @@ foreach ($getproduk as $u) {
         //     'harga_tampil' => $u->diskon_rupiah != 0 ? $diskon_format : $harga_master
         // ];
     }
-}
 //? Harga Product
  $getprodukcoba[] = [
             'id_cart' => $key['id_cart'],
@@ -66,6 +65,8 @@ foreach ($getproduk as $u) {
             'harga_produk' => $harga_master,
             'harga_tampil' => $u->diskon_rupiah_varian != 0 ? $diskon_format : $harga_master
         ];
+}
+
 
 //? ADDRESS
 $query_alamat = "SELECT * FROM user_alamat WHERE status_alamat_utama = 'Y' AND id_user = '$dataraw[id_user]'";
