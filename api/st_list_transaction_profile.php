@@ -311,14 +311,16 @@ if (isset($id_login)) {
             foreach ($getproduk as $key => $value) {
                 if ($value['id_variant'] != NULL) {
                     $judul_master = $value['keterangan_varian'];
-                    if ($value['status_master_detail'] == '2') {
+
+                    $getstatusmaster = $conn->query("SELECT b.status_master_detail FROM variant a JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$value[id_variant]'")->fetch_assoc();
+                    if ($getstatusmaster['status_master_detail'] == '2') {
                         $image = $getimagebukufisik . $value['image_master'];
                     } else {
                         $image = $getimagefisik . $value['image_master'];
                     }
                 } else {
                     $judul_master = $value['judul_master'];
-                    if ($value['status_master_detail'] == '2') {
+                    if ($getstatusmaster['status_master_detail'] == '2') {
                         $image = $getimagebukufisik . $value['image_master'];
                     } else {
                         $image = $getimagefisik . $value['image_master'];
