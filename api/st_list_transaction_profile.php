@@ -203,7 +203,7 @@ if (isset($id_login)) {
                 $response->sukses(200);
             }
             break;
-        case 'sebelum':
+        case 'dibatalkan':
             $data = $conn->query("SELECT a.id_transaksi, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, c.harga_master, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian FROM transaksi a
             JOIN transaksi_detail b ON a.id_transaksi = b.id_transaksi
             JOIN master_item c ON b.id_barang = c.id_master 
@@ -251,7 +251,7 @@ if (isset($id_login)) {
                 $response->sukses(200);
             }
             break;
-        case 'dibatalkan':
+        case 'dikembalikan':
             $data = $conn->query("SELECT a.id_transaksi, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, c.harga_master, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian FROM transaksi a
             JOIN transaksi_detail b ON a.id_transaksi = b.id_transaksi
             JOIN master_item c ON b.id_barang = c.id_master 
