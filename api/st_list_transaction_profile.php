@@ -27,14 +27,13 @@ if (isset($id_login)) {
 
                 $getjumlah_produk = $conn->query("SELECT count(id_transaksi) as jumlah_produk FROM transaksi_detail
                 WHERE id_transaksi = '$key[id_transaksi]'")->fetch_assoc();
-                var_dump($getjumlah_produk);
-                die;
-                if ($getjumlah_produk->jumlah_produk > 1) {
+
+                if ($getjumlah_produk['jumlah_produk'] > 1) {
                     $status_lebih_satu = 'Y';
-                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                    $keterangan_lebih_satu = $getjumlah_produk['jumlah_produk'] - 1 . ' produk lainnya';
                 } else {
                     $status_lebih_satu = 'N';
-                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                    $keterangan_lebih_satu = $getjumlah_produk['jumlah_produk'] - 1 . ' produk lainnya';
                 }
 
                 $cek_jumlah = $conn->query("SELECT sum(jumlah_beli) FROM `transaksi_detail` WHERE `id_transaksi` LIKE '$key[id_transaksi]'")->fetch_assoc();
