@@ -12,7 +12,8 @@ if (isset($id_login)) {
 
     switch ($tag) {
         case 'sebelum':
-            $data = $conn->query("SELECT a.id_transaksi, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, c.harga_master, b.harga_diskon, b.diskon_barang, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian, c.status_master_detail FROM transaksi a
+            $data = $conn->query("SELECT a.id_transaksi, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, c.harga_master, b.harga_diskon, b.diskon_barang, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian, c.status_master_detail, b.jumlah_beli
+            FROM transaksi a
             JOIN transaksi_detail b ON a.id_transaksi = b.id_transaksi
             JOIN master_item c ON b.id_barang = c.id_master 
             JOIN stok d ON c.id_master = d.id_barang 
@@ -55,6 +56,7 @@ if (isset($id_login)) {
                     'status_ambil_ditempat' => $ambilditempat,
                     'nama_cabang' => $key['nama_cabang'],
                     'judul_master' => $key['judul_master'],
+                    'jumlah_beli' => 'X' . $key['jumlah_beli'],
                     'harga_master' => rupiah($key['harga_diskon']),
                     'harga_tampil' => rupiah($key['harga_diskon']),
                     'status_diskon' => $key['diskon_barang'] != 0 ? 'Y' : 'N',
@@ -75,7 +77,8 @@ if (isset($id_login)) {
             }
             break;
         case 'dikemas':
-            $data = $conn->query("SELECT a.id_transaksi, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, c.harga_master, b.harga_diskon, b.diskon_barang, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian, c.status_master_detail FROM transaksi a
+            $data = $conn->query("SELECT a.id_transaksi, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, c.harga_master, b.harga_diskon, b.diskon_barang, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian, c.status_master_detail, b.jumlah_beli 
+            FROM transaksi a
             JOIN transaksi_detail b ON a.id_transaksi = b.id_transaksi
             JOIN master_item c ON b.id_barang = c.id_master 
             JOIN stok d ON c.id_master = d.id_barang 
@@ -118,6 +121,7 @@ if (isset($id_login)) {
                     'status_ambil_ditempat' => $ambilditempat,
                     'nama_cabang' => $key['nama_cabang'],
                     'judul_master' => $key['judul_master'],
+                    'jumlah_beli' => 'X' . $key['jumlah_beli'],
                     'harga_master' => rupiah($key['harga_diskon']),
                     'harga_tampil' => rupiah($key['harga_diskon']),
                     'status_diskon' => $key['diskon_barang'] != 0 ? 'Y' : 'N',
@@ -138,7 +142,8 @@ if (isset($id_login)) {
             }
             break;
         case 'dikirim':
-            $data = $conn->query("SELECT a.id_transaksi, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, c.harga_master, b.harga_diskon, b.diskon_barang, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian, c.status_master_detail FROM transaksi a
+            $data = $conn->query("SELECT a.id_transaksi, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, c.harga_master, b.harga_diskon, b.diskon_barang, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian, c.status_master_detail, b.jumlah_beli 
+            FROM transaksi a
             JOIN transaksi_detail b ON a.id_transaksi = b.id_transaksi
             JOIN master_item c ON b.id_barang = c.id_master 
             JOIN stok d ON c.id_master = d.id_barang 
@@ -181,6 +186,7 @@ if (isset($id_login)) {
                     'status_ambil_ditempat' => $ambilditempat,
                     'nama_cabang' => $key['nama_cabang'],
                     'judul_master' => $key['judul_master'],
+                    'jumlah_beli' => 'X' . $key['jumlah_beli'],
                     'harga_master' => rupiah($key['harga_diskon']),
                     'harga_tampil' => rupiah($key['harga_diskon']),
                     'status_diskon' => $key['diskon_barang'] != 0 ? 'Y' : 'N',
@@ -201,7 +207,8 @@ if (isset($id_login)) {
             }
             break;
         case 'selesai':
-            $data = $conn->query("SELECT a.id_transaksi, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, c.harga_master, b.harga_diskon, b.diskon_barang, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian, c.status_master_detail FROM transaksi a
+            $data = $conn->query("SELECT a.id_transaksi, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, c.harga_master, b.harga_diskon, b.diskon_barang, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian, c.status_master_detail, b.jumlah_beli
+             FROM transaksi a
             JOIN transaksi_detail b ON a.id_transaksi = b.id_transaksi
             JOIN master_item c ON b.id_barang = c.id_master 
             JOIN stok d ON c.id_master = d.id_barang 
@@ -244,6 +251,7 @@ if (isset($id_login)) {
                     'status_ambil_ditempat' => $ambilditempat,
                     'nama_cabang' => $key['nama_cabang'],
                     'judul_master' => $key['judul_master'],
+                    'jumlah_beli' => 'X' . $key['jumlah_beli'],
                     'harga_master' => rupiah($key['harga_diskon']),
                     'harga_tampil' => rupiah($key['harga_diskon']),
                     'status_diskon' => $key['diskon_barang'] != 0 ? 'Y' : 'N',
@@ -264,7 +272,8 @@ if (isset($id_login)) {
             }
             break;
         case 'dibatalkan':
-            $data = $conn->query("SELECT a.id_transaksi, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, c.harga_master, b.harga_diskon, b.diskon_barang, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian, c.status_master_detail FROM transaksi a
+            $data = $conn->query("SELECT a.id_transaksi, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, c.harga_master, b.harga_diskon, b.diskon_barang, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian, c.status_master_detail, , b.jumlah_beli
+            FROM transaksi a
             JOIN transaksi_detail b ON a.id_transaksi = b.id_transaksi
             JOIN master_item c ON b.id_barang = c.id_master 
             JOIN stok d ON c.id_master = d.id_barang 
@@ -307,6 +316,7 @@ if (isset($id_login)) {
                     'status_ambil_ditempat' => $ambilditempat,
                     'nama_cabang' => $key['nama_cabang'],
                     'judul_master' => $key['judul_master'],
+                    'jumlah_beli' => 'X' . $key['jumlah_beli'],
                     'harga_master' => rupiah($key['harga_diskon']),
                     'harga_tampil' => rupiah($key['harga_diskon']),
                     'status_diskon' => $key['diskon_barang'] != 0 ? 'Y' : 'N',
@@ -327,7 +337,8 @@ if (isset($id_login)) {
             }
             break;
         case 'dikembalikan':
-            $data = $conn->query("SELECT a.id_transaksi, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, c.harga_master, b.harga_diskon, b.diskon_barang, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian, c.status_master_detail FROM transaksi a
+            $data = $conn->query("SELECT a.id_transaksi, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, c.harga_master, b.harga_diskon, b.diskon_barang, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian, c.status_master_detail, b.jumlah_beli 
+            FROM transaksi a
             JOIN transaksi_detail b ON a.id_transaksi = b.id_transaksi
             JOIN master_item c ON b.id_barang = c.id_master 
             JOIN stok d ON c.id_master = d.id_barang 
@@ -370,6 +381,7 @@ if (isset($id_login)) {
                     'status_ambil_ditempat' => $ambilditempat,
                     'nama_cabang' => $key['nama_cabang'],
                     'judul_master' => $key['judul_master'],
+                    'jumlah_beli' => 'X' . $key['jumlah_beli'],
                     'harga_master' => rupiah($key['harga_diskon']),
                     'harga_tampil' => rupiah($key['harga_diskon']),
                     'status_diskon' => $key['diskon_barang'] != 0 ? 'Y' : 'N',
