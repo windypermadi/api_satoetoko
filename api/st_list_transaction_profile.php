@@ -33,7 +33,7 @@ if (isset($id_login)) {
                     $keterangan_lebih_satu = $getjumlah_produk['jumlah_produk'] - 1 . ' produk lainnya';
                 } else {
                     $status_lebih_satu = 'N';
-                    $keterangan_lebih_satu = $getjumlah_produk['jumlah_produk'] - 1 . ' produk lainnya';
+                    $keterangan_lebih_satu = '';
                 }
 
                 $cek_jumlah = $conn->query("SELECT sum(jumlah_beli) FROM `transaksi_detail` WHERE `id_transaksi` LIKE '$key[id_transaksi]'")->fetch_assoc();
@@ -89,13 +89,14 @@ if (isset($id_login)) {
             foreach ($data as $key) {
 
                 $getjumlah_produk = $conn->query("SELECT count(id_transaksi) as jumlah_produk FROM transaksi_detail
-                WHERE id_transaksi = '$key[id_transaksi]'")->fetch_object;
-                if ($getjumlah_produk->jumlah_produk > 1) {
+                WHERE id_transaksi = '$key[id_transaksi]'")->fetch_assoc();
+
+                if ($getjumlah_produk['jumlah_produk'] > 1) {
                     $status_lebih_satu = 'Y';
-                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                    $keterangan_lebih_satu = $getjumlah_produk['jumlah_produk'] - 1 . ' produk lainnya';
                 } else {
                     $status_lebih_satu = 'N';
-                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                    $keterangan_lebih_satu = '';
                 }
 
                 $cek_jumlah = $conn->query("SELECT sum(jumlah_beli) FROM `transaksi_detail` WHERE `id_transaksi` LIKE '$key[id_transaksi]'")->fetch_assoc();
@@ -151,13 +152,14 @@ if (isset($id_login)) {
             foreach ($data as $key) {
 
                 $getjumlah_produk = $conn->query("SELECT count(id_transaksi) as jumlah_produk FROM transaksi_detail
-                WHERE id_transaksi = '$key[id_transaksi]'")->fetch_object;
-                if ($getjumlah_produk->jumlah_produk > 1) {
+                WHERE id_transaksi = '$key[id_transaksi]'")->fetch_assoc();
+
+                if ($getjumlah_produk['jumlah_produk'] > 1) {
                     $status_lebih_satu = 'Y';
-                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                    $keterangan_lebih_satu = $getjumlah_produk['jumlah_produk'] - 1 . ' produk lainnya';
                 } else {
                     $status_lebih_satu = 'N';
-                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                    $keterangan_lebih_satu = '';
                 }
 
                 $cek_jumlah = $conn->query("SELECT sum(jumlah_beli) FROM `transaksi_detail` WHERE `id_transaksi` LIKE '$key[id_transaksi]'")->fetch_assoc();
@@ -213,13 +215,14 @@ if (isset($id_login)) {
             foreach ($data as $key) {
 
                 $getjumlah_produk = $conn->query("SELECT count(id_transaksi) as jumlah_produk FROM transaksi_detail
-                WHERE id_transaksi = '$key[id_transaksi]'")->fetch_object;
-                if ($getjumlah_produk->jumlah_produk > 1) {
+                WHERE id_transaksi = '$key[id_transaksi]'")->fetch_assoc();
+
+                if ($getjumlah_produk['jumlah_produk'] > 1) {
                     $status_lebih_satu = 'Y';
-                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                    $keterangan_lebih_satu = $getjumlah_produk['jumlah_produk'] - 1 . ' produk lainnya';
                 } else {
                     $status_lebih_satu = 'N';
-                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                    $keterangan_lebih_satu = '';
                 }
 
                 $cek_jumlah = $conn->query("SELECT sum(jumlah_beli) FROM `transaksi_detail` WHERE `id_transaksi` LIKE '$key[id_transaksi]'")->fetch_assoc();
@@ -275,13 +278,14 @@ if (isset($id_login)) {
             foreach ($data as $key) {
 
                 $getjumlah_produk = $conn->query("SELECT count(id_transaksi) as jumlah_produk FROM transaksi_detail
-                WHERE id_transaksi = '$key[id_transaksi]'")->fetch_object;
-                if ($getjumlah_produk->jumlah_produk > 1) {
+                WHERE id_transaksi = '$key[id_transaksi]'")->fetch_assoc();
+
+                if ($getjumlah_produk['jumlah_produk'] > 1) {
                     $status_lebih_satu = 'Y';
-                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                    $keterangan_lebih_satu = $getjumlah_produk['jumlah_produk'] - 1 . ' produk lainnya';
                 } else {
                     $status_lebih_satu = 'N';
-                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                    $keterangan_lebih_satu = '';
                 }
 
                 $cek_jumlah = $conn->query("SELECT sum(jumlah_beli) FROM `transaksi_detail` WHERE `id_transaksi` LIKE '$key[id_transaksi]'")->fetch_assoc();
@@ -337,13 +341,14 @@ if (isset($id_login)) {
             foreach ($data as $key) {
 
                 $getjumlah_produk = $conn->query("SELECT count(id_transaksi) as jumlah_produk FROM transaksi_detail
-                WHERE id_transaksi = '$key[id_transaksi]'")->fetch_object;
-                if ($getjumlah_produk->jumlah_produk > 1) {
+                WHERE id_transaksi = '$key[id_transaksi]'")->fetch_assoc();
+
+                if ($getjumlah_produk['jumlah_produk'] > 1) {
                     $status_lebih_satu = 'Y';
-                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                    $keterangan_lebih_satu = $getjumlah_produk['jumlah_produk'] - 1 . ' produk lainnya';
                 } else {
                     $status_lebih_satu = 'N';
-                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                    $keterangan_lebih_satu = '';
                 }
 
                 $cek_jumlah = $conn->query("SELECT sum(jumlah_beli) FROM `transaksi_detail` WHERE `id_transaksi` LIKE '$key[id_transaksi]'")->fetch_assoc();
