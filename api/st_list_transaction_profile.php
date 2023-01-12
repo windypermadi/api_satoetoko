@@ -27,6 +27,8 @@ if (isset($id_login)) {
 
                 $getjumlah_produk = $conn->query("SELECT count(id_transaksi) as jumlah_produk FROM transaksi_detail
                 WHERE id_transaksi = '$key[id_transaksi]'")->fetch_object;
+                var_dump($getjumlah_produk);
+                die;
                 if ($getjumlah_produk->jumlah_produk > 1) {
                     $status_lebih_satu = 'Y';
                     $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
