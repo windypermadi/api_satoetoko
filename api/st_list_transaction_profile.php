@@ -45,6 +45,8 @@ if (isset($id_login)) {
                     'nama_cabang' => $key['nama_cabang'],
                     'judul_master' => $key['judul_master'],
                     'harga_master' => rupiah($key['harga_master']),
+                    'harga_tampil' => rupiah($key['harga_diskon']),
+                    'status_diskon' => $key['diskon_barang'] != 0 ? 'Y' : 'N',
                     'image_master' => $key['status_master_detail'] == '2' ? $getimagebukufisik . $key['image_master'] : $getimagefisik . $key['image_master'],
                     'keterangan_varian' => $key['keterangan_varian'],
                     'jumlah_produk' => $jumlah
@@ -93,6 +95,8 @@ if (isset($id_login)) {
                     'nama_cabang' => $key['nama_cabang'],
                     'judul_master' => $key['judul_master'],
                     'harga_master' => rupiah($key['harga_master']),
+                    'harga_tampil' => rupiah($key['harga_diskon']),
+                    'status_diskon' => $key['diskon_barang'] != 0 ? 'Y' : 'N',
                     'image_master' => $key['status_master_detail'] == '2' ? $getimagebukufisik . $key['image_master'] : $getimagefisik . $key['image_master'],
                     'keterangan_varian' => $key['keterangan_varian'],
                     'jumlah_produk' => $jumlah
@@ -141,6 +145,8 @@ if (isset($id_login)) {
                     'nama_cabang' => $key['nama_cabang'],
                     'judul_master' => $key['judul_master'],
                     'harga_master' => rupiah($key['harga_master']),
+                    'harga_tampil' => rupiah($key['harga_diskon']),
+                    'status_diskon' => $key['diskon_barang'] != 0 ? 'Y' : 'N',
                     'image_master' => $key['status_master_detail'] == '2' ? $getimagebukufisik . $key['image_master'] : $getimagefisik . $key['image_master'],
                     'keterangan_varian' => $key['keterangan_varian'],
                     'jumlah_produk' => $jumlah
@@ -189,6 +195,8 @@ if (isset($id_login)) {
                     'nama_cabang' => $key['nama_cabang'],
                     'judul_master' => $key['judul_master'],
                     'harga_master' => rupiah($key['harga_master']),
+                    'harga_tampil' => rupiah($key['harga_diskon']),
+                    'status_diskon' => $key['diskon_barang'] != 0 ? 'Y' : 'N',
                     'image_master' => $key['status_master_detail'] == '2' ? $getimagebukufisik . $key['image_master'] : $getimagefisik . $key['image_master'],
                     'keterangan_varian' => $key['keterangan_varian'],
                     'jumlah_produk' => $jumlah
@@ -236,7 +244,9 @@ if (isset($id_login)) {
                     'status_ambil_ditempat' => $ambilditempat,
                     'nama_cabang' => $key['nama_cabang'],
                     'judul_master' => $key['judul_master'],
-                    'harga_master' => rupiah($key['harga_master']),  
+                    'harga_master' => rupiah($key['harga_master']),
+                    'harga_tampil' => rupiah($key['harga_diskon']),
+                    'status_diskon' => $key['diskon_barang'] != 0 ? 'Y' : 'N',
                     'image_master' => $key['status_master_detail'] == '2' ? $getimagebukufisik . $key['image_master'] : $getimagefisik . $key['image_master'],
                     'keterangan_varian' => $key['keterangan_varian'],
                     'jumlah_produk' => $jumlah
@@ -284,7 +294,9 @@ if (isset($id_login)) {
                     'status_ambil_ditempat' => $ambilditempat,
                     'nama_cabang' => $key['nama_cabang'],
                     'judul_master' => $key['judul_master'],
-                    'harga_master' => rupiah($key['harga_master']),  
+                    'harga_master' => rupiah($key['harga_master']),
+                    'harga_tampil' => rupiah($key['harga_diskon']),
+                    'status_diskon' => $key['diskon_barang'] != 0 ? 'Y' : 'N',
                     'image_master' => $key['status_master_detail'] == '2' ? $getimagebukufisik . $key['image_master'] : $getimagefisik . $key['image_master'],
                     'keterangan_varian' => $key['keterangan_varian'],
                     'jumlah_produk' => $jumlah
@@ -309,9 +321,9 @@ if (isset($id_login)) {
                 LEFT JOIN variant d ON a.id_barang = d.id_variant WHERE a.id_transaksi = '$id_transaksi';");
 
             foreach ($getproduk as $key => $value) {
-                 
+
                 if ($value['id_variant'] != NULL) {
-                     $getstatusmaster = $conn->query("SELECT b.status_master_detail FROM variant a JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$value[id_variant]'")->fetch_assoc();
+                    $getstatusmaster = $conn->query("SELECT b.status_master_detail FROM variant a JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$value[id_variant]'")->fetch_assoc();
 
                     $judul_master = $value['keterangan_varian'];
 
@@ -321,7 +333,7 @@ if (isset($id_login)) {
                         $image = $getimagefisik . $value['image_varian'];
                     }
                 } else {
-                     $getstatusmaster = $conn->query("SELECT status_master_detail FROM master_item WHERE id_master = '$value[id_master]'")->fetch_assoc();
+                    $getstatusmaster = $conn->query("SELECT status_master_detail FROM master_item WHERE id_master = '$value[id_master]'")->fetch_assoc();
 
                     $judul_master = $value['judul_master'];
                     if ($getstatusmaster['status_master_detail'] == '2') {
