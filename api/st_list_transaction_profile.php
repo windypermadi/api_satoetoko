@@ -27,6 +27,13 @@ if (isset($id_login)) {
 
                 $getjumlah_produk = $conn->query("SELECT count(id_transaksi) as jumlah_produk FROM transaksi_detail
                 WHERE id_transaksi = '$key[id_transaksi]'")->fetch_object;
+                if ($getjumlah_produk->jumlah_produk > 1) {
+                    $status_lebih_satu = 'Y';
+                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                } else {
+                    $status_lebih_satu = 'N';
+                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                }
 
                 $cek_jumlah = $conn->query("SELECT sum(jumlah_beli) FROM `transaksi_detail` WHERE `id_transaksi` LIKE '$key[id_transaksi]'")->fetch_assoc();
 
@@ -53,8 +60,8 @@ if (isset($id_login)) {
                     'image_master' => $key['status_master_detail'] == '2' ? $getimagebukufisik . $key['image_master'] : $getimagefisik . $key['image_master'],
                     'keterangan_varian' => $key['keterangan_varian'],
                     'jumlah_produk' => $jumlah,
-                    'status_lebih_satu' => $getjumlah_produk->jumlah_produk > 1 ? 'Y' : 'N',
-                    'keterangan_lebih_satu' => $getjumlah_produk->jumlah_produk > 1 ? $getjumlah_produk->jumlah_produk - 1 : ''
+                    'status_lebih_satu' => $status_lebih_satu,
+                    'keterangan_lebih_satu' => $keterangan_lebih_satu
                 ];
             }
 
@@ -80,6 +87,16 @@ if (isset($id_login)) {
 
             foreach ($data as $key) {
 
+                $getjumlah_produk = $conn->query("SELECT count(id_transaksi) as jumlah_produk FROM transaksi_detail
+                WHERE id_transaksi = '$key[id_transaksi]'")->fetch_object;
+                if ($getjumlah_produk->jumlah_produk > 1) {
+                    $status_lebih_satu = 'Y';
+                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                } else {
+                    $status_lebih_satu = 'N';
+                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                }
+
                 $cek_jumlah = $conn->query("SELECT sum(jumlah_beli) FROM `transaksi_detail` WHERE `id_transaksi` LIKE '$key[id_transaksi]'")->fetch_assoc();
 
                 $date = date_create($key['tanggal_transaksi']);
@@ -104,7 +121,9 @@ if (isset($id_login)) {
                     'status_diskon' => $key['diskon_barang'] != 0 ? 'Y' : 'N',
                     'image_master' => $key['status_master_detail'] == '2' ? $getimagebukufisik . $key['image_master'] : $getimagefisik . $key['image_master'],
                     'keterangan_varian' => $key['keterangan_varian'],
-                    'jumlah_produk' => $jumlah
+                    'jumlah_produk' => $jumlah,
+                    'status_lebih_satu' => $status_lebih_satu,
+                    'keterangan_lebih_satu' => $keterangan_lebih_satu
                 ];
             }
 
@@ -130,6 +149,16 @@ if (isset($id_login)) {
 
             foreach ($data as $key) {
 
+                $getjumlah_produk = $conn->query("SELECT count(id_transaksi) as jumlah_produk FROM transaksi_detail
+                WHERE id_transaksi = '$key[id_transaksi]'")->fetch_object;
+                if ($getjumlah_produk->jumlah_produk > 1) {
+                    $status_lebih_satu = 'Y';
+                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                } else {
+                    $status_lebih_satu = 'N';
+                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                }
+
                 $cek_jumlah = $conn->query("SELECT sum(jumlah_beli) FROM `transaksi_detail` WHERE `id_transaksi` LIKE '$key[id_transaksi]'")->fetch_assoc();
 
                 $date = date_create($key['tanggal_transaksi']);
@@ -154,7 +183,9 @@ if (isset($id_login)) {
                     'status_diskon' => $key['diskon_barang'] != 0 ? 'Y' : 'N',
                     'image_master' => $key['status_master_detail'] == '2' ? $getimagebukufisik . $key['image_master'] : $getimagefisik . $key['image_master'],
                     'keterangan_varian' => $key['keterangan_varian'],
-                    'jumlah_produk' => $jumlah
+                    'jumlah_produk' => $jumlah,
+                    'status_lebih_satu' => $status_lebih_satu,
+                    'keterangan_lebih_satu' => $keterangan_lebih_satu
                 ];
             }
 
@@ -180,6 +211,16 @@ if (isset($id_login)) {
 
             foreach ($data as $key) {
 
+                $getjumlah_produk = $conn->query("SELECT count(id_transaksi) as jumlah_produk FROM transaksi_detail
+                WHERE id_transaksi = '$key[id_transaksi]'")->fetch_object;
+                if ($getjumlah_produk->jumlah_produk > 1) {
+                    $status_lebih_satu = 'Y';
+                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                } else {
+                    $status_lebih_satu = 'N';
+                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                }
+
                 $cek_jumlah = $conn->query("SELECT sum(jumlah_beli) FROM `transaksi_detail` WHERE `id_transaksi` LIKE '$key[id_transaksi]'")->fetch_assoc();
 
                 $date = date_create($key['tanggal_transaksi']);
@@ -204,7 +245,9 @@ if (isset($id_login)) {
                     'status_diskon' => $key['diskon_barang'] != 0 ? 'Y' : 'N',
                     'image_master' => $key['status_master_detail'] == '2' ? $getimagebukufisik . $key['image_master'] : $getimagefisik . $key['image_master'],
                     'keterangan_varian' => $key['keterangan_varian'],
-                    'jumlah_produk' => $jumlah
+                    'jumlah_produk' => $jumlah,
+                    'status_lebih_satu' => $status_lebih_satu,
+                    'keterangan_lebih_satu' => $keterangan_lebih_satu
                 ];
             }
 
@@ -230,6 +273,16 @@ if (isset($id_login)) {
 
             foreach ($data as $key) {
 
+                $getjumlah_produk = $conn->query("SELECT count(id_transaksi) as jumlah_produk FROM transaksi_detail
+                WHERE id_transaksi = '$key[id_transaksi]'")->fetch_object;
+                if ($getjumlah_produk->jumlah_produk > 1) {
+                    $status_lebih_satu = 'Y';
+                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                } else {
+                    $status_lebih_satu = 'N';
+                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                }
+
                 $cek_jumlah = $conn->query("SELECT sum(jumlah_beli) FROM `transaksi_detail` WHERE `id_transaksi` LIKE '$key[id_transaksi]'")->fetch_assoc();
 
                 $date = date_create($key['tanggal_transaksi']);
@@ -254,7 +307,9 @@ if (isset($id_login)) {
                     'status_diskon' => $key['diskon_barang'] != 0 ? 'Y' : 'N',
                     'image_master' => $key['status_master_detail'] == '2' ? $getimagebukufisik . $key['image_master'] : $getimagefisik . $key['image_master'],
                     'keterangan_varian' => $key['keterangan_varian'],
-                    'jumlah_produk' => $jumlah
+                    'jumlah_produk' => $jumlah,
+                    'status_lebih_satu' => $status_lebih_satu,
+                    'keterangan_lebih_satu' => $keterangan_lebih_satu
                 ];
             }
 
@@ -280,6 +335,16 @@ if (isset($id_login)) {
 
             foreach ($data as $key) {
 
+                $getjumlah_produk = $conn->query("SELECT count(id_transaksi) as jumlah_produk FROM transaksi_detail
+                WHERE id_transaksi = '$key[id_transaksi]'")->fetch_object;
+                if ($getjumlah_produk->jumlah_produk > 1) {
+                    $status_lebih_satu = 'Y';
+                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                } else {
+                    $status_lebih_satu = 'N';
+                    $keterangan_lebih_satu = $getjumlah_produk->jumlah_produk . ' produk lainnya';
+                }
+
                 $cek_jumlah = $conn->query("SELECT sum(jumlah_beli) FROM `transaksi_detail` WHERE `id_transaksi` LIKE '$key[id_transaksi]'")->fetch_assoc();
 
                 $date = date_create($key['tanggal_transaksi']);
@@ -304,7 +369,9 @@ if (isset($id_login)) {
                     'status_diskon' => $key['diskon_barang'] != 0 ? 'Y' : 'N',
                     'image_master' => $key['status_master_detail'] == '2' ? $getimagebukufisik . $key['image_master'] : $getimagefisik . $key['image_master'],
                     'keterangan_varian' => $key['keterangan_varian'],
-                    'jumlah_produk' => $jumlah
+                    'jumlah_produk' => $jumlah,
+                    'status_lebih_satu' => $status_lebih_satu,
+                    'keterangan_lebih_satu' => $keterangan_lebih_satu
                 ];
             }
 
