@@ -26,7 +26,7 @@ if (isset($id_login)) {
             foreach ($data as $key) {
 
                 $getjumlah_produk = $conn->query("SELECT count(id_transaksi) as jumlah_produk FROM transaksi_detail
-                WHERE id_transaksi = '27971841477837838'")->fetch_object;
+                WHERE id_transaksi = '$key[id_transaksi]'")->fetch_assoc();
                 var_dump($getjumlah_produk);
                 die;
                 if ($getjumlah_produk->jumlah_produk > 1) {
