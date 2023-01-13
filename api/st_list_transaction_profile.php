@@ -415,7 +415,9 @@ if (isset($id_login)) {
                 if ($value['id_variant'] != NULL) {
                     $getstatusmaster = $conn->query("SELECT b.status_master_detail FROM variant a JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$value[id_variant]'")->fetch_assoc();
 
-                    $judul_master = $value['judul_master'];
+                    $getjudulmaster = $conn->query("SELECT * FROM master_item a JOIN variant b ON a.id_master ON b.id_master WHERE b.id_variant = '$value[id_variant]'")->fetch_assoc();
+
+                    $judul_master = $getjudulmaster['judul_master'];
                     $variasi = $value['keterangan_varian'];
 
                     if ($getstatusmaster['status_master_detail'] == '2') {
