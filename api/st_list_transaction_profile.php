@@ -415,7 +415,8 @@ if (isset($id_login)) {
                 if ($value['id_variant'] != NULL) {
                     $getstatusmaster = $conn->query("SELECT b.status_master_detail FROM variant a JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$value[id_variant]'")->fetch_assoc();
 
-                    $judul_master = $value['keterangan_varian'];
+                    $judul_master = $value['judul_master'];
+                    $variasi = $value['keterangan_varian'];
 
                     if ($getstatusmaster['status_master_detail'] == '2') {
                         $image = $getimagebukufisik . $value['image_varian'];
@@ -426,6 +427,8 @@ if (isset($id_login)) {
                     $getstatusmaster = $conn->query("SELECT status_master_detail FROM master_item WHERE id_master = '$value[id_master]'")->fetch_assoc();
 
                     $judul_master = $value['judul_master'];
+                    $variasi = "";
+
                     if ($getstatusmaster['status_master_detail'] == '2') {
                         $image = $getimagebukufisik . $value['image_master'];
                     } else {
@@ -436,16 +439,16 @@ if (isset($id_login)) {
                 $getprodukcoba[] = [
                     "id_master" => $value['id_master'],
                     "judul_master" => $judul_master,
+                    "variasi" => $variasi,
                     "image_master" => $image,
+                    "status_diskon" => $value['diskon_barang'] != 0 ? 'Y' : 'N',
                     "jumlah_beli" => $value['jumlah_beli'],
                     "harga_produk" => $value['harga_barang'],
-                    "harga_tampil" => $value['harga_diskon']
+                    "harga_tampil" => $value['diskon_barang'] != 0 ? $value['harga_diskon'] : $value['harga_barang']
                 ];
             }
 
             // $getproduct = $conn->query("");
-
-
             $informasi_pesanan = [
                 'no_invoice' => $value['invoice'],
                 'tanggal_transaksi' => $value['tanggal_transaksi'],
