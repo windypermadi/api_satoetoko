@@ -6,10 +6,7 @@ $response = new Response();
 $limit = $_GET['limit'];
 $offset = $_GET['offset'];
 
-$data = $conn->query("SELECT * FROM flashsale a 
-JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
-JOIN master_item c ON b.kd_barang = c.id_master
-WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N'");
+$data = $conn->query("SELECT * FROM flashsale WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND waktu_selesai > NOW()");
 foreach ($data as $key => $value) {
 
     //! untuk varian harga diskon atau enggak
@@ -69,17 +66,23 @@ foreach ($data as $key => $value) {
         $imagegambar = $getimagefisik . $value['image_master'];
     }
 
-    $data_produk[] = [
-    'id_master' => $value['id_master'],
-    'image_master' => $value['image_master'],
-    'judul_master' => $value['judul_master'],
-    'harga_produk' => $harga_produk,
-    'harga_tampil;' => $harga_tampil,
-    'status_diskon' => $status_diskon,
-    'diskon' => $value['diskon'],
-    'stok_total' => $value['stok_flashdisk'],
-    'sisa_stok' => $value['stok_terjual_flashdisk']
-];
+    $dataproduct = $conn->query("SELECT * FROM flashsale a 
+    JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
+    JOIN master_item c ON b.kd_barang = c.id_master
+    WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N'");
+    foreach ($dataproduct as $key => $key2) {
+        $data_produk[] = [
+        'id_master' => $key2['id_master'],
+        'image_master' => $key2['image_master'],
+        'judul_master' => $key2['judul_master'],
+        'harga_produk' => $harga_produk,
+        'harga_tampil;' => $harga_tampil,
+        'status_diskon' => $status_diskon,
+        'diskon' => $key2['diskon'],
+        'stok_total' => $key2['stok_flashdisk'],
+        'sisa_stok' => $key2['stok_terjual_flashdisk']
+        ];
+    }
 
     $result2[] = [
         'waktu_mulai' => $value['waktu_mulai'],
