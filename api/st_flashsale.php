@@ -7,7 +7,7 @@ $tag = $_GET['tag'];
 
 switch($tag){
     case 'home':
-        $data = $conn->query("SELECT * FROM flashsale WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND waktu_selesai > NOW() LIMIT 0, ５");
+        $data = $conn->query("SELECT * FROM flashsale WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND waktu_selesai > NOW() LIMIT 1");
         foreach ($data as $key => $value) {
 
         //! untuk varian harga diskon atau enggak
