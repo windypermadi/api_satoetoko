@@ -33,7 +33,7 @@ switch($tag){
     $dataproduct = $conn->query("SELECT * FROM flashsale a 
     JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
     JOIN master_item c ON b.kd_barang = c.id_master
-    WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N'");
+    WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' LIMIT 5");
     foreach ($dataproduct as $key => $key2) {
         $data_produk[] = [
         'id_master' => $key2['id_master'],
