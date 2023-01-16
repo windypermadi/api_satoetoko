@@ -64,15 +64,7 @@ foreach ($data as $key => $value) {
         $imagegambar = $getimagefisik . $value['image_master'];
     }
 
-    $result2[] = [
-        'waktu_mulai' => $value['id_master'],
-        'waktu_selesai' => $value['judul_master'],
-        'status_tampil' => $imagegambar,
-        'data_produk' => $data_produk
-    ];
-}
-
-$data_produk[] = [
+    $data_produk[] = [
     'id_master' => '',
     'image_master' => '',
     'judul_master' => '',
@@ -83,6 +75,14 @@ $data_produk[] = [
     'stok_total' => '',
     'sisa_stok' => ''
 ];
+
+    $result2[] = [
+        'waktu_mulai' => $value['id_master'],
+        'waktu_selesai' => $value['judul_master'],
+        'status_tampil' => $imagegambar,
+        'data_produk' => $data_produk
+    ];
+}
 
 if (isset($result2[0])) {
     $response->data = $result2;
