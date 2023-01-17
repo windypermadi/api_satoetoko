@@ -33,7 +33,7 @@ switch ($tag) {
                     } else {
                         $status_diskon = 'N';
                         $harga_produk = rupiah($key2['harga_master']);
-                         $harga_tampil = rupiah($key2['harga_master'];
+                        $harga_tampil = rupiah($key2['harga_master']);
                     }
                 }
 
