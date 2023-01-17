@@ -34,7 +34,7 @@ if (isset($id_master)) {
         // }
     }
 
-    var_dump($status_flashsale);
+    var_dump($ceksekarang);
     die;
 
     switch ($data->status_master_detail) {
