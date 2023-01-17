@@ -28,6 +28,7 @@ if (isset($id_master)) {
         $status_flashsale = '2';
         $stok_flashdisk = $getflash->stok_flashdisk;
         $stok_terjual_flashdisk = $getflash->stok_terjual_flashdisk;
+        $sisa_stok_flash = $stok_flashdisk - $stok_terjual_flashdisk;
     } else {
         if ($cekakandatang > 0) {
             $status_flashsale = '1';
@@ -35,6 +36,32 @@ if (isset($id_master)) {
             $status_flashsale = '0';
         }
     }
+
+    $datastok = mysqli_fetch_object($conn->query("SELECT sum(jumlah) as jumlah, alamat_cabang FROM stok a JOIN cabang b ON a.id_warehouse = b.id_cabang WHERE a.id_barang = '$id_master';"));
+    $warehousedata = $conn->query("SELECT * FROM stok a JOIN cabang b ON a.id_warehouse = b.id_cabang WHERE a.id_barang = '$id_master' AND b.status_aktif = 'Y' AND b.status_hapus = 'N' GROUP BY a.id_warehouse");
+    foreach ($warehousedata as $key => $value) {
+        $warehousedatas[] = [
+            'id_cabang' => $value['id_cabang'],
+            'kode_cabang' => $value['kode_cabang'],
+            'nama_cabang' => $value['nama_cabang'],
+            'alamat_lengkap_cabang' => $value['alamat_lengkap_cabang'],
+            'alamat_cabang' => $value['alamat_cabang'],
+            'stok' => $value['jumlah']
+        ];
+    }
+
+    if ($status_flashsale == '2') {
+        if ($sisa_stok_flash != 0) {
+            $stokdata = $sisa_stok_flash;
+        } else {
+            $stokdata = $datastok->jumlah;
+        }
+    } else if ($status_flashsale == '1') {
+        $stokdata = $datastok->jumlah;
+    } else {
+        $stokdata = $datastok->jumlah;
+    }
+
 
     switch ($data->status_master_detail) {
         case '2':
@@ -190,30 +217,25 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
             break;
     }
 
-    $datastok = mysqli_fetch_object($conn->query("SELECT sum(jumlah) as jumlah, alamat_cabang FROM stok a JOIN cabang b ON a.id_warehouse = b.id_cabang WHERE a.id_barang = '$id_master';"));
-    $warehousedata = $conn->query("SELECT * FROM stok a JOIN cabang b ON a.id_warehouse = b.id_cabang WHERE a.id_barang = '$id_master' AND b.status_aktif = 'Y' AND b.status_hapus = 'N' GROUP BY a.id_warehouse");
-    foreach ($warehousedata as $key => $value) {
-        $warehousedatas[] = [
-            'id_cabang' => $value['id_cabang'],
-            'kode_cabang' => $value['kode_cabang'],
-            'nama_cabang' => $value['nama_cabang'],
-            'alamat_lengkap_cabang' => $value['alamat_lengkap_cabang'],
-            'alamat_cabang' => $value['alamat_cabang'],
-            'stok' => $value['jumlah']
-        ];
-    }
-
     if ($datanew->status_varian == 'Y') {
         $status_varian_diskon = 'UP TO';
         $varian = $conn->query("SELECT *, (harga_varian-diskon_rupiah_varian) as harga_varian_final FROM variant WHERE id_master = '$id_master' ORDER BY harga_varian_final ASC")->fetch_all(MYSQLI_ASSOC);
         // foreach ($varian as $key => $value) {
         // }
         if ($status_flashsale == '2') {
-            $min_normal = $varian[0]['harga_varian'];
-            $max_normal = $varian[count($varian) - 1]['harga_varian'];
+            if ($sisa_stok_flash != 0) {
+                $min_normal = $varian[0]['harga_varian'];
+                $max_normal = $varian[count($varian) - 1]['harga_varian'];
 
-            $min = $varian[0]['harga_varian'] - ($datanew->harga_master * ($getflash->diskon / 100));
-            $max = $varian[count($varian) - 1]['harga_varian'] - ($datanew->harga_master * ($getflash->diskon / 100));
+                $min = $varian[0]['harga_varian'] - ($datanew->harga_master * ($getflash->diskon / 100));
+                $max = $varian[count($varian) - 1]['harga_varian'] - ($datanew->harga_master * ($getflash->diskon / 100));
+            } else {
+                $min_normal = $varian[0]['harga_varian'];
+                $max_normal = $varian[count($varian) - 1]['harga_varian'];
+
+                $min = $varian[0]['harga_varian_final'];
+                $max = $varian[count($varian) - 1]['harga_varian_final'];
+            }
         } else if ($status_flashsale == '1') {
             $min_normal = $varian[0]['harga_varian'];
             $max_normal = $varian[count($varian) - 1]['harga_varian'];
@@ -228,13 +250,27 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
             $max = $varian[count($varian) - 1]['harga_varian_final'];
         }
 
-        $jumlah_diskon = $varian[count($varian) - 1]['diskon_persen_varian'];
+        if ($status_flashsale == '2') {
+            if ($sisa_stok_flash != 0) {
+                $jumlah_diskon = $getflash->diskon;
+            } else {
+                $jumlah_diskon = $varian[count($varian) - 1]['diskon_persen_varian'];
+            }
+        } else if ($status_flashsale == '1') {
+            $jumlah_diskon = $varian[count($varian) - 1]['diskon_persen_varian'];
+        } else {
+            $jumlah_diskon = $varian[count($varian) - 1]['diskon_persen_varian'];
+        }
 
         //! varian ada diskon
         if ($varian[0]['diskon_rupiah_varian'] != 0) {
             $status_diskon = 'Y';
             if ($status_flashsale == '2') {
-                (float)$harga_disc = $varian->diskon_rupiah_varian - ($datanew->harga_master * ($getflash->diskon / 100));
+                if ($sisa_stok_flash != 0) {
+                    (float)$harga_disc = $varian->diskon_rupiah_varian - ($datanew->harga_master * ($getflash->diskon / 100));
+                } else {
+                    (float)$harga_disc = $varian->harga_varian - $varian->diskon_rupiah_varian;
+                }
             } else if ($status_flashsale == '1') {
                 (float)$harga_disc = $varian->harga_varian - $varian->diskon_rupiah_varian;
             } else {
@@ -243,7 +279,11 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
         } else {
             $status_diskon = 'N';
             if ($status_flashsale == '2') {
-                (float)$harga_disc = $varian->diskon_rupiah_varian - ($datanew->harga_master * ($getflash->diskon / 100));
+                if ($sisa_stok_flash != 0) {
+                    (float)$harga_disc = $varian->diskon_rupiah_varian - ($datanew->harga_master * ($getflash->diskon / 100));
+                } else {
+                    (float)$harga_disc = $varian->diskon_rupiah_varian;
+                }
             } else if ($status_flashsale == '1') {
                 (float)$harga_disc = $varian->diskon_rupiah_varian;
             } else {
@@ -256,20 +296,38 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
         $harga_tampil = rupiah($min) . " - " . rupiah($max);
     } else {
         $status_varian_diskon = 'OFF';
-        $jumlah_diskon = $datanew->diskon_persen;
+        if ($status_flashsale == '2') {
+            if ($sisa_stok_flash != 0) {
+                $jumlah_diskon = $getflash->diskon;
+            } else {
+                $jumlah_diskon = $datanew->diskon_persen;
+            }
+        } else if ($status_flashsale == '1') {
+            $jumlah_diskon = $datanew->diskon_persen;
+        } else {
+            $jumlah_diskon = $datanew->diskon_persen;
+        }
         if ($datanew->diskon_persen != 0) {
             $status_diskon = 'Y';
             if ($status_flashsale == '2') {
-                (float)$harga_disc = $datanew->harga_master - ($datanew->harga_master * ($getflash->diskon / 100));
+                if ($sisa_stok_flash != 0) {
+                    (float)$harga_disc = $datanew->harga_master - ($datanew->harga_master * ($getflash->diskon / 100));
+                } else {
+                    (float)$harga_disc = $datanew->harga_master - $datanew->diskon_rupiah;
+                }
             } else if ($status_flashsale == '1') {
-                $hargaflash = $datanew->harga_master - $datanew->diskon_rupiah;
+                (float)$harga_disc = $datanew->harga_master - $datanew->diskon_rupiah;
             } else {
                 (float)$harga_disc = $datanew->harga_master - $datanew->diskon_rupiah;
             }
         } else {
             $status_diskon = 'N';
             if ($status_flashsale == '2') {
-                (float)$harga_disc = $datanew->harga_master - ($datanew->harga_master * ($getflash->diskon / 100));
+                if ($sisa_stok_flash != 0) {
+                    (float)$harga_disc = $datanew->harga_master - ($datanew->harga_master * ($getflash->diskon / 100));
+                } else {
+                    $harga_disc = $datanew->harga_master;
+                }
             } else if ($status_flashsale == '1') {
                 $harga_disc = $datanew->harga_master;
             } else {
