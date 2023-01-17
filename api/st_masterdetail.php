@@ -33,6 +33,9 @@ if (isset($id_master)) {
         }
     }
 
+    var_dump($status_flashsale);
+    die;
+
     switch ($data->status_master_detail) {
         case '2':
             //? buku fisik
