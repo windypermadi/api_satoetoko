@@ -7,7 +7,7 @@ $tag = $_GET['tag'];
 
 switch ($tag) {
     case 'home':
-        $data = $conn->query("SELECT * FROM flashsale WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND waktu_selesai > NOW() LIMIT 1");
+        $data = $conn->query("SELECT * FROM flashsale WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND waktu_selesai > NOW()");
         foreach ($data as $key => $value) {
 
             //! untuk varian harga diskon atau enggak
@@ -33,7 +33,7 @@ switch ($tag) {
             $dataproduct = $conn->query("SELECT * FROM flashsale a 
     JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
     JOIN master_item c ON b.kd_barang = c.id_master
-    WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' LIMIT 5");
+    WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' LIMIT 3");
             foreach ($dataproduct as $key => $key2) {
                 $data_produk[] = [
                     'id_master' => $key2['id_master'],
