@@ -11,6 +11,27 @@ if (isset($id_master)) {
     $cekitemdata = $conn->query($datamaster);
     $data = $cekitemdata->fetch_object();
 
+    $sekarang = $conn->query("SELECT * FROM flashsale a 
+    JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
+    JOIN master_item c ON b.kd_barang = c.id_master
+    WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND b.kd_barang = '$id_master' AND a.waktu_mulai < NOW() AND a.waktu_selesai > NOW()")->fetch_object;
+
+    $akandatang = $conn->query("SELECT * FROM flashsale a 
+        JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
+        JOIN master_item c ON b.kd_barang = c.id_master
+        WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND b.kd_barang = '$id_master' AND a.waktu_mulai > NOW() AND a.waktu_selesai > NOW()")->fetch_object;
+
+    if (!empty($sekarang)) {
+        if (!empty($akandatang)) {
+            $status_flashsale = '1';
+        } else {
+            $status_flashsale = '0';
+        }
+        $status_flashsale = '2';
+    } else {
+        $status_flashsale = '0';
+    }
+
     switch ($data->status_master_detail) {
         case '2':
             //? buku fisik
@@ -273,6 +294,7 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
     $data1['variant'] = $variants;
     $data1['url'] = $imageurls;
     $data1['url_variant'] = $url_variants;
+    $data1['status_flashsale'] = $status_flashsale;
 
     $response->data = $data1;
     $response->sukses(200);
