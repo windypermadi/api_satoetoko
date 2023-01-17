@@ -10,7 +10,7 @@ switch ($tag) {
         $data = $conn->query("SELECT * FROM flashsale WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND waktu_selesai > NOW()");
         foreach ($data as $key => $value) {
 
-            $dataproduct = $conn->query("SELECT * FROM flashsale a 
+            $dataproduct = $conn->query("SELECT *, (stok_flashdisk-stok_terjual_flashdisk) as sisa_stok FROM flashsale a 
             JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
             JOIN master_item c ON b.kd_barang = c.id_master
             WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' LIMIT 3");
@@ -21,15 +21,20 @@ switch ($tag) {
                 //     JOIN master_item c ON b.kd_barang = c.id_master
                 //     WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND b.kd_barang = '$key2[id_master]' AND a.waktu_mulai < NOW() AND a.waktu_selesai > NOW()")->fetch_object();
 
-                //! untuk varian harga diskon atau enggak
-                if ($key2['diskon'] != 0) {
+                if ($key2['sisa_stok'] != 0) {
                     $status_diskon = 'Y';
                     $harga_produk = rupiah($key2['harga_master']);
-                    $harga_tampil = rupiah($key2['harga_master'] - ($key2['harga_master'] * ($key2['diskon'] / 10)));
+                    $harga_tampil = rupiah($key2['harga_master'] - ($key2['harga_master'] * ($key2['diskon'] / 100)));
                 } else {
-                    $status_diskon = 'N';
-                    $harga_produk = rupiah($key2['harga_master']);
-                    $harga_tampil = rupiah($key2['harga_master'] - ($key2['harga_master'] * ($key2['diskon'] / 10)));
+                    if ($key2['diskon'] != 0) {
+                        $status_diskon = 'Y';
+                        $harga_produk = rupiah($key2['harga_master']);
+                        $harga_tampil = rupiah($key2['harga_master'] - $key2['diskon_rupiah']);
+                    } else {
+                        $status_diskon = 'N';
+                        $harga_produk = rupiah($key2['harga_master']);
+                         $harga_tampil = rupiah($key2['harga_master'];
+                    }
                 }
 
                 $status_jenis_harga = '1';
