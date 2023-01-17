@@ -21,10 +21,10 @@ if (isset($id_master)) {
         JOIN master_item c ON b.kd_barang = c.id_master
         WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND b.kd_barang = '$id_master' AND a.waktu_mulai > NOW() AND a.waktu_selesai > NOW()")->fetch_object;
 
-    if (!empty($sekarang)) {
+    if (!empty($sekarang->id_flashsale)) {
         $status_flashsale = '2';
     } else {
-        if (!empty($akandatang)) {
+        if (!empty($akandatang->id_flashsale)) {
             $status_flashsale = '1';
         } else {
             $status_flashsale = '0';
