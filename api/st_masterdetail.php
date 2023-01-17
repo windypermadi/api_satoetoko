@@ -22,14 +22,13 @@ if (isset($id_master)) {
         WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND b.kd_barang = '$id_master' AND a.waktu_mulai > NOW() AND a.waktu_selesai > NOW()")->fetch_object;
 
     if (!empty($sekarang)) {
+        $status_flashsale = '2';
+    } else {
         if (!empty($akandatang)) {
             $status_flashsale = '1';
         } else {
             $status_flashsale = '0';
         }
-        $status_flashsale = '2';
-    } else {
-        $status_flashsale = '0';
     }
 
     switch ($data->status_master_detail) {
