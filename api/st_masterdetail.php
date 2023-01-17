@@ -26,11 +26,12 @@ if (isset($id_master)) {
     if ($ceksekarang > 0) {
         $status_flashsale = '2';
     } else {
-        if ($cekakandatang > 0) {
-            $status_flashsale = '1';
-        } else {
-            $status_flashsale = '0';
-        }
+        $status_flashsale = '0';
+        // if ($cekakandatang > 0) {
+        //     $status_flashsale = '1';
+        // } else {
+        //     $status_flashsale = '0';
+        // }
     }
 
     var_dump($status_flashsale);
