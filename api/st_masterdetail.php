@@ -16,6 +16,7 @@ if (isset($id_master)) {
     JOIN master_item c ON b.kd_barang = c.id_master
     WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND b.kd_barang = '$id_master' AND a.waktu_mulai < NOW() AND a.waktu_selesai > NOW()";
     $ceksekarang = $conn->query($sekarang)->num_rows;
+    $getflash = $conn->query($sekarang)->fetch_object();
 
     $akandatang = "SELECT * FROM flashsale a 
         JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
@@ -25,6 +26,8 @@ if (isset($id_master)) {
 
     if ($ceksekarang > 0) {
         $status_flashsale = '2';
+        $stok_flashdisk = $getflash->stok_flashdisk;
+        $stok_terjual_flashdisk = $getflash->stok_terjual_flashdisk;
     } else {
         if ($cekakandatang > 0) {
             $status_flashsale = '1';
@@ -205,21 +208,47 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
         $varian = $conn->query("SELECT *, (harga_varian-diskon_rupiah_varian) as harga_varian_final FROM variant WHERE id_master = '$id_master' ORDER BY harga_varian_final ASC")->fetch_all(MYSQLI_ASSOC);
         // foreach ($varian as $key => $value) {
         // }
-        $min_normal = $varian[0]['harga_varian'];
-        $max_normal = $varian[count($varian) - 1]['harga_varian'];
+        if ($status_flashsale == '2') {
+            $min_normal = $varian[0]['harga_varian'];
+            $max_normal = $varian[count($varian) - 1]['harga_varian'];
 
-        $min = $varian[0]['harga_varian_final'];
-        $max = $varian[count($varian) - 1]['harga_varian_final'];
+            $min = $varian[0]['harga_varian'] - ($datanew->harga_master * ($getflash->diskon / 100));
+            $max = $varian[count($varian) - 1]['harga_varian'] - ($datanew->harga_master * ($getflash->diskon / 100));
+        } else if ($status_flashsale == '1') {
+            $min_normal = $varian[0]['harga_varian'];
+            $max_normal = $varian[count($varian) - 1]['harga_varian'];
+
+            $min = $varian[0]['harga_varian_final'];
+            $max = $varian[count($varian) - 1]['harga_varian_final'];
+        } else {
+            $min_normal = $varian[0]['harga_varian'];
+            $max_normal = $varian[count($varian) - 1]['harga_varian'];
+
+            $min = $varian[0]['harga_varian_final'];
+            $max = $varian[count($varian) - 1]['harga_varian_final'];
+        }
 
         $jumlah_diskon = $varian[count($varian) - 1]['diskon_persen_varian'];
 
         //! varian ada diskon
         if ($varian[0]['diskon_rupiah_varian'] != 0) {
             $status_diskon = 'Y';
-            (float)$harga_disc = $varian->harga_varian - $varian->diskon_rupiah_varian;
+            if ($status_flashsale == '2') {
+                (float)$harga_disc = $varian->diskon_rupiah_varian - ($datanew->harga_master * ($getflash->diskon / 100));
+            } else if ($status_flashsale == '1') {
+                (float)$harga_disc = $varian->harga_varian - $varian->diskon_rupiah_varian;
+            } else {
+                (float)$harga_disc = $varian->harga_varian - $varian->diskon_rupiah_varian;
+            }
         } else {
             $status_diskon = 'N';
-            (float)$harga_disc = $varian->diskon_rupiah_varian;
+            if ($status_flashsale == '2') {
+                (float)$harga_disc = $varian->diskon_rupiah_varian - ($datanew->harga_master * ($getflash->diskon / 100));
+            } else if ($status_flashsale == '1') {
+                (float)$harga_disc = $varian->diskon_rupiah_varian;
+            } else {
+                (float)$harga_disc = $varian->diskon_rupiah_varian;
+            }
         }
 
         $status_jenis_harga = '2';
@@ -230,10 +259,22 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
         $jumlah_diskon = $datanew->diskon_persen;
         if ($datanew->diskon_persen != 0) {
             $status_diskon = 'Y';
-            (float)$harga_disc = $datanew->harga_master - $datanew->diskon_rupiah;
+            if ($status_flashsale == '2') {
+                (float)$harga_disc = $datanew->harga_master - ($datanew->harga_master * ($getflash->diskon / 100));
+            } else if ($status_flashsale == '1') {
+                $hargaflash = $datanew->harga_master - $datanew->diskon_rupiah;
+            } else {
+                (float)$harga_disc = $datanew->harga_master - $datanew->diskon_rupiah;
+            }
         } else {
             $status_diskon = 'N';
-            (float)$harga_disc = $datanew->harga_master;
+            if ($status_flashsale == '2') {
+                (float)$harga_disc = $datanew->harga_master - ($datanew->harga_master * ($getflash->diskon / 100));
+            } else if ($status_flashsale == '1') {
+                $harga_disc = $datanew->harga_master;
+            } else {
+                (float)$harga_disc = $datanew->harga_master;
+            }
         }
 
         $status_jenis_harga = '1';
