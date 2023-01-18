@@ -230,7 +230,7 @@ switch ($tag) {
                     'waktu_mulai' => $value['waktu_mulai'],
                     'waktu_selesai' => $value['waktu_selesai'],
                     'status_tampil' => $status_tampil,
-                    'data_produk' => $data_produ[$x]
+                    'data_produk' => $data_produk[$x]
                 ];
             }
         }
