@@ -125,7 +125,6 @@ switch ($tag) {
             $waktu_mulai = $value['waktu_mulai'];
             $waktu_selesai = $value['waktu_selesai'];
 
-
             if (($waktu_mulai <= $waktusekarang) && ($waktu_selesai >= $waktusekarang)) {
                 $status_tampil[$i] = 'Y';
             } else {

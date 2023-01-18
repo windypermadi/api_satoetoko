@@ -26,13 +26,16 @@ if (isset($id_master)) {
 
     if ($ceksekarang > 0) {
         $status_flashsale = '2';
+        $waktu_flashsale = $getflash->waktu_selesai;
         $stok_flashdisk = $getflash->stok_flashdisk;
         $stok_terjual_flashdisk = $getflash->stok_terjual_flashdisk;
         $sisa_stok_flash = $stok_flashdisk - $stok_terjual_flashdisk;
     } else {
         if ($cekakandatang > 0) {
+            $waktu_flashsale = $getflash->waktu_mulai;
             $status_flashsale = '1';
         } else {
+            $waktu_flashsale = '0000-00-00 00:00:00';
             $status_flashsale = '0';
         }
     }
@@ -395,6 +398,7 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
     $data1['url'] = $imageurls;
     $data1['url_variant'] = $url_variants;
     $data1['status_flashsale'] = $status_flashsale;
+    $data1['waktu_flashsale'] = $waktu_flashsale;
 
     $response->data = $data1;
     $response->sukses(200);
