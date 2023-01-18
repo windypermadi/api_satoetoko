@@ -88,7 +88,7 @@ switch ($tag) {
 
                 $data_produk[] = [
                     'id_master' => $key2['id_master'],
-                    'image_master' => $key2['image_master'],
+                    'image_master' => $imagegambar,
                     'judul_master' => $key2['judul_master'],
                     'harga_produk' => $harga_produk,
                     'harga_tampil;' => $harga_tampil,
