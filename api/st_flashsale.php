@@ -221,8 +221,8 @@ switch ($tag) {
                     'stok_total' => $key2['stok_flashdisk'],
                     'sisa_stok' => $key2['stok_terjual_flashdisk']
                 ];
-                $i++;
             }
+            $i++;
         }
         for ($x = 0; $x < count($data_produk); $x++) {
             $result2[] = [
