@@ -81,7 +81,7 @@ foreach ($data as $key => $value) {
 }
 
 $result['nama_list'] = 'Produk Terlaris';
-$result['url'] = 'localhost/satoetoko_api/st_item_unggulan.php';
+$result['url'] = 'https://satoetoko.com/restapi_mobile_api/st_homeitem_terlaris.php';
 $result['produk_list'] = $result2;
 
 if (isset($result2[0])) {

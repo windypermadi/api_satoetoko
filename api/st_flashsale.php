@@ -16,34 +16,75 @@ switch ($tag) {
             WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND a.waktu_mulai < NOW() AND a.waktu_selesai > NOW() LIMIT 3");
             foreach ($dataproduct as $key => $key2) {
 
+                if ($key2['status_varian'] == 'Y') {
+                    //! INI DIPENDING DULU FLASHSALE VARIAN
+                    if ($key2['sisa_stok'] != 0) {
+                        //? tidak varian
+                        //? masih ada stok flashsale
+                        $status_diskon = 'Y';
+                        (float)$harga_disc = $key2['harga_master'] - ($key2['harga_master'] * ($key2['diskon'] / 100));
+
+                        $harga_produk = rupiah($datanew->harga_master);
+                        $harga_tampil = rupiah($harga_disc);
+                    } else {
+                        //? tidak varian
+                        //? stok habis di flashsale
+                        if ($key2['diskon_rupiah'] != 0) {
+                            //? cek diskon biasa
+                            $status_diskon = 'Y';
+                            $harga_produk = rupiah($key2['harga_master']);
+                            $harga_tampil = rupiah($key2['harga_master'] - $key2['diskon_rupiah']);
+                        } else {
+                            $status_diskon = 'N';
+                            $harga_produk = rupiah($key2['harga_master']);
+                            $harga_tampil = rupiah($key2['harga_master']);
+                        }
+                    }
+
+                    $status_jenis_harga = '1';
+
+                    if ($key2['status_master_detail'] == '2') {
+                        $imagegambar = $getimagebukufisik . $key2['image_master'];
+                    } else {
+                        $imagegambar = $getimagefisik . $key2['image_master'];
+                    }
+                } else {
+                    if ($key2['sisa_stok'] != 0) {
+                        //? tidak varian
+                        //? masih ada stok flashsale
+                        $status_diskon = 'Y';
+                        (float)$harga_disc = $key2['harga_master'] - ($key2['harga_master'] * ($key2['diskon'] / 100));
+
+                        $harga_produk = rupiah($datanew->harga_master);
+                        $harga_tampil = rupiah($harga_disc);
+                    } else {
+                        //? tidak varian
+                        //? stok habis di flashsale
+                        if ($key2['diskon_rupiah'] != 0) {
+                            //? cek diskon biasa
+                            $status_diskon = 'Y';
+                            $harga_produk = rupiah($key2['harga_master']);
+                            $harga_tampil = rupiah($key2['harga_master'] - $key2['diskon_rupiah']);
+                        } else {
+                            $status_diskon = 'N';
+                            $harga_produk = rupiah($key2['harga_master']);
+                            $harga_tampil = rupiah($key2['harga_master']);
+                        }
+                    }
+
+                    $status_jenis_harga = '1';
+
+                    if ($key2['status_master_detail'] == '2') {
+                        $imagegambar = $getimagebukufisik . $key2['image_master'];
+                    } else {
+                        $imagegambar = $getimagefisik . $key2['image_master'];
+                    }
+                }
+
                 // $cekflash = $conn->query("SELECT * FROM flashsale a 
                 //     JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
                 //     JOIN master_item c ON b.kd_barang = c.id_master
                 //     WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND b.kd_barang = '$key2[id_master]' AND a.waktu_mulai < NOW() AND a.waktu_selesai > NOW()")->fetch_object();
-
-                if ($key2['sisa_stok'] != 0) {
-                    $status_diskon = 'Y';
-                    $harga_produk = rupiah($key2['harga_master']);
-                    $harga_tampil = rupiah($key2['harga_master'] - ($key2['harga_master'] * ($key2['diskon'] / 100)));
-                } else {
-                    if ($key2['diskon'] != 0) {
-                        $status_diskon = 'Y';
-                        $harga_produk = rupiah($key2['harga_master']);
-                        $harga_tampil = rupiah($key2['harga_master'] - $key2['diskon_rupiah']);
-                    } else {
-                        $status_diskon = 'N';
-                        $harga_produk = rupiah($key2['harga_master']);
-                        $harga_tampil = rupiah($key2['harga_master']);
-                    }
-                }
-
-                $status_jenis_harga = '1';
-
-                if ($key2['status_master_detail'] == '2') {
-                    $imagegambar = $getimagebukufisik . $key2['image_master'];
-                } else {
-                    $imagegambar = $getimagefisik . $key2['image_master'];
-                }
 
                 $data_produk[] = [
                     'id_master' => $key2['id_master'],
