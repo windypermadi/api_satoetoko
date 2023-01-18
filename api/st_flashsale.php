@@ -24,7 +24,7 @@ switch ($tag) {
                         $status_diskon = 'Y';
                         (float)$harga_disc = $key2['harga_master'] - ($key2['harga_master'] * ($key2['diskon'] / 100));
 
-                        $harga_produk = rupiah($datanew->harga_master);
+                        $harga_produk = rupiah($key2['harga_master']);
                         $harga_tampil = rupiah($harga_disc);
                     } else {
                         //? tidak varian
@@ -55,7 +55,7 @@ switch ($tag) {
                         $status_diskon = 'Y';
                         (float)$harga_disc = $key2['harga_master'] - ($key2['harga_master'] * ($key2['diskon'] / 100));
 
-                        $harga_produk = rupiah($datanew->harga_master);
+                        $harga_produk = rupiah($key2['harga_master']);
                         $harga_tampil = rupiah($harga_disc);
                     } else {
                         //? tidak varian
