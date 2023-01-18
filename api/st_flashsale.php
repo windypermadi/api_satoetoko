@@ -118,15 +118,15 @@ switch ($tag) {
     case 'semua':
         $data = $conn->query("SELECT * FROM flashsale WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND waktu_selesai > NOW()");
         $i = 0;
+
+        var_dump($data);
+        die;
         foreach ($data as $key => $value) {
 
             $waktusekarang = date("Y-m-d H:i:s");
             $waktu_mulai = $value['waktu_mulai'];
             $waktu_selesai = $value['waktu_selesai'];
 
-            // var_dump($waktusekarang);
-            // var_dump($waktu_mulai);
-            // die;
 
             if (($waktu_mulai <= $waktusekarang) && ($waktu_selesai >= $waktusekarang)) {
                 $status_tampil[$i] = 'Y';
