@@ -84,7 +84,7 @@ switch ($tag) {
                 // $cekflash = $conn->query("SELECT * FROM flashsale a 
                 //     JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
                 //     JOIN master_item c ON b.kd_barang = c.id_master
-                //     WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND b.kd_barang = '$key2[id_master]' AND a.waktu_mulai < NOW() AND a.waktu_selesai > NOW()")->fetch_object();
+                //     WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND b.kd_barang = '$key2[id_master]' AND a.waktu_mulai < NOW() AND a.waktu_selesai > NOW()")->fetch_object();  
 
                 $data_produk[] = [
                     'id_master' => $key2['id_master'],
@@ -122,6 +122,10 @@ switch ($tag) {
             $waktusekarang = date("Y-d-m H:i:s");
             $waktu_mulai = $value['waktu_mulai'];
             $waktu_selesai = $value['waktu_selesai'];
+
+            var_dump($waktusekarang);
+            var_dump($waktu_mulai);
+            die;
 
             if (($waktu_mulai < $waktusekarang)) {
                 $status_tampil = 'Y';
