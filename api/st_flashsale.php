@@ -217,14 +217,14 @@ switch ($tag) {
                     'sisa_stok' => $key2['stok_terjual_flashdisk']
                 ];
             }
-
-            $result2[] = [
-                'waktu_mulai' => $value['waktu_mulai'],
-                'waktu_selesai' => $value['waktu_selesai'],
-                'status_tampil' => $status_tampil,
-                'data_produk' => $data_produk
-            ];
         }
+
+        $result2[] = [
+            'waktu_mulai' => $value['waktu_mulai'],
+            'waktu_selesai' => $value['waktu_selesai'],
+            'status_tampil' => $status_tampil,
+            'data_produk' => $data_produk
+        ];
 
         if (isset($result2[0])) {
             $response->data = $result2;
