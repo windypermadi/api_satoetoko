@@ -224,7 +224,7 @@ switch ($tag) {
             }
             $i++;
         }
-        for ($x = 0; $x < count($data_produk); $x++) {
+        for ($x = 0; $x < $i; $x++) {
             $result2[] = [
                 'waktu_mulai' => $value['waktu_mulai'],
                 'waktu_selesai' => $value['waktu_selesai'],
