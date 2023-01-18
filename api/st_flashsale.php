@@ -119,8 +119,6 @@ switch ($tag) {
         $data = $conn->query("SELECT * FROM flashsale WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND waktu_selesai > NOW()");
         $i = 0;
 
-        var_dump($data);
-        die;
         foreach ($data as $key => $value) {
 
             $waktusekarang = date("Y-m-d H:i:s");
