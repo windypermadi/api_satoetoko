@@ -358,7 +358,7 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
     $data1['total_dibeli'] = $datanew->total_dibeli . " terjual";
     $data1['rating_item'] = 0;
     $data1['status_whislist'] = $cekwhislist > 0 ? 'Y' : 'N';
-    $data1['stok'] = $stokdata;
+    $data1['stok'] = (string)$stokdata;
     $data1['warehouse'] = $warehousedatas;
 
     if ($datanew->status_bahaya == '1') {
