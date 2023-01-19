@@ -125,11 +125,11 @@ switch ($tag) {
 
         foreach ($data as $key => $value) {
 
-            $waktusekarang = date("Y-m-d H:i:s");
+            $waktusekarang[$i] = date("Y-m-d H:i:s");
             $waktu_mulai[$i] = $value['waktu_mulai'];
             $waktu_selesai[$i] = $value['waktu_selesai'];
 
-            if (($waktu_mulai <= $waktusekarang) && ($waktu_selesai >= $waktusekarang)) {
+            if (($waktu_mulai[$i] <= $waktusekarang[$i]) && ($waktu_selesai[$i] >= $waktusekarang[$i])) {
                 $status_tampil[$i] = 'Y';
             } else {
                 $status_tampil[$i] = 'N';
