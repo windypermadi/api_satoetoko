@@ -227,8 +227,8 @@ switch ($tag) {
         }
         for ($x = 0; $x < $data->num_rows; $x++) {
             $result2[] = [
-                'waktu_mulai' => $waktu_mulai[$i],
-                'waktu_selesai' => $waktu_selesai[$i],
+                'waktu_mulai' => $waktu_mulai[$x],
+                'waktu_selesai' => $waktu_selesai[$x],
                 'status_tampil' => $status_tampil[$x],
                 'data_produk' => $data_produk[$x]
             ];
