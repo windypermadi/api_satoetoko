@@ -34,7 +34,7 @@ foreach ($getproduk as $u) {
     } else if ($u->status_master_detail == '3') {
         $berat += $u->berat_fisik * $u->qty;
     }
-    if (($u->id_variant != null OR !empty($u->id_variant))) {
+    if (($u->id_variant != null or !empty($u->id_variant))) {
         $diskon = ($u->harga_varian) - ($u->diskon_rupiah_varian);
         $diskon_format = rupiah($diskon);
         $harga_master = rupiah($u->harga_varian);
@@ -51,12 +51,11 @@ foreach ($getproduk as $u) {
             'harga_produk' => $harga_master,
             'harga_tampil' => $u->diskon_rupiah_varian != 0 ? $diskon_format : $harga_master
         ];
-       
     } else {
         $diskon = ($u->harga_master) - ($u->diskon_rupiah);
         $diskon_format = rupiah($diskon);
         $harga_master = rupiah($u->harga_master);
-         //? Harga Product
+        //? Harga Product
         $getprodukcoba[] = [
             'id_cart' => $u->id_cart,
             'id_master' => $u->id_master,
@@ -69,8 +68,8 @@ foreach ($getproduk as $u) {
             'harga_produk' => $harga_master,
             'harga_tampil' => $u->diskon_rupiah != 0 ? $diskon_format : $harga_master
         ];
-       
-        
+
+
         // $getprodukcoba[] = [
         //     'id_cart' => $key['id_cart'],
         //     'id_master' => $u->id_master,
