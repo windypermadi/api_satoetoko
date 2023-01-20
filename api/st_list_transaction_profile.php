@@ -64,7 +64,8 @@ if (isset($id_login)) {
                     'keterangan_varian' => $key['keterangan_varian'],
                     'jumlah_produk' => $jumlah,
                     'status_lebih_satu' => $status_lebih_satu,
-                    'keterangan_lebih_satu' => $keterangan_lebih_satu
+                    'keterangan_lebih_satu' => $keterangan_lebih_satu,
+                    'nomor_resi' => $nomor_resi
                 ];
             }
 
@@ -129,7 +130,8 @@ if (isset($id_login)) {
                     'keterangan_varian' => $key['keterangan_varian'],
                     'jumlah_produk' => $jumlah,
                     'status_lebih_satu' => $status_lebih_satu,
-                    'keterangan_lebih_satu' => $keterangan_lebih_satu
+                    'keterangan_lebih_satu' => $keterangan_lebih_satu,
+                    'nomor_resi' => $nomor_resi
                 ];
             }
 
@@ -194,7 +196,8 @@ if (isset($id_login)) {
                     'keterangan_varian' => $key['keterangan_varian'],
                     'jumlah_produk' => $jumlah,
                     'status_lebih_satu' => $status_lebih_satu,
-                    'keterangan_lebih_satu' => $keterangan_lebih_satu
+                    'keterangan_lebih_satu' => $keterangan_lebih_satu,
+                    'nomor_resi' => $nomor_resi
                 ];
             }
 
@@ -259,7 +262,8 @@ if (isset($id_login)) {
                     'keterangan_varian' => $key['keterangan_varian'],
                     'jumlah_produk' => $jumlah,
                     'status_lebih_satu' => $status_lebih_satu,
-                    'keterangan_lebih_satu' => $keterangan_lebih_satu
+                    'keterangan_lebih_satu' => $keterangan_lebih_satu,
+                    'nomor_resi' => $nomor_resi
                 ];
             }
 
@@ -324,7 +328,8 @@ if (isset($id_login)) {
                     'keterangan_varian' => $key['keterangan_varian'],
                     'jumlah_produk' => $jumlah,
                     'status_lebih_satu' => $status_lebih_satu,
-                    'keterangan_lebih_satu' => $keterangan_lebih_satu
+                    'keterangan_lebih_satu' => $keterangan_lebih_satu,
+                    'nomor_resi' => $nomor_resi
                 ];
             }
 
@@ -389,7 +394,8 @@ if (isset($id_login)) {
                     'keterangan_varian' => $key['keterangan_varian'],
                     'jumlah_produk' => $jumlah,
                     'status_lebih_satu' => $status_lebih_satu,
-                    'keterangan_lebih_satu' => $keterangan_lebih_satu
+                    'keterangan_lebih_satu' => $keterangan_lebih_satu,
+                    'nomor_resi' => $nomor_resi
                 ];
             }
 
