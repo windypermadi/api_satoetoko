@@ -65,7 +65,7 @@ if (isset($id_login)) {
                     'jumlah_produk' => $jumlah,
                     'status_lebih_satu' => $status_lebih_satu,
                     'keterangan_lebih_satu' => $keterangan_lebih_satu,
-                    'nomor_resi' => $nomor_resi
+                    'nomor_resi' => $key['nomor_resi']
                 ];
             }
 
@@ -131,7 +131,7 @@ if (isset($id_login)) {
                     'jumlah_produk' => $jumlah,
                     'status_lebih_satu' => $status_lebih_satu,
                     'keterangan_lebih_satu' => $keterangan_lebih_satu,
-                    'nomor_resi' => $nomor_resi
+                    'nomor_resi' => $key['nomor_resi']
                 ];
             }
 
@@ -197,7 +197,7 @@ if (isset($id_login)) {
                     'jumlah_produk' => $jumlah,
                     'status_lebih_satu' => $status_lebih_satu,
                     'keterangan_lebih_satu' => $keterangan_lebih_satu,
-                    'nomor_resi' => $nomor_resi
+                    'nomor_resi' => $key['nomor_resi']
                 ];
             }
 
@@ -263,7 +263,7 @@ if (isset($id_login)) {
                     'jumlah_produk' => $jumlah,
                     'status_lebih_satu' => $status_lebih_satu,
                     'keterangan_lebih_satu' => $keterangan_lebih_satu,
-                    'nomor_resi' => $nomor_resi
+                    'nomor_resi' => $key['nomor_resi']
                 ];
             }
 
@@ -329,7 +329,7 @@ if (isset($id_login)) {
                     'jumlah_produk' => $jumlah,
                     'status_lebih_satu' => $status_lebih_satu,
                     'keterangan_lebih_satu' => $keterangan_lebih_satu,
-                    'nomor_resi' => $nomor_resi
+                    'nomor_resi' => $key['nomor_resi']
                 ];
             }
 
@@ -395,7 +395,7 @@ if (isset($id_login)) {
                     'jumlah_produk' => $jumlah,
                     'status_lebih_satu' => $status_lebih_satu,
                     'keterangan_lebih_satu' => $keterangan_lebih_satu,
-                    'nomor_resi' => $nomor_resi
+                    'nomor_resi' => $key['nomor_resi']
                 ];
             }
 
