@@ -40,22 +40,20 @@ foreach ($getproduk as $u) {
         } else {
             //? tidak varian
             //? stok habis di flashsale
-            if ($key['diskon_rupiah'] != 0) {
-                $harga_produk = rupiah($key['harga_master']);
-                $harga_tampil = rupiah($key['harga_master'] - $key['diskon_rupiah']);
-                $harga_produk_int = $key['harga_master'];
+            if ($u->diskon_rupiah != 0) {
+                $harga_produk = rupiah($u->harga_master);
+                $harga_tampil = rupiah($u->harga_master - $u->diskon_rupiah);
+                $harga_produk_int = $u->harga_master;
                 $harga_tampil_int = $harga_disc;
             } else {
-                $harga_produk = rupiah($key['harga_master']);
-                $harga_tampil = rupiah($key['harga_master']);
-                $harga_produk_int = $key['harga_master'];
+                $harga_produk = rupiah($u->harga_master);
+                $harga_tampil = rupiah($u->harga_master);
+                $harga_produk_int = $u->harga_master;
                 $harga_tampil_int = $harga_disc;
             }
         }
     } else {
-        $datamaster = "SELECT * FROM master_item WHERE id_master = 
-    
-                '$u->id_master'";
+        $datamaster = "SELECT * FROM master_item WHERE id_master = '$u->id_master'";
         $cekitemdata = $conn->query($datamaster);
         $data2 = $cekitemdata->fetch_object();
 
