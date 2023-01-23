@@ -18,6 +18,11 @@ if (isset($id_login)) {
 
             foreach ($data as $key) {
 
+                $datamaster = "SELECT * FROM master_item WHERE id_master = 
+                '$key[id_barang]'";
+                $cekitemdata = $conn->query($datamaster);
+                $data2 = $cekitemdata->fetch_object();
+
                 //? cek apakah barang ini masuk flashsale atau tidak
                 $dataproduct = $conn->query("SELECT *, (stok_flashdisk-stok_terjual_flashdisk) as sisa_stok FROM flashsale a 
                 JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
@@ -48,11 +53,6 @@ if (isset($id_login)) {
                         }
                     }
                 } else {
-                    $datamaster = "SELECT * FROM master_item WHERE id_master = 
-                '$key[id_barang]'";
-                    $cekitemdata = $conn->query($datamaster);
-                    $data2 = $cekitemdata->fetch_object();
-
                     //! INI DIPENDING DULU FLASHSALE VARIAN
                     if ($key['status_varian'] == 'Y') {
 
