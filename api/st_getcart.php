@@ -41,7 +41,7 @@ if (isset($id_login)) {
                         $harga_produk_int = $dataproduct->harga_master;
                         $harga_tampil_int = $harga_disc;
 
-                        $cekstok = $$dataproduct->sisa_stok;
+                        $cekstok = $dataproduct->sisa_stok;
                     } else {
                         //? tidak varian
                         //? stok habis di flashsale
