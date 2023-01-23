@@ -23,64 +23,82 @@ foreach ($dataproduk as $i => $key) {
 }
 foreach ($getproduk as $u) {
 
-    $datamaster = "SELECT * FROM master_item WHERE id_master = 
+    //? cek apakah barang ini masuk flashsale atau tidak
+    $dataproduct = $conn->query("SELECT *, (stok_flashdisk-stok_terjual_flashdisk) as sisa_stok FROM flashsale a 
+                JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
+                JOIN master_item c ON b.kd_barang = c.id_master
+                WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND a.waktu_mulai >= CURRENT_DATE AND a.waktu_mulai <= CURRENT_TIME AND a.waktu_selesai >= CURRENT_DATE AND a.waktu_selesai >= CURRENT_TIME AND b.kd_barang = '$u->id_master'")->fetch_object();
+
+    if ($dataproduct->id_flashsale) {
+        if ($dataproduct->sisa_stok != 0) {
+            (float)$harga_disc = $dataproduct->harga_master - ($dataproduct->harga_master * ($dataproduct->diskon / 100));
+
+            $harga_produk = rupiah($dataproduct->harga_master);
+            $harga_tampil = rupiah($harga_disc);
+            $harga_produk_int = $dataproduct->harga_master;
+            $harga_tampil_int = $harga_disc;
+        } else {
+            //? tidak varian
+            //? stok habis di flashsale
+            if ($key['diskon_rupiah'] != 0) {
+                $harga_produk = rupiah($key['harga_master']);
+                $harga_tampil = rupiah($key['harga_master'] - $key['diskon_rupiah']);
+                $harga_produk_int = $key['harga_master'];
+                $harga_tampil_int = $harga_disc;
+            } else {
+                $harga_produk = rupiah($key['harga_master']);
+                $harga_tampil = rupiah($key['harga_master']);
+                $harga_produk_int = $key['harga_master'];
+                $harga_tampil_int = $harga_disc;
+            }
+        }
+    } else {
+        $datamaster = "SELECT * FROM master_item WHERE id_master = 
     
                 '$u->id_master'";
-    $cekitemdata = $conn->query($datamaster);
-    $data2 = $cekitemdata->fetch_object();
+        $cekitemdata = $conn->query($datamaster);
+        $data2 = $cekitemdata->fetch_object();
 
-    if ($u->status_master_detail == '2') {
-        $berat += $u->berat_buku * $u->qty;
-    } else if ($u->status_master_detail == '3') {
-        $berat += $u->berat_fisik * $u->qty;
-    }
-    if (($u->id_variant != null or !empty($u->id_variant))) {
-        $diskon = ($u->harga_varian) - ($u->diskon_rupiah_varian);
-        $diskon_format = rupiah($diskon);
-        $harga_master = rupiah($u->harga_varian);
-        //? Harga Product
-        $getprodukcoba[] = [
-            'id_cart' => $u->id_cart,
-            'id_master' => $u->id_master,
-            'judul_master' => $u->judul_master,
-            'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $u->image_master : $getimagefisik . $u->image_master,
-            'id_variant' => $u->id_variant,
-            'keterangan_varian' => $u->keterangan_varian != null ? $u->keterangan_varian : "",
-            'qty' => $u->qty,
-            'status_diskon' => $u->diskon_rupiah_varian != 0 ? 'Y' : 'N',
-            'harga_produk' => $harga_master,
-            'harga_tampil' => $u->diskon_rupiah_varian != 0 ? $diskon_format : $harga_master
-        ];
-    } else {
-        $diskon = ($u->harga_master) - ($u->diskon_rupiah);
-        $diskon_format = rupiah($diskon);
-        $harga_master = rupiah($u->harga_master);
-        //? Harga Product
-        $getprodukcoba[] = [
-            'id_cart' => $u->id_cart,
-            'id_master' => $u->id_master,
-            'judul_master' => $u->judul_master,
-            'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $u->image_master : $getimagefisik . $u->image_master,
-            'id_variant' => $u->id_variant,
-            'keterangan_varian' => $u->keterangan_varian != null ? $u->keterangan_varian : "",
-            'qty' => $u->qty,
-            'status_diskon' => $u->diskon_rupiah != 0 ? 'Y' : 'N',
-            'harga_produk' => $harga_master,
-            'harga_tampil' => $u->diskon_rupiah != 0 ? $diskon_format : $harga_master
-        ];
-
-
-        // $getprodukcoba[] = [
-        //     'id_cart' => $key['id_cart'],
-        //     'id_master' => $u->id_master,
-        //     'judul_master' => $u->judul_master,
-        //     'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $u->image_master : $getimagefisik . $u->image_master,
-        //     'id_variant' => $u->id_variant,
-        //     'keterangan_varian' => $u->keterangan_varian != null ? $u->keterangan_varian : "",
-        //     'qty' => $u->qty,
-        //     'harga_produk' => $harga_master,
-        //     'harga_tampil' => $u->diskon_rupiah != 0 ? $diskon_format : $harga_master
-        // ];
+        if ($u->status_master_detail == '2') {
+            $berat += $u->berat_buku * $u->qty;
+        } else if ($u->status_master_detail == '3') {
+            $berat += $u->berat_fisik * $u->qty;
+        }
+        if (($u->id_variant != null or !empty($u->id_variant))) {
+            $diskon = ($u->harga_varian) - ($u->diskon_rupiah_varian);
+            $diskon_format = rupiah($diskon);
+            $harga_master = rupiah($u->harga_varian);
+            //? Harga Product
+            $getprodukcoba[] = [
+                'id_cart' => $u->id_cart,
+                'id_master' => $u->id_master,
+                'judul_master' => $u->judul_master,
+                'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $u->image_master : $getimagefisik . $u->image_master,
+                'id_variant' => $u->id_variant,
+                'keterangan_varian' => $u->keterangan_varian != null ? $u->keterangan_varian : "",
+                'qty' => $u->qty,
+                'status_diskon' => $u->diskon_rupiah_varian != 0 ? 'Y' : 'N',
+                'harga_produk' => $harga_master,
+                'harga_tampil' => $u->diskon_rupiah_varian != 0 ? $diskon_format : $harga_master
+            ];
+        } else {
+            $diskon = ($u->harga_master) - ($u->diskon_rupiah);
+            $diskon_format = rupiah($diskon);
+            $harga_master = rupiah($u->harga_master);
+            //? Harga Product
+            $getprodukcoba[] = [
+                'id_cart' => $u->id_cart,
+                'id_master' => $u->id_master,
+                'judul_master' => $u->judul_master,
+                'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $u->image_master : $getimagefisik . $u->image_master,
+                'id_variant' => $u->id_variant,
+                'keterangan_varian' => $u->keterangan_varian != null ? $u->keterangan_varian : "",
+                'qty' => $u->qty,
+                'status_diskon' => $u->diskon_rupiah != 0 ? 'Y' : 'N',
+                'harga_produk' => $harga_master,
+                'harga_tampil' => $u->diskon_rupiah != 0 ? $diskon_format : $harga_master
+            ];
+        }
     }
 }
 
