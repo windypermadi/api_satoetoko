@@ -38,6 +38,10 @@ if (isset($id_login)) {
 
                         $harga_produk = rupiah($dataproduct->harga_master);
                         $harga_tampil = rupiah($harga_disc);
+                        $harga_produk_int = $dataproduct->harga_master;
+                        $harga_tampil_int = $harga_disc;
+
+                        $cekstok = $$dataproduct->sisa_stok;
                     } else {
                         //? tidak varian
                         //? stok habis di flashsale
@@ -46,11 +50,18 @@ if (isset($id_login)) {
                             $status_diskon = 'Y';
                             $harga_produk = rupiah($key['harga_master']);
                             $harga_tampil = rupiah($key['harga_master'] - $key['diskon_rupiah']);
+                            $harga_produk_int = $key['harga_master'];
+                            $harga_tampil_int = $harga_disc;
                         } else {
                             $status_diskon = 'N';
                             $harga_produk = rupiah($key['harga_master']);
                             $harga_tampil = rupiah($key['harga_master']);
+                            $harga_produk_int = $key['harga_master'];
+                            $harga_tampil_int = $harga_disc;
                         }
+                        $cekstok = $conn->query("SELECT jumlah FROM user_keranjang a 
+                        LEFT JOIN stok b ON a.id_barang = b.id_barang
+                        WHERE a.id_user = '$id_login' AND a.id_barang = '$key[id_barang]'")->fetch_assoc();
                     }
                 } else {
                     //! INI DIPENDING DULU FLASHSALE VARIAN
