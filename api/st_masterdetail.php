@@ -65,6 +65,10 @@ if (isset($id_master)) {
         $stokdata = $datastok->jumlah;
     }
 
+    $datakategori = $conn->query("SELECT b.nama_kategori as subkategori, c.nama_kategori as kategori FROM master_item a JOIN kategori_sub b ON a.id_sub_kategori = b.id_sub 
+                JOIN kategori c ON b.parent_kategori = c.id_kategori WHERE a.id_master = 
+                '$id_master'")->fetch_object();
+
 
     switch ($data->status_master_detail) {
         case '2':
@@ -399,6 +403,9 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
     $data1['url_variant'] = $url_variants;
     $data1['status_flashsale'] = $status_flashsale;
     $data1['waktu_flashsale'] = $waktu_flashsale;
+    $data1['status_master_detail'] = $data->status_master_detail;
+    $data1['sub_kategori'] = $datakategori->subkategori;
+    $data1['kategori'] = $datakategori->kategori;
 
     $response->data = $data1;
     $response->sukses(200);
