@@ -340,9 +340,9 @@ if (isset($id_login)) {
                 'id_cabang' => $key['id_gudang'],
             ];
             $warehouse[] = [
-                'id_cabang' => $value['id_cabang'],
-                'nama_cabang' => $value['nama_cabang'],
-                'alamat_lengkap_cabang' => $value['alamat_lengkap_cabang'],
+                'id_cabang' => $value2['id_cabang'],
+                'nama_cabang' => $value2['nama_cabang'],
+                'alamat_lengkap_cabang' => $value2['alamat_lengkap_cabang'],
                 'data_barang' => $databarang,
             ];
             $response->data = $warehouse;
