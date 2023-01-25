@@ -14,13 +14,12 @@ if (isset($id_login)) {
             JOIN master_item c ON a.id_barang = c.id_master 
             LEFT JOIN variant d ON a.id_variant = d.id_variant 
             WHERE a.id_user = '$id_login' GROUP BY a.id_gudang");
-            foreach ($datawarehouse as $key => $value) {
-                $data = $conn->query("SELECT * FROM user_keranjang a
+
+            // $datalist = array();
+            $data = $conn->query("SELECT * FROM user_keranjang a
                 JOIN master_item b ON a.id_barang = b.id_master
                 LEFT JOIN variant c ON a.id_variant = c.id_variant
                 WHERE a.id_user = '$id_login' AND a.id_gudang = '$value[id_gudang]'");
-            }
-            // $datalist = array();
 
             foreach ($data as $key) {
 
