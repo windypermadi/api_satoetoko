@@ -9,123 +9,125 @@ $tag              = $_GET['tag'];
 if (isset($id_login)) {
     switch ($tag) {
         case 'semua':
-            $data = $conn->query("SELECT * FROM user_keranjang a
+            $warehouse = $conn->query("SELECT * FROM cabang");
+            foreach ($warehouse as $kuy => $value) {
+                $data = $conn->query("SELECT * FROM user_keranjang a
                 JOIN master_item b ON a.id_barang = b.id_master
                 LEFT JOIN variant c ON a.id_variant = c.id_variant
-                WHERE a.id_user = '$id_login'");
+                WHERE a.id_user = '$id_login' AND a.id_gudang = '$value[id_gudang]'");
 
-            foreach ($data as $key) {
+                foreach ($data as $key) {
 
-                $datamaster = "SELECT * FROM master_item WHERE id_master = 
+                    $datamaster = "SELECT * FROM master_item WHERE id_master = 
                 '$key[id_barang]'";
-                $cekitemdata = $conn->query($datamaster);
-                $data2 = $cekitemdata->fetch_object();
+                    $cekitemdata = $conn->query($datamaster);
+                    $data2 = $cekitemdata->fetch_object();
 
-                //? cek apakah barang ini masuk flashsale atau tidak
-                $dataproduct = $conn->query("SELECT *, (stok_flashdisk-stok_terjual_flashdisk) as sisa_stok FROM flashsale a 
+                    //? cek apakah barang ini masuk flashsale atau tidak
+                    $dataproduct = $conn->query("SELECT *, (stok_flashdisk-stok_terjual_flashdisk) as sisa_stok FROM flashsale a 
                 JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
                 JOIN master_item c ON b.kd_barang = c.id_master
                 WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND a.waktu_mulai >= CURRENT_DATE AND a.waktu_mulai <= CURRENT_TIME AND a.waktu_selesai >= CURRENT_DATE AND a.waktu_selesai >= CURRENT_TIME AND b.kd_barang = '$key[id_barang]'")->fetch_object();
 
-                if ($dataproduct->id_flashsale) {
-                    if ($dataproduct->sisa_stok != 0) {
-                        //? tidak varian
-                        //? masih ada stok flashsale
-                        $status_diskon = 'Y';
-                        (float)$harga_disc = $dataproduct->harga_master - ($dataproduct->harga_master * ($dataproduct->diskon / 100));
-
-                        $harga_produk = rupiah($dataproduct->harga_master);
-                        $harga_tampil = rupiah($harga_disc);
-                        $harga_produk_int = $dataproduct->harga_master;
-                        $harga_tampil_int = $harga_disc;
-
-                        $cekstok = $dataproduct->sisa_stok;
-                    } else {
-                        //? tidak varian
-                        //? stok habis di flashsale
-                        if ($key['diskon_rupiah'] != 0) {
-                            //? cek diskon biasa
+                    if ($dataproduct->id_flashsale) {
+                        if ($dataproduct->sisa_stok != 0) {
+                            //? tidak varian
+                            //? masih ada stok flashsale
                             $status_diskon = 'Y';
-                            $harga_produk = rupiah($key['harga_master']);
-                            $harga_tampil = rupiah($key['harga_master'] - $key['diskon_rupiah']);
-                            $harga_produk_int = $key['harga_master'];
+                            (float)$harga_disc = $dataproduct->harga_master - ($dataproduct->harga_master * ($dataproduct->diskon / 100));
+
+                            $harga_produk = rupiah($dataproduct->harga_master);
+                            $harga_tampil = rupiah($harga_disc);
+                            $harga_produk_int = $dataproduct->harga_master;
                             $harga_tampil_int = $harga_disc;
+
+                            $cekstok = $dataproduct->sisa_stok;
                         } else {
-                            $status_diskon = 'N';
-                            $harga_produk = rupiah($key['harga_master']);
-                            $harga_tampil = rupiah($key['harga_master']);
-                            $harga_produk_int = $key['harga_master'];
-                            $harga_tampil_int = $harga_disc;
-                        }
-                        $cekstok = $conn->query("SELECT jumlah FROM user_keranjang a 
+                            //? tidak varian
+                            //? stok habis di flashsale
+                            if ($key['diskon_rupiah'] != 0) {
+                                //? cek diskon biasa
+                                $status_diskon = 'Y';
+                                $harga_produk = rupiah($key['harga_master']);
+                                $harga_tampil = rupiah($key['harga_master'] - $key['diskon_rupiah']);
+                                $harga_produk_int = $key['harga_master'];
+                                $harga_tampil_int = $harga_disc;
+                            } else {
+                                $status_diskon = 'N';
+                                $harga_produk = rupiah($key['harga_master']);
+                                $harga_tampil = rupiah($key['harga_master']);
+                                $harga_produk_int = $key['harga_master'];
+                                $harga_tampil_int = $harga_disc;
+                            }
+                            $cekstok = $conn->query("SELECT jumlah FROM user_keranjang a 
                         LEFT JOIN stok b ON a.id_barang = b.id_barang
                         WHERE a.id_user = '$id_login' AND a.id_barang = '$key[id_barang]'")->fetch_assoc();
-                    }
-                } else {
-                    //! INI DIPENDING DULU FLASHSALE VARIAN
-                    if ($key['status_varian'] == 'Y') {
+                        }
+                    } else {
+                        //! INI DIPENDING DULU FLASHSALE VARIAN
+                        if ($key['status_varian'] == 'Y') {
 
-                        $cekstok = $conn->query("SELECT jumlah FROM user_keranjang a 
+                            $cekstok = $conn->query("SELECT jumlah FROM user_keranjang a 
                     LEFT JOIN stok b ON a.id_variant = b.id_varian
                     WHERE a.id_user = '$id_login' AND a.id_variant = '$key[id_variant]'")->fetch_assoc();
 
-                        if ($key['diskon_persen_varian'] != 0) {
-                            $status_diskon = 'Y';
-                            $harga_disc = $key['harga_varian'] - $key['diskon_rupiah_varian'];
+                            if ($key['diskon_persen_varian'] != 0) {
+                                $status_diskon = 'Y';
+                                $harga_disc = $key['harga_varian'] - $key['diskon_rupiah_varian'];
+                            } else {
+                                $status_diskon = 'N';
+                                $harga_disc = $key['harga_varian'];
+                            }
+
+                            $harga_produk = "Rp" . number_format($key['harga_varian'], 0, ',', '.');
+                            $harga_tampil = "Rp" . number_format($harga_disc, 0, ',', '.');
+                            $harga_produk_int = $key['harga_varian'];
+                            $harga_tampil_int = $harga_disc;
                         } else {
-                            $status_diskon = 'N';
-                            $harga_disc = $key['harga_varian'];
-                        }
 
-                        $harga_produk = "Rp" . number_format($key['harga_varian'], 0, ',', '.');
-                        $harga_tampil = "Rp" . number_format($harga_disc, 0, ',', '.');
-                        $harga_produk_int = $key['harga_varian'];
-                        $harga_tampil_int = $harga_disc;
-                    } else {
-
-                        $cekstok = $conn->query("SELECT jumlah FROM user_keranjang a 
+                            $cekstok = $conn->query("SELECT jumlah FROM user_keranjang a 
                     LEFT JOIN stok b ON a.id_barang = b.id_barang
                     WHERE a.id_user = '$id_login' AND a.id_barang = '$key[id_barang]'")->fetch_assoc();
 
-                        if ($key['diskon_persen'] != 0) {
-                            $status_diskon = 'Y';
-                            $harga_disc = $key['harga_master'] - $key['diskon_rupiah'];
-                        } else {
-                            $status_diskon = 'N';
-                            $harga_disc = $key['harga_master'];
+                            if ($key['diskon_persen'] != 0) {
+                                $status_diskon = 'Y';
+                                $harga_disc = $key['harga_master'] - $key['diskon_rupiah'];
+                            } else {
+                                $status_diskon = 'N';
+                                $harga_disc = $key['harga_master'];
+                            }
+
+                            $harga_produk = "Rp" . number_format($key['harga_master'], 0, ',', '.');
+                            $harga_tampil = "Rp" . number_format($harga_disc, 0, ',', '.');
+                            $harga_produk_int = $key['harga_master'];
+                            $harga_tampil_int = $harga_disc;
                         }
-
-                        $harga_produk = "Rp" . number_format($key['harga_master'], 0, ',', '.');
-                        $harga_tampil = "Rp" . number_format($harga_disc, 0, ',', '.');
-                        $harga_produk_int = $key['harga_master'];
-                        $harga_tampil_int = $harga_disc;
                     }
+
+                    $databarang[] = [
+                        'id' => $key['id'],
+                        'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $key['image_master'] : $getimagefisik . $key['image_master'],
+                        'judul' => $key['judul_master'],
+                        'id_varian' => $key['id_variant'],
+                        'varian' => $key['keterangan_varian'],
+                        'harga_produk' => $harga_produk,
+                        'harga_tampil' => $harga_tampil,
+                        'harga_produk_int' => $harga_produk_int,
+                        'harga_tampil_int' => $harga_tampil_int,
+                        'status_diskon' => $status_diskon,
+                        'qty' => $key['qty'],
+                        'stok_saatini' => $cekstok['jumlah'],
+                        'id_cabang' => $key['id_gudang'],
+                    ];
+
+                    $datawarehouse[] = [
+                        'id_cabang' => $key['id_cabang'],
+                        'nama_cabang' => $key['nama_cabang'],
+                        'alamat_lengkap_cabang' => $key['alamat_lengkap_cabang'],
+                        'data_barang' => $databarang,
+                    ];
                 }
-
-                $databarang[] = [
-                    'id' => $key['id'],
-                    'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $key['image_master'] : $getimagefisik . $key['image_master'],
-                    'judul' => $key['judul_master'],
-                    'id_varian' => $key['id_variant'],
-                    'varian' => $key['keterangan_varian'],
-                    'harga_produk' => $harga_produk,
-                    'harga_tampil' => $harga_tampil,
-                    'harga_produk_int' => $harga_produk_int,
-                    'harga_tampil_int' => $harga_tampil_int,
-                    'status_diskon' => $status_diskon,
-                    'qty' => $key['qty'],
-                    'stok_saatini' => $cekstok['jumlah'],
-                    'id_cabang' => $key['id_gudang'],
-                ];
-
-                $datawarehouse[] = [
-                    'id_cabang' => $key['id_cabang'],
-                    'nama_cabang' => $key['nama_cabang'],
-                    'alamat_lengkap_cabang' => $key['alamat_lengkap_cabang'],
-                    'data_barang' => $databarang,
-                ];
             }
-
             if ($databarang[0]) {
                 $response->data = $databarang;
                 $response->sukses(200);
@@ -289,7 +291,7 @@ if (isset($id_login)) {
                         LEFT JOIN stok b ON a.id_variant = b.id_varian
                         WHERE a.id_user = '$id_login' AND a.id_variant = '$value[id_variant]'")->fetch_assoc();
 
-                            if ($value['diskon_persen_varian'] != 0) {
+                            if ($value['diskon_persen_  varian'] != 0) {
                                 $status_diskon = 'Y';
                                 $harga_disc = $value['harga_varian'] - $value['diskon_rupiah_varian'];
                             } else {
