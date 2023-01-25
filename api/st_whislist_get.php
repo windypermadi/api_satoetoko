@@ -11,7 +11,6 @@ switch ($tag) {
         $limit = $_GET['limit'];
         $offset = $_GET['offset'];
 
-        $datalist = array();
         $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
         a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah , a.id_sub_kategori, c.nama_kategori, a.status_master_detail, a.status_varian
         FROM master_item a JOIN stok b ON a.id_master = b.id_barang
@@ -47,6 +46,8 @@ switch ($tag) {
 
                 $harga_produk = rupiah($min_normal) . " - " . rupiah($max_normal);
                 $harga_tampil = rupiah($min) . " - " . rupiah($max);
+
+                $status_jenis_harga = '2';
             } else {
                 $jumlah_diskon = $value['diskon_persen'];
                 $status_varian_diskon = 'OFF';
@@ -60,9 +61,9 @@ switch ($tag) {
 
                 $harga_produk = rupiah($value['harga_master']);
                 $harga_tampil = rupiah($harga_disc);
-            }
 
-            $status_jenis_harga = '1';
+                $status_jenis_harga = '1';
+            }
 
             if ($value['status_master_detail'] == '2') {
                 $imagegambar = $getimagebukufisik . $value['image_master'];
@@ -82,12 +83,12 @@ switch ($tag) {
                 'status_stok' => $value['jumlah'] > 0 ? 'Y' : 'N',
                 'diskon' => $jumlah_diskon . "%",
                 'total_dibeli' => $value['total_dibeli'] . " terjual",
-                'rating_item' => 0,
+                'rating_item' => 0
             ];
         }
 
         if (isset($result2[0])) {
-            $response->data = $result;
+            $response->data = $result2;
             $response->sukses(200);
         } else {
             $response->data = [];
