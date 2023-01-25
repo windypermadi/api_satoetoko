@@ -332,7 +332,7 @@ if (isset($id_login)) {
                 'alamat_lengkap_cabang' => $value2['alamat_lengkap_cabang'],
                 'data_barang' => $data,
             ];
-            $response->data = $warehouse;
+            $response->data = $data;
             $response->sukses(200);
             break;
     }
