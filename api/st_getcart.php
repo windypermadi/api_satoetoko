@@ -227,9 +227,7 @@ if (isset($id_login)) {
             }
             break;
         case 'semua2':
-            $warehouse = $conn->query("SELECT * FROM user_keranjang a 
-                JOIN cabang b ON a.id_gudang = b.id_cabang
-                WHERE a.id_user = '$id_login'");
+            $warehouse = $conn->query("SELECT * FROM cabang");
             foreach ($warehouse as $key => $value2) {
 
                 $data = $conn->query("SELECT * FROM user_keranjang a
