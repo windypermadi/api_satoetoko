@@ -325,13 +325,13 @@ if (isset($id_login)) {
                 //         }
                 //     }
                 // }
-                $warehouse[] = [
+                $datawarehouse[] = [
                     'id_cabang' => $value2['id_cabang'],
                     'nama_cabang' => $value2['nama_cabang'],
                     'alamat_lengkap_cabang' => $value2['alamat_lengkap_cabang']
                 ];
             }
-            $response->data = $warehouse;
+            $response->data = $datawarehouse;
             $response->sukses(200);
             break;
     }
