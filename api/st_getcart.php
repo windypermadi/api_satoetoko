@@ -109,6 +109,12 @@ if (isset($id_login)) {
                     }
                 }
 
+                $datawarehouse[] = [
+                    'id_cabang' => $key['id_cabang'],
+                    'nama_cabang' => $key['nama_cabang'],
+                    'alamat_lengkap_cabang' => $key['alamat_lengkap_cabang'],
+                ];
+
                 $databarang[] = [
                     'id' => $key['id'],
                     'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $key['image_master'] : $getimagefisik . $key['image_master'],
@@ -125,7 +131,7 @@ if (isset($id_login)) {
                     'id_cabang' => $key['id_gudang'],
                 ];
 
-                $data1['warehouse'] = $key['id_gudang'];
+                $data1['warehouse'] = $datawarehouse;
                 $data1['databarang'] = $databarang;
 
 
