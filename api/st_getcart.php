@@ -342,10 +342,10 @@ if (isset($id_login)) {
                         'alamat_lengkap_cabang' => $value['alamat_lengkap_cabang'],
                         'data_barang' => $databarang,
                     ];
-                    $response->data = $warehouse;
-                    $response->sukses(200);
                 }
             }
+            $response->data = $warehouse;
+            $response->sukses(200);
             break;
     }
 } else {
