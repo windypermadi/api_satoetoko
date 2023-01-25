@@ -127,7 +127,7 @@ if (isset($id_login)) {
                 ];
             }
             if ($databarang[0]) {
-                $response->data = $databarang;
+                $response->data = $datawarehouse;
                 $response->sukses(200);
             } else {
                 $response->data = [];
