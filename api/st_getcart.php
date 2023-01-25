@@ -349,13 +349,15 @@ if (isset($id_login)) {
                 ];
             }
 
-            if ($databarang[0]) {
-                $response->data = $databarang;
-                $response->sukses(200);
-            } else {
-                $response->data = [];
-                $response->sukses(200);
-            }
+            $response->data = $warehouse;
+            $response->sukses(200);
+            // if ($databarang[0]) {
+            //     $response->data = $databarang;
+            //     $response->sukses(200);
+            // } else {
+            //     $response->data = [];
+            //     $response->sukses(200);
+            // }
             break;
     }
 } else {
