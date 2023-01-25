@@ -102,27 +102,27 @@ if (isset($id_login)) {
                             $harga_produk_int = $key['harga_master'];
                             $harga_tampil_int = $harga_disc;
                         }
-                        $databarang[] = [
-                            'id' => $key['id'],
-                            'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $key['image_master'] : $getimagefisik . $key['image_master'],
-                            'judul' => $key['judul_master'],
-                            'id_varian' => $key['id_variant'],
-                            'varian' => $key['keterangan_varian'],
-                            'harga_produk' => $harga_produk,
-                            'harga_tampil' => $harga_tampil,
-                            'harga_produk_int' => $harga_produk_int,
-                            'harga_tampil_int' => $harga_tampil_int,
-                            'status_diskon' => $status_diskon,
-                            'qty' => $key['qty'],
-                            'stok_saatini' => $cekstok['jumlah'],
-                            'id_cabang' => $key['id_gudang'],
-                        ];
                     }
+                    $databarang[] = [
+                        'id' => $key['id'],
+                        'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $key['image_master'] : $getimagefisik . $key['image_master'],
+                        'judul' => $key['judul_master'],
+                        'id_varian' => $key['id_variant'],
+                        'varian' => $key['keterangan_varian'],
+                        'harga_produk' => $harga_produk,
+                        'harga_tampil' => $harga_tampil,
+                        'harga_produk_int' => $harga_produk_int,
+                        'harga_tampil_int' => $harga_tampil_int,
+                        'status_diskon' => $status_diskon,
+                        'qty' => $key['qty'],
+                        'stok_saatini' => $cekstok['jumlah'],
+                        'id_cabang' => $key['id_gudang'],
+                    ];
                 }
                 $datawarehouse[] = [
-                    'id_cabang' => $key['id_cabang'],
-                    'nama_cabang' => $key['nama_cabang'],
-                    'alamat_lengkap_cabang' => $key['alamat_lengkap_cabang'],
+                    'id_cabang' => $value['id_cabang'],
+                    'nama_cabang' => $value['nama_cabang'],
+                    'alamat_lengkap_cabang' => $value['alamat_lengkap_cabang'],
                     'data_barang' => $databarang,
                 ];
             }
