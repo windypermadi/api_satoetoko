@@ -25,8 +25,7 @@ switch ($tag) {
             if ($value['status_varian'] == 'Y') {
                 $status_varian_diskon = 'UPTO';
                 $varian = $conn->query("SELECT *, (harga_varian-diskon_rupiah_varian) as harga_varian_final FROM variant WHERE id_master = '$value[id_master]' ORDER BY harga_varian_final ASC")->fetch_all(MYSQLI_ASSOC);
-                // foreach ($varian as $key => $value) {
-                // }
+
                 $min_normal = $varian[0]['harga_varian'];
                 $max_normal = $varian[count($varian) - 1]['harga_varian'];
 
