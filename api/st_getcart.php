@@ -231,13 +231,13 @@ if (isset($id_login)) {
                 JOIN cabang b ON a.id_gudang = b.id_cabang
                 WHERE a.id_user = '$id_login'");
             foreach ($warehouse as $key => $value2) {
-                $data = $conn->query("SELECT * FROM user_keranjang a
-                JOIN master_item b ON a.id_barang = b.id_master
-                LEFT JOIN variant c ON a.id_variant = c.id_variant
-                WHERE a.id_user = '$value2[id_user]' AND a.id_gudang = '$value2[id_gudang]'")->fetch_assoc();
-                $data[] = [
-                    'id' => $data['id'],
-                ];
+                // $data = $conn->query("SELECT * FROM user_keranjang a
+                // JOIN master_item b ON a.id_barang = b.id_master
+                // LEFT JOIN variant c ON a.id_variant = c.id_variant
+                // WHERE a.id_user = '$value2[id_user]' AND a.id_gudang = '$value2[id_gudang]'")->fetch_assoc();
+                // $data[] = [
+                //     'id' => $data['id'],
+                // ];
                 // foreach ($data as $key => $value) {
                 //     $datamaster = "SELECT * FROM master_item WHERE id_master = 
                 //     '$value[id_barang]'";
