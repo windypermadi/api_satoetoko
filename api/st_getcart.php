@@ -326,7 +326,7 @@ if (isset($id_login)) {
                 //     }
                 // }
             }
-            $warehouse[] = [
+            $warehouse = [
                 'id_cabang' => $value2['id_cabang'],
                 'nama_cabang' => $value2['nama_cabang'],
                 'alamat_lengkap_cabang' => $value2['alamat_lengkap_cabang']
