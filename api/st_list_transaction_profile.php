@@ -410,7 +410,7 @@ if (isset($id_login)) {
         case 'detail':
             $id_transaksi         = $_GET['id_transaksi'];
 
-            $getproduk = $conn->query("SELECT c.id_master, b.total_harga_sebelum_diskon, b.harga_ongkir, b.total_harga_setelah_diskon, b.voucher_harga, c.judul_master, c.image_master, a.jumlah_beli, a.harga_barang, a.diskon_barang, a.harga_diskon, b.invoice, d.id_variant, d.keterangan_varian, d.diskon_rupiah_varian, d.image_varian, b.status_transaksi, b.kurir_pengirim, b.kurir_code, b.kurir_service, b.metode_pembayaran, b.midtrans_transaction_status, b.midtrans_payment_type, b.midtrans_token, b.midtrans_redirect_url, b.alamat_penerima, b.nama_penerima, b.label_alamat, b.telepon_penerima, b.tanggal_transaksi, b.tanggal_dibayar, b.nomor_resi, c.status_master_detail
+            $getproduk = $conn->query("SELECT c.id_master, b.total_harga_sebelum_diskon, b.harga_ongkir, b.total_harga_setelah_diskon, b.voucher_harga, c.judul_master, c.image_master, a.jumlah_beli, a.harga_barang, a.diskon_barang, a.harga_diskon, b.invoice, d.id_variant, d.keterangan_varian, d.diskon_rupiah_varian, d.image_varian, b.status_transaksi, b.kurir_pengirim, b.kurir_code, b.kurir_service, b.metode_pembayaran, b.midtrans_transaction_status, b.midtrans_payment_type, b.midtrans_token, b.midtrans_redirect_url, b.alamat_penerima, b.nama_penerima, b.label_alamat, b.telepon_penerima, b.tanggal_transaksi, b.tanggal_dibayar, b.nomor_resi, c.status_master_detail, b.st_packing
                     FROM transaksi_detail a 
                     JOIN transaksi b ON a.id_transaksi = b.id_transaksi
                     LEFT JOIN master_item c ON a.id_barang = c.id_master
@@ -522,12 +522,30 @@ if (isset($id_login)) {
                 $status = 'Expired';
             }
 
+            $ambilditempat = $value['kurir_code'];
+            $status_ambilditempat = $ambilditempat == '00' ? 'Y' : 'N';
+            if ($status_ambilditempat == 'Y') {
+                $st_packing = $value['st_packing'];
+                if ($st_packing == '1') {
+                    $ketambil = 'Belum di packing';
+                } else if ($st_packing == '2') {
+                    $ketambil = 'Masih proses';
+                } else if ($st_packing == '3') {
+                    $ketambil = 'Siap Diambil';
+                } else {
+                    $ketambil = 'Sudah Diambil';
+                }
+            } else {
+                $ketambil = '';
+            }
+
             $getdatatransaction =
                 [
                     'id_transaksi' => $id_transaksi,
                     'status_transaksi' => $value['status_transaksi'],
                     'ket_status_transaksi' => $status,
-                    'ambil_ditempat' => $value['ambil_ditempat'],
+                    'ambil_ditempat' => $value['kurir_code'] == '00' ? 'Y' : 'N',
+                    'ket_ambil_ditempat' => $ketambil
                 ];
 
             //! Metode Pembayaran
