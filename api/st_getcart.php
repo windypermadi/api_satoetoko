@@ -231,11 +231,13 @@ if (isset($id_login)) {
                 JOIN cabang b ON a.id_gudang = b.id_cabang
                 WHERE a.id_user = '$id_login'");
             foreach ($warehouse as $key => $value2) {
+
                 $data = $conn->query("SELECT * FROM user_keranjang a
                 JOIN master_item b ON a.id_barang = b.id_master
                 LEFT JOIN variant c ON a.id_variant = c.id_variant
                 WHERE a.id_user = '$value2[id_user]' AND a.id_gudang = '$value2[id_gudang]'");
                 foreach ($data as $key => $value) {
+
                     $datamaster = "SELECT * FROM master_item WHERE id_master = 
                     '$value[id_barang]'";
                     $cekitemdata = $conn->query($datamaster);
@@ -324,19 +326,19 @@ if (isset($id_login)) {
                 }
 
                 $databarang[] = [
-                    'id' => $key['id'],
-                    'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $key['image_master'] : $getimagefisik . $key['image_master'],
-                    'judul' => $key['judul_master'],
-                    'id_varian' => $key['id_variant'],
-                    'varian' => $key['keterangan_varian'],
+                    'id' => $value['id'],
+                    'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $value['image_master'] : $getimagefisik . $value['image_master'],
+                    'judul' => $value['judul_master'],
+                    'id_varian' => $value['id_variant'],
+                    'varian' => $value['keterangan_varian'],
                     'harga_produk' => $harga_produk,
                     'harga_tampil' => $harga_tampil,
                     'harga_produk_int' => $harga_produk_int,
                     'harga_tampil_int' => $harga_tampil_int,
                     'status_diskon' => $status_diskon,
-                    'qty' => $key['qty'],
+                    'qty' => $value['qty'],
                     'stok_saatini' => $cekstok['jumlah'],
-                    'id_cabang' => $key['id_gudang'],
+                    'id_cabang' => $value['id_gudang'],
                 ];
 
                 $datawarehouse[] = [
