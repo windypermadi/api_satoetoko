@@ -235,6 +235,9 @@ if (isset($id_login)) {
                 JOIN master_item b ON a.id_barang = b.id_master
                 LEFT JOIN variant c ON a.id_variant = c.id_variant
                 WHERE a.id_user = '$value2[id_user]' AND a.id_gudang = '$value2[id_gudang]'");
+
+                var_dump($data);
+                die;
                 foreach ($data as $key => $value) {
                     $datamaster = "SELECT * FROM master_item WHERE id_master = 
                     '$value[id_barang]'";
