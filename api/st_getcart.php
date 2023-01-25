@@ -126,6 +126,12 @@ if (isset($id_login)) {
                     'data_barang' => $databarang,
                 ];
             }
+            $datawarehouse[] = [
+                'id_cabang' => '12342423424',
+                'nama_cabang' => 'test',
+                'alamat_lengkap_cabang' => 'test',
+                'data_barang' => $databarang,
+            ];
             if ($databarang[0]) {
                 $response->data = $datawarehouse;
                 $response->sukses(200);
