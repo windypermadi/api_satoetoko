@@ -130,7 +130,7 @@ if (isset($id_login)) {
                 'id_cabang' => '12342423424',
                 'nama_cabang' => 'test',
                 'alamat_lengkap_cabang' => 'test',
-                'data_barang' => [
+                'data_barang' => [[
                     'id' => '13',
                     'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $key['image_master'] : $getimagefisik . $key['image_master'],
                     'judul' => 'testing',
@@ -144,7 +144,7 @@ if (isset($id_login)) {
                     'qty' => '12',
                     'stok_saatini' => '100',
                     'id_cabang' => $key['id_gudang'],
-                ],
+                ]],
             ];
             if ($databarang[0]) {
                 $response->data = $datawarehouse;
