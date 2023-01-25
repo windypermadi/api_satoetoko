@@ -7,14 +7,19 @@ $id_login         = $_GET['id_login'];
 $tag              = $_GET['tag'];
 
 if (isset($id_login)) {
-
     switch ($tag) {
         case 'semua':
-            $data = $conn->query("SELECT * FROM user_keranjang a
-            JOIN master_item b ON a.id_barang = b.id_master
-            LEFT JOIN variant c ON a.id_variant = c.id_variant
-            WHERE a.id_user = '$id_login';");
-            $datalist = array();
+            $data = $conn->query("SELECT * FROM user_keranjang a 
+            JOIN cabang b ON a.id_gudang = b.id_cabang 
+            JOIN master_item c ON a.id_barang = c.id_master 
+            LEFT JOIN variant d ON a.id_variant = d.id_variant 
+            WHERE a.id_user = '$id_login'");
+
+            // $data = $conn->query("SELECT * FROM user_keranjang a
+            // JOIN master_item b ON a.id_barang = b.id_master
+            // LEFT JOIN variant c ON a.id_variant = c.id_variant
+            // WHERE a.id_user = '$id_login'");
+            // $datalist = array();
 
             foreach ($data as $key) {
 
@@ -104,22 +109,7 @@ if (isset($id_login)) {
                     }
                 }
 
-                // if (!is_null($value['id_variant'])) {
-                //     $id_variant = $_GET['id_variant'];
-                //     $data = $conn->query("SELECT * FROM user_keranjang a
-                //     JOIN master_item b ON a.id_barang = b.id_master
-                //     LEFT JOIN variant c ON a.id_variant = c.id_variant
-                //     WHERE a.id_user = '$id_login' AND a.id_variant = '$id_variant';");
-                //     $datalist = array();
-                // } else {
-                //     $data = $conn->query("SELECT * FROM user_keranjang a
-                //     JOIN master_item b ON a.id_barang = b.id_master
-                //     LEFT JOIN variant c ON a.id_variant = c.id_variant
-                //     WHERE a.id_user = '$id_login';");
-                //     $datalist = array();
-                // }
-
-                array_push($datalist, array(
+                $databarang[] = [
                     'id' => $key['id'],
                     'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $key['image_master'] : $getimagefisik . $key['image_master'],
                     'judul' => $key['judul_master'],
@@ -133,11 +123,17 @@ if (isset($id_login)) {
                     'qty' => $key['qty'],
                     'stok_saatini' => $cekstok['jumlah'],
                     'id_cabang' => $key['id_gudang'],
-                ));
+                ];
+
+                $data1['warehouse'] = $key['id_gudang'];
+                $data1['databarang'] = $databarang;
+
+
+                // array_push($datalist, array());
             }
 
             if ($datalist[0]) {
-                $response->data = $datalist;
+                $response->data = $data1;
                 $response->sukses(200);
             } else {
                 $response->data = [];
