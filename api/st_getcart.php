@@ -132,13 +132,15 @@ if (isset($id_login)) {
                 // array_push($datalist, array());
             }
 
-            if ($datalist[0]) {
-                $response->data = $data1;
-                $response->sukses(200);
-            } else {
-                $response->data = [];
-                $response->sukses(200);
-            }
+            $response->data = $data1;
+            $response->sukses(200);
+
+            // if ($datalist[0]) {
+
+            // } else {
+            //     $response->data = [];
+            //     $response->sukses(200);
+            // }
             break;
         case 'diskon':
             $data = $conn->query("SELECT * FROM user_keranjang a
