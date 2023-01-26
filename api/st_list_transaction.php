@@ -322,30 +322,59 @@ if (isset($id_login)) {
                     $status_transaksi = $data->status_transaksi;
                     $kurir_code = $data->kurir_code;
 
-                    if ($status_transaksi == '1') {
-                        $status = 'Menunggu Pembayaran';
-                    } else if ($status_transaksi == '2') {
-                        $status = 'Menunggu Verifikasi Pembayaran';
-                    } else if ($status_transaksi == '3') {
-                        $status = 'Pembayaran Berhasil';
-                    } else if ($status_transaksi == '4') {
-                        $status = 'Pembayaran Tidak Lengkap';
-                    } else if ($status_transaksi == '5') {
-                        $status = 'Dikirim';
-                    } else if ($status_transaksi == '6') {
-                        $status = 'Diterima';
-                    } else if ($status_transaksi == '7') {
-                        $status = 'Transaksi Selesai';
-                    } else if ($status_transaksi == '8') {
-                        $status = 'Expired';
-                    } else if ($status_transaksi == '9') {
-                        $status = 'Dibatalkan';
-                    } else if ($status_transaksi == '10') {
-                        $status = 'Pembayaran Ditolak';
-                    } else if ($status_transaksi == '11') {
-                        $status = 'PengembalianBarang';
+
+
+                    $date = date_create($key['tanggal_transaksi']);
+                    date_add($date,  date_interval_create_from_date_string("1 days"));
+                    $exp_date = date_format($date, "Y-m-d H:i:s");
+
+                    // $start_date = $key['tanggal_transaksi'];
+                    // $exp_date = date($key['tanggal_transaksi'], strtotime("+24 hours"));
+                    // var_dump($start_date);
+                    // var_dump($exp_date);
+                    // die;
+
+                    if ($key['status_transaksi'] == '1') {
+                        if ($exp_date <= date('Y-m-d H:i:s')) {
+                            $status = '9';
+                            $status_transaksi = 'Dibatalkan';
+                        } else {
+                            $status = '1';
+                            $status_transaksi = 'Menunggu Pembayaran';
+                        }
+                    } else if ($key['status_transaksi'] == '2') {
+                        $status = '2';
+                        $status_transaksi = 'Menunggu Verifikasi Pembayaran';
+                    } else if ($key['status_transaksi'] == '3') {
+                        $status = '3';
+                        $status_transaksi = 'Pembayaran Berhasil';
+                    } else if ($key['status_transaksi'] == '4') {
+                        $status = '4';
+                        $status_transaksi = 'Pembayaran Tidak Lengkap';
+                    } else if ($key['status_transaksi'] == '5') {
+                        $status = '5';
+                        $status_transaksi = 'Dikirim';
+                    } else if ($key['status_transaksi'] == '6') {
+                        $status = '6';
+                        $status_transaksi = 'Diterima';
+                    } else if ($key['status_transaksi'] == '7') {
+                        $status = '7';
+                        $status_transaksi = 'Transaksi Selesai';
+                    } else if ($key['status_transaksi'] == '8') {
+                        $status = '8';
+                        $status_transaksi = 'Expired';
+                    } else if ($key['status_transaksi'] == '9') {
+                        $status = '9';
+                        $status_transaksi = 'Dibatalkan';
+                    } else if ($key['status_transaksi'] == '10') {
+                        $status = '10';
+                        $status_transaksi = 'Pembayaran Ditolak';
+                    } else if ($key['status_transaksi'] == '11') {
+                        $status = '11';
+                        $status_transaksi = 'PengembalianBarang';
                     } else {
-                        $status = 'Expired';
+                        $status = '12';
+                        $status_transaksi = 'Expired';
                     }
 
                     if ($kurir_code == '00') {
@@ -434,7 +463,7 @@ if (isset($id_login)) {
                     $data1['invoice'] = $data->invoice;
                     $data1['total_harga'] = $data->total_harga_setelah_diskon + $data->harga_ongkir;
                     $data1['metode_pembayaran'] = $metode_pembayaran;
-                    $data1['status_transaksi'] = $status_transaksi;
+                    $data1['status_transaksi'] = $status2;
                     $data1['status_transaksi_ket'] = $status;
                     $data1['tanggal_transaksi'] = $data->tanggal_transaksi;
                     $data1['ambil_ditempat'] = $ambil_ditempat;
