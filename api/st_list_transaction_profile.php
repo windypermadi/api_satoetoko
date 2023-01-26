@@ -12,6 +12,7 @@ if (isset($id_login)) {
 
     switch ($tag) {
         case 'sebelum':
+            // $cekexpired = $conn->query("SELECT * FROM transaksi WHERE id_user = '$id_loid_logingin'");
             $data = $conn->query("SELECT a.id_transaksi, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, c.harga_master, b.harga_diskon, b.diskon_barang, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian, c.status_master_detail, b.jumlah_beli, a.nomor_resi
             FROM transaksi a
             JOIN transaksi_detail b ON a.id_transaksi = b.id_transaksi
@@ -19,7 +20,7 @@ if (isset($id_login)) {
             JOIN stok d ON c.id_master = d.id_barang 
             JOIN cabang e ON d.id_warehouse = e.id_cabang
             LEFT JOIN variant f ON b.id_barang = f.id_variant
-            WHERE a.id_user = '$id_login' AND a.status_transaksi = '1' GROUP BY a.id_transaksi ORDER BY a.tanggal_transaksi DESC");
+            WHERE a.id_user = '$id_login' AND a.status_transaksi = '1' AND (a.tanggal_transaksi >= date_add(a.tanggal_transaksi, INTERVAL 1 DAY)) GROUP BY a.id_transaksi ORDER BY a.tanggal_transaksi DESC");
 
             //status transaksi | total produk | batas transaksi
             $status_transaksi = 'Menunggu Pembayaran';
@@ -40,7 +41,7 @@ if (isset($id_login)) {
                 $cek_jumlah = $conn->query("SELECT sum(jumlah_beli) FROM `transaksi_detail` WHERE `id_transaksi` LIKE '$key[id_transaksi]'")->fetch_assoc();
 
                 $date = date_create($key['tanggal_transaksi']);
-                date_add($date,  date_interval_create_from_date_string("3 days"));
+                date_add($date,  date_interval_create_from_date_string("1 days"));
                 $exp_date = date_format($date, "Y-m-d H:i:s");
 
                 $ambilditempat = $key['kurir_code'] == '00' ? 'Ambil Ditempat' : '';
@@ -276,14 +277,14 @@ if (isset($id_login)) {
             }
             break;
         case 'dibatalkan':
-            $data = $conn->query("SELECT a.id_transaksi, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, c.harga_master, b.harga_diskon, b.diskon_barang, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian, c.status_master_detail, , b.jumlah_beli, a.nomor_resi
+            $data = $conn->query("SELECT a.id_transaksi, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, c.harga_master, b.harga_diskon, b.diskon_barang, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian, c.status_master_detail, b.jumlah_beli, a.nomor_resi
             FROM transaksi a
             JOIN transaksi_detail b ON a.id_transaksi = b.id_transaksi
             JOIN master_item c ON b.id_barang = c.id_master 
             JOIN stok d ON c.id_master = d.id_barang 
             JOIN cabang e ON d.id_warehouse = e.id_cabang
             LEFT JOIN variant f ON b.id_barang = f.id_variant
-            WHERE a.id_user = '$id_login' AND a.status_transaksi = '9' GROUP BY a.id_transaksi ORDER BY a.tanggal_transaksi DESC");
+            WHERE a.id_user = '$id_login' AND a.status_transaksi = '9' OR (a.status_transaksi = '1' OR (a.tanggal_transaksi >= date_add(a.tanggal_transaksi, INTERVAL 1 DAY))) GROUP BY a.id_transaksi ORDER BY a.tanggal_transaksi DESC");
 
             //status transaksi | total produk | batas transaksi
             $status_transaksi = 'Transaksi Dibatalkan';
