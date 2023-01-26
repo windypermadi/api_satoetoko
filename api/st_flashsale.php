@@ -7,7 +7,8 @@ $tag = $_GET['tag'];
 
 switch ($tag) {
     case 'home':
-        $data = $conn->query("SELECT * FROM flashsale WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND waktu_mulai >= CURRENT_DATE AND waktu_mulai <= CURRENT_TIME AND waktu_selesai >= CURRENT_DATE AND waktu_selesai >= CURRENT_TIME");
+        // $data = $conn->query("SELECT * FROM flashsale WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND waktu_mulai >= CURRENT_DATE AND waktu_mulai <= CURRENT_TIME AND waktu_selesai >= CURRENT_DATE AND waktu_selesai >= CURRENT_TIME");
+        $data = $conn->query("SELECT * FROM flashsale WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND waktu_mulai <= CURRENT_DATE AND waktu_selesai >= CURRENT_DATE");
         foreach ($data as $key => $value) {
 
             // $dataproduct = $conn->query("SELECT *, (stok_flashdisk-stok_terjual_flashdisk) as sisa_stok FROM flashsale a 
