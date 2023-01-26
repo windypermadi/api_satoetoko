@@ -28,7 +28,7 @@ if (isset($id_login)) {
                 // die;
 
                 if ($key['status_transaksi'] == '1') {
-                    if ($exp_date >= date('Y-m-d H:i:s')) {
+                    if ($exp_date <= date('Y-m-d H:i:s')) {
                         $status = '9';
                         $status_transaksi = 'Dibatalkan';
                     } else {
