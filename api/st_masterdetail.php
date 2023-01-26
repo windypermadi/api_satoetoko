@@ -96,21 +96,21 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
                     'keterangan' => 'image',
                     'url' => $getimagebukufisik . $key->image_master,
                 ));
-                if ($key->gambar_1 != 'default.png') {
+                if (!empty($key->gambar_1) and $key->gambar_1 != 'default.png') {
                     array_push($imageurls, array(
                         'status_url' => '1',
                         'keterangan' => 'image',
                         'url' => $getimagebukufisik . $key->gambar_1,
                     ));
                 }
-                if ($key->gambar_2 != 'default.png') {
+                if (!empty($key->gambar_2) and $key->gambar_2 != 'default.png') {
                     array_push($imageurls, array(
                         'status_url' => '1',
                         'keterangan' => 'image',
                         'url' => $getimagebukufisik . $key->gambar_2,
                     ));
                 }
-                if ($key->gambar_3 != 'default.png') {
+                if (!empty($key->gambar_3) and $key->gambar_3 != 'default.png') {
                     array_push($imageurls, array(
                         'status_url' => '1',
                         'keterangan' => 'image',
