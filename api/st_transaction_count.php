@@ -7,7 +7,7 @@ $iduser = $_GET['id_login'];
 
 if ($iduser) {
 
-    $data1 = $conn->query("SELECT count(id_transaksi) as jumlah FROM transaksi WHERE status_transaksi = '1' AND id_user = '$iduser'")->fetch_object();
+    $data1 = $conn->query("SELECT count(id_transaksi) as jumlah FROM transaksi WHERE status_transaksi = '1' AND (tanggal_transaksi >= date_add(tanggal_transaksi, INTERVAL 1 DAY)) AND id_user = '$iduser';")->fetch_object();
     $data2 = $conn->query("SELECT count(id_transaksi) as jumlah FROM transaksi WHERE status_transaksi = '3' AND id_user = '$iduser'")->fetch_object();
     $data3 = $conn->query("SELECT count(id_transaksi) as jumlah FROM transaksi WHERE status_transaksi = '5' AND id_user = '$iduser'")->fetch_object();
     $data4 = $conn->query("SELECT count(id_transaksi) as jumlah FROM transaksi WHERE status_transaksi = '7' AND id_user = '$iduser'")->fetch_object();
