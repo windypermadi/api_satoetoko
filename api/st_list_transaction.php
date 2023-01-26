@@ -78,8 +78,8 @@ if (isset($id_login)) {
                     'exp_date' => $exp_date,
                     'total' => $key['total_harga_setelah_diskon'],
                     'total_format' => rupiah($key['total_harga_setelah_diskon']),
-                    'status' => $key['status_transaksi'],
-                    'status_transaksi' => $status,
+                    'status' => $status,
+                    'status_transaksi' => $status_transaksi,
                     'status_ambil_ditempat' => $ambilditempat
                 ];
             }
