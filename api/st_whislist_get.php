@@ -91,15 +91,13 @@ switch ($tag) {
             ];
         }
 
-        $response->data = $result2;
-        $response->sukses(200);
-
-        // if (COUNT($result2) > 0) {
-
-        // } else {
-        //     $response->data = [];
-        //     $response->sukses(200);
-        // }
+        if (COUNT($result2) > 0) {
+            $response->data = $result2;
+            $response->sukses(200);
+        } else {
+            $response->data = [];
+            $response->sukses(200);
+        }
         die();
         break;
     case "detail":
