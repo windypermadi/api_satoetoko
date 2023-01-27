@@ -322,8 +322,6 @@ if (isset($id_login)) {
                     $status_transaksi = $data->status_transaksi;
                     $kurir_code = $data->kurir_code;
 
-
-
                     $date = date_create($key['tanggal_transaksi']);
                     date_add($date,  date_interval_create_from_date_string("1 days"));
                     $exp_date = date_format($date, "Y-m-d H:i:s");
