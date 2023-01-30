@@ -20,7 +20,7 @@ switch ($tag) {
         }
 
         $query = "SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-        a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah , a.id_sub_kategori, c.nama_kategori, a.status_master_detail, a.status_varian
+        a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah , a.id_sub_kategori, c.nama_kategori, a.status_master_detail, a.status_varian, a.slug_judul_master
         FROM master_item a JOIN stok b ON a.id_master = b.id_barang
         JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub
         LEFT JOIN master_buku_detail d ON a.id_master = d.id_master
@@ -89,6 +89,7 @@ switch ($tag) {
                 'image_master' => $imagegambar,
                 'harga_produk' => $harga_produk,
                 'harga_tampil' => $harga_tampil,
+                'slug_judul_master' => $value['slug_judul_master'],
                 'status_diskon' => $status_diskon,
                 'status_varian_diskon' => $status_varian_diskon,
                 'status_jenis_harga' => $status_jenis_harga,
