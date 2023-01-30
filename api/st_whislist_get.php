@@ -11,6 +11,14 @@ switch ($tag) {
         $limit = $_GET['limit'];
         $offset = $_GET['offset'];
 
+        $q = $_GET['q'] ?? '';
+
+        if (!empty($q)) {
+            $search = " AND a.judul_master LIKE '%$q%'";
+        } else {
+            $search = "";
+        }
+
         $query = "SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
         a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah , a.id_sub_kategori, c.nama_kategori, a.status_master_detail, a.status_varian
         FROM master_item a JOIN stok b ON a.id_master = b.id_barang
@@ -18,7 +26,7 @@ switch ($tag) {
         LEFT JOIN master_buku_detail d ON a.id_master = d.id_master
         LEFT JOIN master_fisik_detail e ON a.id_master = e.id_master
         JOIN whislist_product f ON a.id_master = f.id_master
-        WHERE f.id_login = '$id_user' AND a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND (d.id_master IS NOT NULL OR e.id_master IS NOT NULL) GROUP BY a.id_master ORDER BY a.tanggal_approve DESC LIMIT $offset, $limit";
+        WHERE f.id_login = '$id_user' AND a.status_aktif = 'Y' $search AND a.status_approve = '2' AND a.status_hapus = 'N' AND (d.id_master IS NOT NULL OR e.id_master IS NOT NULL) GROUP BY a.id_master ORDER BY a.tanggal_approve DESC LIMIT $offset, $limit";
         $data = $conn->query($query);
 
         foreach ($data as $key => $value) {

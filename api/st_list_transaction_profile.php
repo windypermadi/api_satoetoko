@@ -478,10 +478,13 @@ if (isset($id_login)) {
 
             $getdatatotal =
                 [
-                    'subtotal_produk' => rupiah($value['total_harga_sebelum_diskon']),
-                    'subtotal_pengiriman' => rupiah($value['harga_ongkir']),
-                    'subtotal_diskon' => rupiah($value['voucher_harga']),
-                    'subtotal' => (rupiah($value['total_harga_sebelum_diskon'] + $value['harga_ongkir'])),
+                    'subtotal_produk' => (int)$value['total_harga_sebelum_diskon'],
+                    'subtotal_pengiriman' => (int)$value['harga_ongkir'],
+                    'subtotal_diskon_barang' => (int)$value['voucher_harga'],
+                    'subtotal_diskon_ongkir' => (int)$value['voucher_harga'],
+                    'subtotal_voucher' => (int)$value['voucher_harga'],
+                    'subtotal_ppn' => 0,
+                    'subtotal' => (int)($value['total_harga_sebelum_diskon'] + $value['harga_ongkir']),
                 ];
 
             //? ADDRESS
