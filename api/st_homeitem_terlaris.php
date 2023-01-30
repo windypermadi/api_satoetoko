@@ -75,7 +75,7 @@ foreach ($data as $key => $value) {
         'status_jenis_harga' => $status_jenis_harga,
         'status_stok' => $value['jumlah'] > 0 ? 'Y' : 'N',
         'diskon' => $jumlah_diskon . "%",
-        'total_dibeli' => $value['total_dibeli'] . " terjual",
+        'total_dibeli' => (int)$value['total_dibeli'],
         'rating_item' => 0,
     ));
 }
