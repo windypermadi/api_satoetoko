@@ -8,29 +8,17 @@ $iduser = $_GET['iduser'];
 
 switch ($tag) {
     case "ebook":
-        $datalist = array();
-        $data = $conn->query("SELECT * FROM voucher WHERE status_voucher = '1' AND tgl_mulai <= CURRENT_DATE() AND tgl_berakhir >= CURRENT_DATE();");
+        $q = $_GET['q'] ?? '';
+        if (!empty($q)) {
+            $search = " AND nama_voucher LIKE '%$q%'";
+        } else {
+            $search = "";
+        }
+        $data = $conn->query("SELECT * FROM voucher WHERE status_voucher = '1' $search AND tgl_mulai <= CURRENT_DATE() AND tgl_berakhir >= CURRENT_DATE() AND kuota_voucher != 0");
         foreach ($data as $key => $value) {
-            // $datalist2 = array();
-            // $data2 = $conn->query("SELECT * FROM voucher_user WHERE idvoucher = '$value[idvoucher]' AND iduser = '$iduser' AND status_pakai = '0'");
-            // foreach ($data as $key => $value) {
-            //     if ($data2 > 0){
-            //         $statusklaim = '1';
-            //         $ketstatus = 'pakai';
-            //     } else {
-            //         $statusklaim = '0';
-            //         $ketstatus = 'klaim';
-            //     }
-            // }
-            
-            
-            // for ($i = 0; $i < 10; $i++) {
-            //     array_push($datalist2, $datalist[$i]);
-            // }
-
             $statusklaim = '0';
             $ketstatus = 'klaim';
-            array_push($datalist, array(
+            $datalist[] = [
                 'idvoucher' => $value['idvoucher'],
                 'kode_voucher' => $value['kode_voucher'],
                 'nama_voucher' => $value['nama_voucher'],
@@ -41,22 +29,17 @@ switch ($tag) {
                 'tgl_berakhir' => $value['tgl_berakhir'],
                 'status_klaim' => $statusklaim,
                 'ket_status' => $ketstatus,
-            ));
+            ];
         }
 
         if (isset($datalist[0])) {
-            $response->code = 200;
-            $response->message = 'result';
             $response->data = $datalist;
-            $response->json();
-            die();
+            $response->sukses(200);
         } else {
-            $response->code = 200;
-            $response->message = 'Tidak ada data ditampilkan.';
             $response->data = [];
-            $response->json();
-            die();
+            $response->sukses(200);
         }
+        die();
         break;
     case "ongkir":
         $datalist = array();
