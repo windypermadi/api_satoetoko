@@ -16,13 +16,15 @@ switch ($tag) {
         }
         $data = $conn->query("SELECT * FROM voucher WHERE tgl_mulai <= CURRENT_DATE() AND tgl_berakhir >= CURRENT_DATE() $search AND kuota_voucher != 0");
         foreach ($data as $key => $value) {
-            if ($value['status_voucher'] == '1') {
-                $ketstatus = 'ebook';
-            } else if ($value['status_voucher'] == '2') {
-                $ketstatus = 'ongkir';
+
+            $cekpunya = $conn->query("SELECT * FROM voucher_user WHERE iduser = '$iduser' AND idvoucher = '$value[idvoucher]'")->fetch_object();
+            if ($cekpunya->iduser_voucher) {
+                $status = True;
             } else {
-                $ketstatus = 'barang';
+                $status = False;
             }
+
+            $ketstatus = statusvoucher($value['status_voucher']);
             $datalist[] = [
                 'idvoucher' => $value['idvoucher'],
                 'kode_voucher' => $value['kode_voucher'],
@@ -33,7 +35,8 @@ switch ($tag) {
                 'tgl_mulai' => $value['tgl_mulai'],
                 'tgl_berakhir' => $value['tgl_berakhir'],
                 'status_voucher' => $value['status_voucher'],
-                'ket_status' => $ketstatus
+                'ket_status' => $ketstatus,
+                'status_klaim' => $status
             ];
         }
 
@@ -55,13 +58,16 @@ switch ($tag) {
         }
         $data = $conn->query("SELECT * FROM voucher WHERE status_voucher = '1' $search AND tgl_mulai <= CURRENT_DATE() AND tgl_berakhir >= CURRENT_DATE() AND kuota_voucher != 0");
         foreach ($data as $key => $value) {
-            if ($value['status_voucher'] == '1') {
-                $ketstatus = 'ebook';
-            } else if ($value['status_voucher'] == '2') {
-                $ketstatus = 'ongkir';
+
+            $cekpunya = $conn->query("SELECT * FROM voucher_user WHERE iduser = '$iduser' AND idvoucher = '$value[idvoucher]'")->fetch_object();
+
+            if ($cekpunya->iduser_voucher) {
+                $status = True;
             } else {
-                $ketstatus = 'barang';
+                $status = False;
             }
+
+            $ketstatus = statusvoucher($value['status_voucher']);
             $datalist[] = [
                 'idvoucher' => $value['idvoucher'],
                 'kode_voucher' => $value['kode_voucher'],
@@ -72,7 +78,8 @@ switch ($tag) {
                 'tgl_mulai' => $value['tgl_mulai'],
                 'tgl_berakhir' => $value['tgl_berakhir'],
                 'status_voucher' => $value['status_voucher'],
-                'ket_status' => $ketstatus
+                'ket_status' => $ketstatus,
+                'status_klaim' => $status
             ];
         }
 
@@ -94,13 +101,15 @@ switch ($tag) {
         }
         $data = $conn->query("SELECT * FROM voucher WHERE status_voucher = '2' AND tgl_mulai <= CURRENT_DATE() AND tgl_berakhir >= CURRENT_DATE() AND kuota_voucher != 0");
         foreach ($data as $key => $value) {
-            if ($value['status_voucher'] == '1') {
-                $ketstatus = 'ebook';
-            } else if ($value['status_voucher'] == '2') {
-                $ketstatus = 'ongkir';
+
+            $cekpunya = $conn->query("SELECT * FROM voucher_user WHERE iduser = '$iduser' AND idvoucher = '$value[idvoucher]'")->fetch_object();
+            if ($cekpunya->iduser_voucher) {
+                $status = True;
             } else {
-                $ketstatus = 'barang';
+                $status = False;
             }
+
+            $ketstatus = statusvoucher($value['status_voucher']);
             $datalist[] = [
                 'idvoucher' => $value['idvoucher'],
                 'kode_voucher' => $value['kode_voucher'],
@@ -111,7 +120,8 @@ switch ($tag) {
                 'tgl_mulai' => $value['tgl_mulai'],
                 'tgl_berakhir' => $value['tgl_berakhir'],
                 'status_voucher' => $value['status_voucher'],
-                'ket_status' => $ketstatus
+                'ket_status' => $ketstatus,
+                'status_klaim' => $status
             ];
         }
 
@@ -132,13 +142,16 @@ switch ($tag) {
         }
         $data = $conn->query("SELECT * FROM voucher WHERE status_voucher = '3' $search AND tgl_mulai <= CURRENT_DATE() AND tgl_berakhir >= CURRENT_DATE();");
         foreach ($data as $key => $value) {
-            if ($value['status_voucher'] == '1') {
-                $ketstatus = 'ebook';
-            } else if ($value['status_voucher'] == '2') {
-                $ketstatus = 'ongkir';
+
+            $cekpunya = $conn->query("SELECT * FROM voucher_user WHERE iduser = '$iduser' AND idvoucher = '$value[idvoucher]'")->fetch_object();
+            if ($cekpunya->iduser_voucher) {
+                $status = True;
             } else {
-                $ketstatus = 'barang';
+                $status = False;
             }
+
+            $ketstatus = statusvoucher($value['status_voucher']);
+
             $datalist[] = [
                 'idvoucher' => $value['idvoucher'],
                 'kode_voucher' => $value['kode_voucher'],
@@ -149,7 +162,8 @@ switch ($tag) {
                 'tgl_mulai' => $value['tgl_mulai'],
                 'tgl_berakhir' => $value['tgl_berakhir'],
                 'status_voucher' => $value['status_voucher'],
-                'ket_status' => $ketstatus
+                'ket_status' => $ketstatus,
+                'status_klaim' => $status
             ];
         }
 
@@ -162,4 +176,23 @@ switch ($tag) {
         }
         die;
         break;
+}
+
+function statusvoucher($val = null)
+{
+    switch ($val) {
+        case '1':
+            $ketstatus = 'Diskon Ebook';
+            break;
+        case '2':
+            $ketstatus = 'Gratis Ongkir';
+            break;
+        case '3':
+            $ketstatus = 'Diskon';
+            break;
+        default:
+            $ketstatus = 'Unknown';
+            break;
+    }
+    return $ketstatus;
 }
