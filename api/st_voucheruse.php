@@ -4,31 +4,42 @@ include "response.php";
 $response = new Response();
 
 $idvoucher = $_POST['idvoucher'];
-$harga = $_POST['harga'];
+$harga = $_POST['harga_produk'];
+$ongkir = $_POST['harga_ongkir'];
 $id_master = $_POST['id_master'];
 
-$cekminimaltransaksi = mysqli_query($conn, "SELECT * FROM voucher WHERE idvoucher = '$idvoucher'")->fetch_assoc();
-$minimal_transaksi = $cekminimaltransaksi['minimal_transaksi'];
+$getmaster = $conn->query("SELECT * FROM master_item WHERE id_master = '$id_master'")->fetch_object();
+$status_master_detail = $getmaster->status_master_detail;
 
-if ($harga <= $minimal_transaksi) {
+$getvoucher = mysqli_query($conn, "SELECT * FROM voucher WHERE idvoucher = '$idvoucher'")->fetch_object();
+$minimal_transaksi = $getvoucher->minimal_transaksi;
+
+if ($harga <= $getvoucher->minimal_transaksi) {
     $response->code = 400;
     $response->message = 'Total belanja kurang dari minimal transaksi';
     $response->data = [];
     $response->json();
     die();
 } else {
-    if ($cekminimaltransaksi['status_voucher'] == '1') {
-        $total_potongan = $harga - ($cekminimaltransaksi['nilai_voucher'] / 100);
+    if ($getvoucher->status_voucher == '1') {
+        $total_potongan = $harga - ($getvoucher->nilai_voucher);
         $harga_disc = $harga - $total_potongan;
+    } else if ($getvoucher->status_voucher == '2') {
+        if ($ongkir != 0) {
+            $total_potongan = $ongkir - $getvoucher->nilai_voucher;
+            $harga_ongkir = $total_potongan;
+        } else {
+            $harga_ongkir = 0;
+        }
     } else {
-        $total_potongan = $harga - $cekminimaltransaksi['nilai_voucher'];
-        $harga_disc = $total_potongan;
+        $total_potongan = $harga - ($getvoucher->nilai_voucher);
+        $harga_disc = $harga - $total_potongan;
     }
 }
 
 $data1['harga_produk'] = (int)$harga;
 $data1['diskon_rupiah'] = (int)$total_potongan;
-$data1['diskon_persen'] = (int)$cekminimaltransaksi['nilai_voucher'];
+$data1['diskon_persen'] = (int)$getvoucher->nilai_voucher;
 $data1['voucher'] = (int)$total_potongan;
 $data1['ppn_persen'] = '10%';
 $data1['ppn_rupiah'] = $jumlahbayar * 0.1;

@@ -14,14 +14,14 @@ if (isset($id_master)) {
     $sekarang = "SELECT * FROM flashsale a 
     JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
     JOIN master_item c ON b.kd_barang = c.id_master
-    WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND b.kd_barang = '$id_master' AND a.waktu_mulai < NOW() AND a.waktu_selesai > NOW()";
+    WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND b.kd_barang = '$id_master' AND a.waktu_mulai <= NOW() AND a.waktu_selesai >= NOW()";
     $ceksekarang = $conn->query($sekarang)->num_rows;
     $getflash = $conn->query($sekarang)->fetch_object();
 
     $akandatang = "SELECT * FROM flashsale a 
         JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
         JOIN master_item c ON b.kd_barang = c.id_master
-        WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND b.kd_barang = '$id_master' AND a.waktu_mulai > NOW() AND a.waktu_selesai > NOW()";
+        WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND b.kd_barang = '$id_master' AND a.waktu_mulai >= NOW() AND a.waktu_selesai >= NOW()";
     $cekakandatang = $conn->query($akandatang)->num_rows;
 
     if ($ceksekarang > 0) {
