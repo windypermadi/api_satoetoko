@@ -7,22 +7,24 @@ $iduser  = $_POST['iduser'] ?? '';
 $idvoucher  = $_POST['idvoucher'] ?? '';
 $kode = $_POST['kode_voucher'] ?? '';
 
-if (!empty($kode)) {
-    $kodevoucher = " AND kode_voucher = '$kode'";
-} else {
-    $kodevoucher = "";
-}
+// if (!empty($kode)) {
+//     $kodevoucher = " AND kode_voucher = '$kode'";
+// } else {
+//     $kodevoucher = "";
+// }
+
+!empty($kode) ? $kodevoucher = " AND kode_voucher = '$kode'" : $kodevoucher = "";
 
 if (!empty($iduser) && !empty($idvoucher)) {
     $cekkuota = "SELECT * FROM voucher WHERE idvoucher = '$idvoucher' $kodevoucher AND kuota_voucher != 0";
     $cekkuota2 = $conn->query($cekkuota)->fetch_object();
 
-    if ($cekkuota2->idvoucher) {
+    if (isset($cekkuota2->idvoucher)) {
         //? cek sudah klaim belum
         $query_klaim = "SELECT * FROM voucher_user WHERE idvoucher = '$idvoucher' AND iduser = '$iduser'";
         $cekklaim = $conn->query($query_klaim)->fetch_object();
 
-        if ($cekklaim->iduser_voucher) {
+        if (isset($cekklaim->iduser_voucher)) {
             //? jika sudah diklaim
             if ($cekkuota2->status_berulang == 'Y') {
                 $conn->begin_transaction();
