@@ -3,8 +3,8 @@ require_once('../config/koneksi.php');
 include "response.php";
 $response = new Response();
 
-$id_login         = $_GET['id_login'];
-$tag              = $_GET['tag'];
+$id_login         = $_REQUEST['id_login'];
+$tag              = $_REQUEST['tag'];
 
 if (isset($id_login)) {
     switch ($tag) {
@@ -27,7 +27,7 @@ if (isset($id_login)) {
                     $dataproduct = $conn->query("SELECT *, (stok_flashdisk-stok_terjual_flashdisk) as sisa_stok FROM flashsale a 
                     JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
                     JOIN master_item c ON b.kd_barang = c.id_master
-                    WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND a.waktu_mulai >= CURRENT_DATE AND a.waktu_mulai <= CURRENT_TIME AND a.waktu_selesai >= CURRENT_DATE AND a.waktu_selesai >= CURRENT_TIME AND b.kd_barang = '$key[id_barang]'")->fetch_object();
+                    WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND a.waktu_mulai <= CURRENT_DATE AND a.waktu_selesai >= CURRENT_DATE AND b.kd_barang = '$key[id_barang]'")->fetch_object();
                     // $dataproduct = $conn->query("SELECT *, (stok_flashdisk-stok_terjual_flashdisk) as sisa_stok FROM flashsale a 
                     // JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
                     // JOIN master_item c ON b.kd_barang = c.id_master

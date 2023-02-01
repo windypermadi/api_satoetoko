@@ -8,6 +8,10 @@ $dataraw2 = json_decode(file_get_contents('php://input'), true);
 
 $exp_date = date("Y-m-d H:i:s", strtotime("+24 hours"));
 
+//? GET SERVER DATETIME
+date_default_timezone_set('Asia/Jakarta');
+$tanggal_sekarang = date('Y-m-d  H:i:s');
+
 $conn->begin_transaction();
 
 $transaction = mysqli_fetch_object($conn->query("SELECT UUID_SHORT() as id"));

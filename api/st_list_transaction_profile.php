@@ -417,8 +417,11 @@ if (isset($id_login)) {
                     LEFT JOIN master_item c ON a.id_barang = c.id_master
                     LEFT JOIN variant d ON a.id_barang = d.id_variant WHERE a.id_transaksi = '$id_transaksi'");
 
+            $getjumlahsubtotal = $conn->query("SELECT SUM(jumlah_beli * harga_diskon) as getjumlahsubtotal, SUM(diskon_barang * jumlah_beli) as subdiskon_barang FROM transaksi_detail WHERE id_transaksi = '$id_transaksi'")->fetch_object();
+
             foreach ($getproduk as $key => $value) {
 
+                $jumlah_subtotal = $value['jumlah_beli'] * $value['harga_diskon'];
                 if ($value['id_variant'] != NULL) {
                     $getstatusmaster = $conn->query("SELECT b.status_master_detail FROM variant a JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$value[id_variant]'")->fetch_assoc();
 
@@ -478,13 +481,13 @@ if (isset($id_login)) {
 
             $getdatatotal =
                 [
-                    'subtotal_produk' => (int)$value['total_harga_sebelum_diskon'],
+                    'subtotal_produk' => (int)$getjumlahsubtotal->getjumlahsubtotal,
                     'subtotal_pengiriman' => (int)$value['harga_ongkir'],
-                    'subtotal_diskon_barang' => (int)$value['voucher_harga'],
+                    'subtotal_diskon_barang' => (int)$getjumlahsubtotal->subdiskon_barang,
                     'subtotal_diskon_ongkir' => (int)$value['voucher_harga'],
                     'subtotal_voucher' => (int)$value['voucher_harga'],
                     'subtotal_ppn' => 0,
-                    'subtotal' => (int)($value['total_harga_sebelum_diskon'] + $value['harga_ongkir']),
+                    'subtotal' => (int)($value['total_harga_setelah_diskon']),
                 ];
 
             //? ADDRESS
@@ -617,90 +620,6 @@ if (isset($id_login)) {
             }
             break;
             die();
-
-
-            // $status_transaksi = $data->status_transaksi;
-            // $kurir_code = $data->kurir_code;
-
-            // if ($status_transaksi == '1') {
-            //     $status = 'Menunggu Pembayaran';
-            // } else if ($status_transaksi == '2') {
-            //     $status = 'Menunggu Verifikasi Pembayaran';
-            // } else if ($status_transaksi == '3') {
-            //     $status = 'Pembayaran Berhasil';
-            // } else if ($status_transaksi == '4') {
-            //     $status = 'Pembayaran Tidak Lengkap';
-            // } else if ($status_transaksi == '5') {
-            //     $status = 'Dikirim';
-            // } else if ($status_transaksi == '6') {
-            //     $status = 'Diterima';
-            // } else if ($status_transaksi == '7') {
-            //     $status = 'Transaksi Selesai';
-            // } else if ($status_transaksi == '8') {
-            //     $status = 'Expired';
-            // } else if ($status_transaksi == '9') {
-            //     $status = 'Dibatalkan';
-            // } else if ($status_transaksi == '10') {
-            //     $status = 'Pembayaran Ditolak';
-            // } else if ($status_transaksi == '11') {
-            //     $status = 'PengembalianBarang';
-            // } else {
-            //     $status = 'Expired';
-            // }
-
-            // if ($kurir_code == '00') {
-            //     $status_kurir = $data->kurir_pengirim;
-            //     $ambil_ditempat = $data->ambil_ditempat;
-
-            //     if ($ambil_ditempat == '1') {
-            //         $ambil_ditempat_ket = 'Belum Dipacking';
-            //     } else if ($ambil_ditempat == '2') {
-            //         $ambil_ditempat_ket = 'Masih Diproses';
-            //     } else if ($ambil_ditempat == '3') {
-            //         $ambil_ditempat_ket = 'Siap Diambil';
-            //     } else if ($ambil_ditempat == '4') {
-            //         $ambil_ditempat_ket = 'Sudah Diambil';
-            //     } else {
-            //         $ambil_ditempat_ket = 'Batal';
-            //     }
-            // } else {
-            //     $status_kurir = $data->kurir_pengirim;
-            //     $ambil_ditempat = "";
-            // }
-
-            // if ($data->metode_pembayaran == '1') {
-            //     $metode_pembayaran = 'Pembayaran Manual';
-            // } else if ($data->metode_pembayaran == '2') {
-            //     $metode_pembayaran = 'Pembayaran Otomatis Midtrans';
-            // } else {
-            //     $metode_pembayaran = 'Belum Memilih Metode Pembayaran';
-            // }
-
-            // $product = $conn->query("SELECT * FROM transaksi_detail td JOIN master_item mi ON td.id_barang = mi.id_master WHERE td.id_transaksi")->fetch_object();
-
-            // $data1['id_transaksi'] = $data->id_transaksi;
-            // $data1['invoice'] = $data->invoice;
-            // $data1['total_harga'] = $data->total_harga_setelah_diskon + $data->harga_ongkir;
-            // $data1['metode_pembayaran'] = $metode_pembayaran;
-            // $data1['status_transaksi'] = $status_transaksi;
-            // $data1['status_transaksi_ket'] = $status;
-            // $data1['tanggal_transaksi'] = $data->tanggal_transaksi;
-            // $data1['ambil_ditempat'] = $ambil_ditempat;
-            // $data1['ambil_ditempat_ket'] = $ambil_ditempat_ket;
-            // $data1['nama_produk'] = $product->judul_master;
-            // $data1['midtrans_payment_type'] = $data->midtrans_payment_type;
-            // $data1['midtrans_transaction_status'] = $data->midtrans_transaction_status;
-            // $data1['midtrans_token'] = $data->midtrans_token;
-            // $data1['midtrans_redirect_url'] = $data->midtrans_redirect_url;
-
-            // if ($data1) {
-            //     $response->data = $data1;
-            //     $response->sukses(200);
-            // } else {
-            //     $response->data = [];
-            //     $response->sukses(200);
-            // }
-            // break;
     }
 } else {
     $response->data = null;
