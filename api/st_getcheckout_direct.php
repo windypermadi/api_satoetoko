@@ -84,10 +84,22 @@ if ($getproduk->status_master_detail == '2') {
     $berat_detail = $getproduk->berat_fisik * $getproduk->qty;
 }
 
+//? cek apakah barang ini masuk flashsale atau tidak
+$dataproduct = $conn->query("SELECT *, (stok_flashdisk-stok_terjual_flashdisk) as sisa_stok FROM flashsale a 
+                JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
+                JOIN master_item c ON b.kd_barang = c.id_master
+                WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND a.waktu_mulai <= CURRENT_DATE AND a.waktu_selesai >= CURRENT_DATE AND b.kd_barang = '$dataproduk[id_produk]'")->fetch_object();
+
 if ($getproduk->id_variant) {
-    $diskon = ($getproduk->harga_varian) - ($getproduk->diskon_rupiah_varian);
-    $diskon_format = rupiah($diskon);
-    $harga_varian = rupiah($getproduk->harga_varian);
+    if (isset($dataproduct->id_flashsale)) {
+        (float)$harga_disc = $dataproduct->harga_master - ($dataproduct->harga_master * ($dataproduct->diskon / 100));
+        $diskon_format = rupiah($harga_disc);
+        $harga_master = rupiah($u->harga_master);
+    } else {
+        $diskon = ($getproduk->harga_varian) - ($getproduk->diskon_rupiah_varian);
+        $diskon_format = rupiah($diskon);
+        $harga_varian = rupiah($getproduk->harga_varian);
+    }
     $getprodukcoba[] = [
         'id_cart' => "",
         'id_master' => $getproduk->id_master,
@@ -100,9 +112,15 @@ if ($getproduk->id_variant) {
         'harga_tampil' => $getproduk->diskon_rupiah_varian != 0 ? ($diskon_format) : $harga_varian
     ];
 } else {
-    $diskon = ($getproduk->harga_master) - ($getproduk->diskon_rupiah);
-    $diskon_format = rupiah($diskon);
-    $harga_master = rupiah($getproduk->harga_master);
+    if (isset($dataproduct->id_flashsale)) {
+        (float)$harga_disc = $dataproduct->harga_master - ($dataproduct->harga_master * ($dataproduct->diskon / 100));
+        $diskon_format = rupiah($harga_disc);
+        $harga_master = rupiah($u->harga_master);
+    } else {
+        $diskon = ($getproduk->harga_master) - ($getproduk->diskon_rupiah);
+        $diskon_format = rupiah($diskon);
+        $harga_master = rupiah($getproduk->harga_master);
+    }
     $getprodukcoba[] = [
         'id_cart' => "",
         'id_master' => $getproduk->id_master,

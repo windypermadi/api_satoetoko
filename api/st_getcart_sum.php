@@ -6,7 +6,6 @@ $response = new Response();
 $id_login         = $_GET['id_login'];
 
 if (isset($id_login)) {
-
     $data = $conn->query("SELECT count(id) as jumlah_semua FROM user_keranjang a
 JOIN master_item b ON a.id_barang = b.id_master
 LEFT JOIN variant c ON a.id_variant = c.id_variant
