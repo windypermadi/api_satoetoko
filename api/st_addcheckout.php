@@ -6,11 +6,10 @@ $response = new Response();
 $dataraw = json_decode(file_get_contents('php://input'));
 $dataraw2 = json_decode(file_get_contents('php://input'), true);
 
-$exp_date = date("Y-m-d H:i:s", strtotime("+24 hours"));
-
 //? GET SERVER DATETIME
 date_default_timezone_set('Asia/Jakarta');
 $tanggal_sekarang = date('Y-m-d  H:i:s');
+$exp_date = date("Y-m-d H:i:s", strtotime("+24 hours"));
 
 $conn->begin_transaction();
 
@@ -113,7 +112,7 @@ foreach ($getproduk as $u) {
         $stokawal = $jml['jumlah'];
         $query[] = $conn->query("INSERT INTO stok_history SET 
         id_history = UUID_SHORT(),
-        tanggal_input = NOW(),
+        tanggal_input = '$tanggal_sekarang',
         master_item = '$u->id_master',
         varian_item = '$u->id_variant',
         id_warehouse = '$u->id_gudang',
@@ -171,7 +170,7 @@ foreach ($getproduk as $u) {
         $stokawal = $jml['jumlah'];
         $query[] = $conn->query("INSERT INTO stok_history SET 
         id_history = UUID_SHORT(),
-        tanggal_input = NOW(),
+        tanggal_input = '$tanggal_sekarang',
         master_item = '$u->id_master',
         varian_item = '$u->id_variant',
         id_warehouse = '$u->id_gudang',
@@ -194,7 +193,8 @@ $query[] = mysqli_query($conn, "INSERT INTO transaksi SET
         in_transaksi = '$idtransaksi',
         invoice = '$invoice',
         id_user = '$dataraw->id_user',
-        tanggal_transaksi = NOW(),
+        tanggal_transaksi = '$tanggal_sekarang',
+        tanggal_exp = '$exp_date',
         catatan_pembeli = '$dataraw->catatan_pembeli',
         label_alamat = '$label_alamat',
         alamat_penerima = '$gabung_alamat',

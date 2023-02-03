@@ -20,7 +20,7 @@ if (isset($id_login)) {
             JOIN stok d ON c.id_master = d.id_barang 
             JOIN cabang e ON d.id_warehouse = e.id_cabang
             LEFT JOIN variant f ON b.id_barang = f.id_variant
-            WHERE a.id_user = '$id_login' AND a.status_transaksi = '1' AND (a.tanggal_transaksi >= date_add(a.tanggal_transaksi, INTERVAL 1 DAY)) GROUP BY a.id_transaksi ORDER BY a.tanggal_transaksi DESC");
+            WHERE a.id_user = '$id_login' AND a.status_transaksi = '1' AND (a.tanggal_transaksi <= a.tanggal_exp) GROUP BY a.id_transaksi ORDER BY a.tanggal_transaksi DESC;");
 
             //status transaksi | total produk | batas transaksi
             $status_transaksi = 'Menunggu Pembayaran';

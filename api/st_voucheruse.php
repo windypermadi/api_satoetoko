@@ -37,19 +37,16 @@ if ($harga <= $getvoucher->minimal_transaksi) {
     }
 }
 
-$data1['harga_produk'] = (int)$harga;
-$data1['diskon_rupiah'] = (int)$total_potongan;
-$data1['diskon_persen'] = (int)$getvoucher->nilai_voucher;
-$data1['voucher'] = (int)$total_potongan;
-$data1['ppn_persen'] = '10%';
-$data1['ppn_rupiah'] = $jumlahbayar * 0.1;
-$data1['biaya_admin'] = 0;
-$data1['total'] = (int)$harga_produk;
+$data1['subtotal_produk'] = $harga;
+$data1['subtotal_pengiriman'] = $ongkir;
+$data1['subtotal_diskon'] = $total_potongan;
+$data1['subtotal_diskon_pengiriman'] = $total_potongan;
+$data1['subtotal'] = $harga;
 
-if (isset($result[0])) {
+if (isset($data1)) {
     $response->code = 200;
     $response->message = 'result';
-    $response->data = $result;
+    $response->data = $data1;
     $response->json();
     die();
 } else {
