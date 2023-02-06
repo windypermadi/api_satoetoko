@@ -501,10 +501,20 @@ if (isset($id_login)) {
             //?Data transaction
             $data = $conn->query("SELECT * FROM `transaksi` WHERE id_user = '$id_login' AND id_transaksi = '$id_transaksi'")->fetch_object();
 
+            $date = date_create($data->tanggal_transaksi);
+            date_add($date,  date_interval_create_from_date_string("1 days"));
+            $exp_date = date_format($date, "Y-m-d H:i:s");
+
             //! Status Transaksi
             $status_transaksi = $value['status_transaksi'];
             if ($status_transaksi == '1') {
-                $status = 'Menunggu Pembayaran';
+                if ($exp_date <= date('Y-m-d H:i:s')) {
+                    $status_transaksi = '9';
+                    $status = 'Dibatalkan';
+                } else {
+                    $status_transaksi = '1';
+                    $status = 'Menunggu Pembayaran';
+                }
             } else if ($status_transaksi == '2') {
                 $status = 'Menunggu Verifikasi Pembayaran';
             } else if ($status_transaksi == '3') {
@@ -549,7 +559,7 @@ if (isset($id_login)) {
             $getdatatransaction =
                 [
                     'id_transaksi' => $id_transaksi,
-                    'status_transaksi' => $value['status_transaksi'],
+                    'status_transaksi' => $status_transaksi,
                     'ket_status_transaksi' => $status,
                     'ambil_ditempat' => $value['kurir_code'] == '00' ? 'Y' : 'N',
                     'ket_ambil_ditempat' => $ketambil

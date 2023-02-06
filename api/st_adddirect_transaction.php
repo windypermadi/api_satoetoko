@@ -182,9 +182,29 @@ if ($getproduk->id_variant) {
     ];
 
     //! INSERT TRANSAKSI DETAIL TIDAK ADA VARIANT
-    $harga_diskon = $getproduk->harga_master - $getproduk->diskon_rupiah;
     $feetoko = $harga_diskon - ($harga_diskon * ($getproduk->fee_admin / 100));
     $sbtotal = round($harga_diskon * $getproduk->qty);
+
+    //! MENGECEK APAKAH ADA FLASHSALE ATAU TIDAK TIDAK DITRANSAKSI
+    $dataproduct = $conn->query("SELECT *, (stok_flashdisk-stok_terjual_flashdisk) as sisa_stok FROM flashsale a 
+                JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
+                JOIN master_item c ON b.kd_barang = c.id_master
+                WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND a.waktu_mulai <= NOW() AND a.waktu_selesai >= NOW() AND b.kd_barang = '$u->id_master'")->fetch_object();
+
+    if (isset($dataproduct->id_flashsale)) {
+        if ($dataproduct->sisa_stok != 0) {
+            (float)$harga_disc = $dataproduct->harga_master - ($dataproduct->harga_master * ($dataproduct->diskon / 100));
+            $harga_diskon = $harga_disc;
+            $diskon = $dataproduct->diskon;
+        } else {
+            $harga_diskon = $getproduk->harga_master - $getproduk->diskon_rupiah;
+            $diskon = $getproduk->diskon_rupiah;
+        }
+    } else {
+        $harga_diskon = $getproduk->harga_master - $getproduk->diskon_rupiah;
+        $diskon = $getproduk->diskon_rupiah;
+    }
+
 
     $query[] = $conn->query("INSERT INTO transaksi_detail SET 
         id_transaksi_detail = UUID_SHORT(),
@@ -192,7 +212,7 @@ if ($getproduk->id_variant) {
         id_barang = '$getproduk->id_master',
         id_supplier = '$getproduk->id_supplier',
         harga_barang = $getproduk->harga_master,
-        diskon_barang = $getproduk->diskon_rupiah,
+        diskon_barang = $diskon,
         harga_diskon = $harga_diskon,
         jumlah_beli = $dataraw->qty,
         berat = $berat_detail,

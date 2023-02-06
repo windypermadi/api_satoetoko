@@ -311,6 +311,12 @@ switch ($tag) {
             $cekitemdata = $conn->query($datamaster);
             $data2 = $cekitemdata->fetch_object();
 
+            //? cek apakah barang ini masuk flashsale atau tidak
+            $dataproduct = $conn->query("SELECT *, (stok_flashdisk-stok_terjual_flashdisk) as sisa_stok FROM flashsale a 
+                JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
+                JOIN master_item c ON b.kd_barang = c.id_master
+                WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND a.waktu_mulai <= NOW() AND a.waktu_selesai >= NOW() AND b.kd_barang = '$value[id_master]'")->fetch_object();
+
 
             if ($value['status_varian'] == 'Y') {
                 $status_varian_diskon = 'UPTO';
@@ -349,8 +355,15 @@ switch ($tag) {
                 }
 
                 $status_jenis_harga = '1';
-                $harga_produk = rupiah($value['harga_master']);
-                $harga_tampil = rupiah($harga_disc);
+
+                if (isset($dataproduct->id_flashsale)) {
+                    (float)$harga_disc = $dataproduct->harga_master - ($dataproduct->harga_master * ($dataproduct->diskon / 100));
+                    $harga_produk = rupiah($value['harga_master']);
+                    $harga_tampil = rupiah($harga_disc);
+                } else {
+                    $harga_produk = rupiah($value['harga_master']);
+                    $harga_tampil = rupiah($harga_disc);
+                }
             }
 
             // if ($data2->status_master_detail == '2') {
