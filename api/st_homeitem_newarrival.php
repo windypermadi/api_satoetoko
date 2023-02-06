@@ -64,8 +64,6 @@ foreach ($data as $key => $value) {
         $imagegambar = $getimagefisik . $value['image_master'];
     }
 
-
-
     $result2[] = [
         'id_master' => $value['id_master'],
         'judul_master' => $value['judul_master'],

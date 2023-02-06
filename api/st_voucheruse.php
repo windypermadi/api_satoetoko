@@ -3,45 +3,84 @@ require_once('../config/koneksi.php');
 include "response.php";
 $response = new Response();
 
-$idvoucher = $_POST['idvoucher'];
+$id_voucher_barang = $_POST['id_voucher_barang'];
+$id_voucher_ongkir = $_POST['id_voucher_ongkir'];
 $harga = $_POST['harga_produk'];
 $ongkir = $_POST['harga_ongkir'];
-$id_master = $_POST['id_master'];
 
-$getmaster = $conn->query("SELECT * FROM master_item WHERE id_master = '$id_master'")->fetch_object();
-$status_master_detail = $getmaster->status_master_detail;
+//? get voucher barang
+$getvoucherbarang = mysqli_query($conn, "SELECT * FROM voucher WHERE idvoucher = '$id_voucher_barang' AND status_voucher = '3'")->fetch_object();
+$minimal_transaksi = $getvoucherbarang->minimal_transaksi;
+//? get voucher ongkir
+$getvoucherongkir = $conn->query("SELECT * FROM voucher WHERE idvoucher = '$id_voucher_ongkir' AND status_voucher = '2'")->fetch_object();
 
-$getvoucher = mysqli_query($conn, "SELECT * FROM voucher WHERE idvoucher = '$idvoucher'")->fetch_object();
-$minimal_transaksi = $getvoucher->minimal_transaksi;
+if (empty($id_voucher_barang)) {
+    $total_potongan_barang = 0;
+    $total_subtotal = $harga;
+} else {
+    if (isset($getvoucherbarang->idvoucher)) {
+        if ($harga <= $getvoucherbarang->minimal_transaksi) {
+            $response->code = 400;
+            $response->message = 'Total belanja kurang dari minimal transaksi';
+            $response->data = [];
+            $response->json();
+            die();
+        } else {
+            $total_potongan_barang = (int)$getvoucherbarang->nilai_voucher;
+        }
+    } else {
+        $total_potongan_barang = 0;
+        $response->code = 400;
+        $response->message = 'Voucher ini tidak sesuai.';
+        $response->data = [];
+        $response->json();
+        die();
+    }
+}
 
-if ($harga <= $getvoucher->minimal_transaksi) {
+if ($ongkir == 0 || !isset($ongkir) || $ongkir == NULL || $ongkir == '') {
     $response->code = 400;
-    $response->message = 'Total belanja kurang dari minimal transaksi';
+    $response->message = 'Voucher ongkir tidak bisa digunakan';
     $response->data = [];
     $response->json();
     die();
 } else {
-    if ($getvoucher->status_voucher == '1') {
-        $total_potongan = $harga - ($getvoucher->nilai_voucher);
-        $harga_disc = $harga - $total_potongan;
-    } else if ($getvoucher->status_voucher == '2') {
-        if ($ongkir != 0) {
-            $total_potongan = $ongkir - $getvoucher->nilai_voucher;
-            $harga_ongkir = $total_potongan;
-        } else {
-            $harga_ongkir = 0;
-        }
+    if (empty($id_voucher_ongkir)) {
+        $total_potongan_ongkir = 0;
+        $total_subtotal = $harga;
+        $subtotal_ongkir = 0;
     } else {
-        $total_potongan = $harga - ($getvoucher->nilai_voucher);
-        $harga_disc = $harga - $total_potongan;
+        if (isset($getvoucherongkir->idvoucher)) {
+            if ($harga <= $getvoucherongkir->minimal_transaksi) {
+                $response->code = 400;
+                $response->message = 'Total belanja kurang dari minimal transaksi';
+                $response->data = [];
+                $response->json();
+                die();
+            } else {
+                $total_potongan_ongkir = $ongkir - $getvoucherongkir->nilai_voucher;
+                if ($total_potongan_ongkir <= 0) {
+                    $subtotal_ongkir = (int)$ongkir;
+                } else {
+                    $subtotal_ongkir = (int)$getvoucherongkir->nilai_voucher;
+                }
+            }
+        } else {
+            $subtotal_ongkir = 0;
+            $response->code = 400;
+            $response->message = 'Voucher ini tidak sesuai.';
+            $response->data = [];
+            $response->json();
+            die();
+        }
     }
 }
 
 $data1['subtotal_produk'] = $harga;
 $data1['subtotal_pengiriman'] = $ongkir;
-$data1['subtotal_diskon'] = $total_potongan;
-$data1['subtotal_diskon_pengiriman'] = $total_potongan;
-$data1['subtotal'] = $harga;
+$data1['subtotal_diskon'] = $total_potongan_barang;
+$data1['subtotal_diskon_pengiriman'] = $subtotal_ongkir;
+$data1['subtotal'] = ($harga + $ongkir) - ($total_potongan_barang + $subtotal_ongkir);
 
 if (isset($data1)) {
     $response->code = 200;
