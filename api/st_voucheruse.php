@@ -19,7 +19,7 @@ if (empty($id_voucher_barang)) {
     $total_subtotal = $harga;
 } else {
     if (isset($getvoucherbarang->idvoucher)) {
-        if ($harga <= $getvoucherbarang->minimal_transaksi) {
+        if ($harga < $getvoucherbarang->minimal_transaksi) {
             $response->code = 400;
             $response->message = 'Total belanja kurang dari minimal transaksi';
             $response->data = [];
@@ -38,7 +38,7 @@ if (empty($id_voucher_barang)) {
     }
 }
 
-if ($ongkir == 0 || !isset($ongkir) || $ongkir == NULL || $ongkir == '') {
+if (!isset($ongkir) || $ongkir == NULL || $ongkir == '') {
     $response->code = 400;
     $response->message = 'Voucher ongkir tidak bisa digunakan';
     $response->data = [];
@@ -51,7 +51,7 @@ if ($ongkir == 0 || !isset($ongkir) || $ongkir == NULL || $ongkir == '') {
         $subtotal_ongkir = 0;
     } else {
         if (isset($getvoucherongkir->idvoucher)) {
-            if ($harga <= $getvoucherongkir->minimal_transaksi) {
+            if ($harga < $getvoucherongkir->minimal_transaksi) {
                 $response->code = 400;
                 $response->message = 'Total belanja kurang dari minimal transaksi';
                 $response->data = [];
