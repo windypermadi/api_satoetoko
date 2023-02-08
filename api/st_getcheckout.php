@@ -124,10 +124,11 @@ $address_shipper =
 
 $getdatatotal =
     [
-        'subtotal' => (string) ($dataraw['total'] + $dataongkir['harga']),
         'subtotal_produk' => $dataraw['total'],
         'subtotal_pengiriman' => "0",
         'subtotal_diskon' => "0",
+        'subtotal_diskon_pengiriman' => "0",
+        'subtotal' => (string) ($dataraw['total'] + $dataongkir['harga']),
     ];
 
 $getqtyproduk =

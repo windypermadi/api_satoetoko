@@ -46,7 +46,7 @@ foreach ($dataproduk as $i => $key) {
             c.keterangan_varian,b.harga_master, b.diskon_rupiah, c.harga_varian, c.diskon_rupiah_varian, 
             a.qty, c.diskon_rupiah_varian, d.berat as berat_buku, e.berat as berat_fisik, 
             b.status_master_detail, a.id_gudang, COUNT(a.id) as jumlah_produk,
-            f.id_supplier FROM user_keranjang a
+            f.id_supplier, b.fee_produk FROM user_keranjang a
             JOIN master_item b ON a.id_barang = b.id_master
             LEFT JOIN variant c ON a.id_variant = c.id_variant
             LEFT JOIN master_buku_detail d ON b.id_master = d.id_master
@@ -80,7 +80,7 @@ foreach ($getproduk as $u) {
 
         //! INSERT TRANSAKSI DETAIL ADA VARIANT
         $harga_diskon = $u->harga_varian - $u->diskon_rupiah_varian;
-        $feetoko = $harga_diskon - ($harga_diskon * ($u->fee_admin / 100));
+        $feetoko = $u->harga_varian * ($u->fee_produk / 100);
         $sbtotal = round($harga_diskon * $u->qty);
 
         $query[] = $conn->query("INSERT INTO transaksi_detail SET 
@@ -94,7 +94,7 @@ foreach ($getproduk as $u) {
         jumlah_beli = '$u->qty',
         berat = '$berat_detail',
         fee_toko = '$feetoko',  
-        sub_total = '$sbtotal'");
+        sub_total = '$dataraw->harga_normal'");
 
         //! UPDATE STOK PRODUCT
         $jml = $conn->query("SELECT jumlah FROM stok WHERE id_varian = '$u->id_variant'")->fetch_assoc();
@@ -137,7 +137,7 @@ foreach ($getproduk as $u) {
         ];
 
         //! INSERT TRANSAKSI DETAIL TIDAK ADA VARIANT
-        $feetoko = $harga_diskon - ($harga_diskon * ($u->fee_admin / 100));
+        $feetoko = $u->harga_master * ($u->fee_produk / 100);
         $sbtotal = round($harga_diskon * $u->qty);
 
         //! MENGECEK APAKAH ADA FLASHSALE ATAU TIDAK TIDAK DITRANSAKSI
@@ -171,7 +171,7 @@ foreach ($getproduk as $u) {
         jumlah_beli = '$u->qty',
         berat = '$berat_detail',
         fee_toko = '$feetoko',  
-        sub_total = '$sbtotal'");
+        sub_total = '$dataraw->harga_normal'");
 
         //! UPDATE STOK PRODUCT
         $jml = $conn->query("SELECT jumlah FROM stok WHERE id_barang = '$u->id_master'")->fetch_assoc();
@@ -205,6 +205,16 @@ if (empty(trim($dataraw->catatan_pembeli))) {
     $dataraw->catatan_pembeli = NULL;
 }
 
+//! UPDATE PENGGUNAAN VOUCHER ONGKIR
+if (!empty($dataraw->id_voucher_ongkir)) {
+    $query[] = $conn->query("UPDATE voucher_user SET status_pakai = '1', tgl_pakai = '$tanggal_sekarang' WHERE iduser = '$dataraw->id_user' AND idvoucher = '$dataraw->id_voucher_ongkir'");
+}
+
+//! UPDATE PENGGUNAAN VOUCHER BARANG
+if (!empty($dataraw->id_voucher_barang)) {
+    $query[] = $conn->query("UPDATE voucher_user SET status_pakai = '1', tgl_pakai = '$tanggal_sekarang' WHERE iduser = '$dataraw->id_user' AND idvoucher = '$dataraw->id_voucher_barang'");
+}
+
 //! UPDATE TABLE TRANSAKSI 
 $query[] = mysqli_query($conn, "INSERT INTO transaksi SET 
         id_transaksi = '$transaction->id',
@@ -224,9 +234,9 @@ $query[] = mysqli_query($conn, "INSERT INTO transaksi SET
         total_harga_setelah_diskon = '$dataraw->jumlahbayar',
         total_berat = $berat,
         harga_ongkir = $data_ongkir_harga,
-        voucher_harga = 0,
+        voucher_harga = '$dataraw->harga_voucher_barang',
         voucher_harga_persen = 0,
-        voucher_ongkir = 0,
+        voucher_ongkir = '$dataraw->harga_voucher_ongkir',
         kurir_pengirim = '$data_ongkir_layanan',
         kurir_code = '$data_ongkir_kode',
         kurir_service = '$data_ongkir_produk',

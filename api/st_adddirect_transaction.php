@@ -6,7 +6,6 @@ $response = new Response();
 $dataraw = json_decode(file_get_contents('php://input'));
 $dataraw2 = json_decode(file_get_contents('php://input'), true);
 
-
 //? GET SERVER DATETIME
 date_default_timezone_set('Asia/Jakarta');
 $tanggal_sekarang = date('Y-m-d  H:i:s');
@@ -98,14 +97,24 @@ $query[] = mysqli_query($conn, "INSERT INTO transaksi SET
         total_harga_setelah_diskon = '$dataraw->jumlahbayar',
         total_berat = '$berat',
         harga_ongkir = '$data_ongkir_harga',
-        voucher_harga = 0,
+        voucher_harga = '$dataraw->harga_voucher_barang',
         voucher_harga_persen = 0,
-        voucher_ongkir = 0,
+        voucher_ongkir = '$dataraw->harga_voucher_ongkir',
         kurir_pengirim = '$data_ongkir_layanan',
         kurir_code = '$data_ongkir_kode',
         kurir_service = '$data_ongkir_produk',
         id_cabang = '$dataraw->id_cabang',
         metode_pembayaran = '$dataraw->id_payment'");
+
+//! UPDATE PENGGUNAAN VOUCHER ONGKIR
+if (!empty($dataraw->id_voucher_ongkir)) {
+    $query[] = $conn->query("UPDATE voucher_user SET status_pakai = '1', tgl_pakai = '$tanggal_sekarang' WHERE iduser = '$dataraw->id_user' AND idvoucher = '$dataraw->id_voucher_ongkir'");
+}
+
+//! UPDATE PENGGUNAAN VOUCHER BARANG
+if (!empty($dataraw->id_voucher_barang)) {
+    $query[] = $conn->query("UPDATE voucher_user SET status_pakai = '1', tgl_pakai = '$tanggal_sekarang' WHERE iduser = '$dataraw->id_user' AND idvoucher = '$dataraw->id_voucher_barang'");
+}
 
 
 if ($getproduk->id_variant) {

@@ -9,8 +9,8 @@ $q = $_GET['q'] ?? '';
 !empty($q) ? $search = " AND b.nama_voucher LIKE '%$q%'" : $search = "";
 $data = $conn->query("SELECT * FROM voucher 
 			WHERE tipe_voucher = '3'
-            AND tgl_mulai <= CURRENT_DATE
-            AND tgl_berakhir >= CURRENT_DATE");
+            AND tgl_mulai <= NOW()
+            AND tgl_berakhir >= NOW()");
 foreach ($data as $key => $value) {
     $datalist[] = [
         'idvoucher' => $value['idvoucher'],
@@ -30,8 +30,8 @@ foreach ($data as $key => $value) {
 $data = $conn->query("SELECT * FROM voucher_user a 
             JOIN voucher b ON a.idvoucher=b.idvoucher 
             WHERE a.iduser = '$iduser' $search
-            AND b.tgl_mulai <= CURRENT_DATE
-            AND b.tgl_berakhir >= CURRENT_DATE AND a.status_pakai = '0'");
+            AND b.tgl_mulai <= NOW()
+            AND b.tgl_berakhir >= NOW() AND a.status_pakai = '0'");
 foreach ($data as $key => $value) {
 
     $cekpunya = $conn->query("SELECT * FROM voucher_user WHERE iduser = '$iduser' AND idvoucher = '$value[idvoucher]'")->fetch_object();
