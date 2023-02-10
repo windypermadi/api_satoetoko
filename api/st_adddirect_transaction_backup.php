@@ -78,7 +78,7 @@ if (empty(trim($dataraw->catatan_pembeli))) {
     $dataraw->catatan_pembeli = NULL;
 }
 
-//! UPDATE TABLE TRANSAKSI VARIAN
+//! UPDATE TABLE TRANSAKSI ADA VARIANT
 $query[] = mysqli_query($conn, "INSERT INTO transaksi SET 
         id_transaksi = '$transaction->id',
         pembuat_transaksi = 'F',
@@ -106,16 +106,15 @@ $query[] = mysqli_query($conn, "INSERT INTO transaksi SET
         id_cabang = '$dataraw->id_cabang',
         metode_pembayaran = '$dataraw->id_payment'");
 
-//! UPDATE PENGGUNAAN VOUCHER ONGKIR
+//! UPDATE PENGGUNAAN VOUCHER ONGKIR ADA VARIANT
 if (!empty($dataraw->id_voucher_ongkir)) {
     $query[] = $conn->query("UPDATE voucher_user SET status_pakai = '1', tgl_pakai = '$tanggal_sekarang' WHERE iduser = '$dataraw->id_user' AND idvoucher = '$dataraw->id_voucher_ongkir'");
 }
 
-//! UPDATE PENGGUNAAN VOUCHER BARANG
+//! UPDATE PENGGUNAAN VOUCHER BARANG ADA VARIANT
 if (!empty($dataraw->id_voucher_barang)) {
     $query[] = $conn->query("UPDATE voucher_user SET status_pakai = '1', tgl_pakai = '$tanggal_sekarang' WHERE iduser = '$dataraw->id_user' AND idvoucher = '$dataraw->id_voucher_barang'");
 }
-
 
 if ($getproduk->id_variant) {
     $diskon = ($getproduk->harga_varian) - ($getproduk->diskon_rupiah_varian);
@@ -133,9 +132,8 @@ if ($getproduk->id_variant) {
     ];
 
     //! INSERT TRANSAKSI DETAIL ADA VARIANT
-    $harga_diskon = $getproduk->harga_varian - $getproduk->diskon_rupiah_varian;
-    $feetoko = $harga_diskon - ($harga_diskon * ($getproduk->fee_admin / 100));
-    $sbtotal = round($harga_diskon * $getproduk->qty);
+    $harga_diskont = $getproduk->harga_varian - $getproduk->diskon_rupiah_varian;
+    $feetoko = $harga_diskont - ($harga_diskont * ($getproduk->fee_admin / 100));
 
     $query[] = $conn->query("INSERT INTO transaksi_detail SET 
         id_transaksi_detail = UUID_SHORT(),
@@ -148,21 +146,21 @@ if ($getproduk->id_variant) {
         jumlah_beli = $dataraw->qty,
         berat = $berat_detail,
         fee_toko = $feetoko,  
-        sub_total = $sbtotal");
+        sub_total = '$dataraw->harga_normal'");
 
-    //! UPDATE STOK PRODUCT
+    //! UPDATE STOK PRODUCT ADA VARIANT
     $jml = $conn->query("SELECT jumlah FROM stok WHERE id_varian = '$getproduk->id_variant'")->fetch_assoc();
     $total_dibeli2 = $jml['jumlah'];
     $hasiljumlah = $jml['jumlah'] - $dataraw->qty;
 
     $query[] = $conn->query("UPDATE stok SET jumlah = '$hasiljumlah' WHERE id_varian = '$getproduk->id_variant'");
 
-    //! UPDATE JUMLAH PEMBELIAN BARANG
+    //! UPDATE JUMLAH PEMBELIAN BARANG ADA VARIANT
     // $total_dibeli = $conn->query("SELECT total_dibeli FROM id_master = '$getproduk->id_master'")->fetch_assoc();
     // $total_dibeli3 = $total_dibeli['total_dibeli'];
     // $query[] = $conn->query("UPDATE master_item SET total_dibeli = '$total_dibeli3' + '$total_dibeli2' WHERE id_master = '$getproduk->id_master'");
 
-    //! UPDATE STOK HISTORY PRODUCT
+    //! UPDATE STOK HISTORY PRODUCT ADA VARIANT
     $stokawal = $jml['jumlah'];
     $query[] = $conn->query("INSERT INTO stok_history SET 
         id_history = UUID_SHORT(),
@@ -176,7 +174,7 @@ if ($getproduk->id_variant) {
         stok_awal = '$stokawal',  
         stok_sekarang = '$hasiljumlah'");
 } else {
-    //*  TRANSAKSI TANPA VARIANT
+    //* TANPA VARIAN
     $diskon = ($getproduk->harga_master) - ($getproduk->diskon_rupiah);
     $diskon_format = "Rp" . number_format($diskon, 0, ',', '.');
     $harga_master = "Rp" . number_format($getproduk->harga_master, 0, ',', '.');
@@ -191,35 +189,28 @@ if ($getproduk->id_variant) {
         'harga_tampil' => $getproduk->diskon_rupiah != 0 ? ($diskon_format) : $harga_master
     ];
 
-    //* INSERT TRANSAKSI DETAIL TIDAK ADA VARIANT
+    //* INSERT TRANSAKSI DETAIL TANPA VARIAN
     $harga_diskont = $getproduk->harga_master - $getproduk->diskon_rupiah;
-    $feetoko = $getproduk->harga_master * ($getproduk->fee_produk / 100);
+    $feetoko = ($harga_diskont) - ($harga_diskont * ($getproduk->fee_produk / 100));
 
-    //* MENGECEK APAKAH ADA FLASHSALE ATAU TIDAK TIDAK DITRANSAKSI
-    $flashquery = "SELECT *, (stok_flashdisk-stok_terjual_flashdisk) as sisa_stok FROM flashsale a 
+    //* MENGECEK APAKAH ADA FLASHSALE ATAU TIDAK DITRANSAKSI TANPA VARIAN
+    $dataproduct = $conn->query("SELECT *, (stok_flashdisk-stok_terjual_flashdisk) as sisa_stok FROM flashsale a 
                 JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
                 JOIN master_item c ON b.kd_barang = c.id_master
-                WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND a.waktu_mulai <= NOW() AND a.waktu_selesai >= NOW() AND b.kd_barang = '$getproduk->id_master'";
-    $dataproduct = $conn->query($flashquery)->fetch_object();
-    $numsdata = $conn->query($flashquery)->num_rows;
+                WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND a.waktu_mulai <= NOW() AND a.waktu_selesai >= NOW() AND b.kd_barang = '$u->id_master'")->fetch_object();
 
-    if (!empty($dataproduct->id_flashsale)) {
-        if ($dataproduct->sisa_stok > 0) {
+    if (isset($dataproduct->id_flashsale)) {
+        if ($dataproduct->sisa_stok != 0) {
             (float)$harga_disc = $dataproduct->harga_master - ($dataproduct->harga_master * ($dataproduct->diskon / 100));
             $harga_diskon = $harga_disc;
             $diskon = $dataproduct->harga_master * ($dataproduct->diskon / 100);
-            $flashsaleid = $dataproduct->id_flashsale;
-            //* UPDATE STOK FLASHSALE
-            $query[] = $conn->query("UPDATE flashsale_detail SET stok_terjual_flashdisk = stok_terjual_flashdisk + $dataraw->qty WHERE kd_barang = '$getproduk->id_master' AND kd_flashsale = '$dataproduct->id_flashsale'");
         } else {
             $harga_diskon = $getproduk->harga_master - $getproduk->diskon_rupiah;
             $diskon = $getproduk->diskon_rupiah;
-            $flashsaleid = '';
         }
     } else {
         $harga_diskon = $getproduk->harga_master - $getproduk->diskon_rupiah;
         $diskon = $getproduk->diskon_rupiah;
-        $flashsaleid = '';
     }
 
     $query[] = $conn->query("INSERT INTO transaksi_detail SET 
@@ -227,7 +218,7 @@ if ($getproduk->id_variant) {
         id_transaksi = '$transaction->id',
         id_barang = '$getproduk->id_master',
         id_supplier = '$getproduk->id_supplier',
-        id_flashsale = '$flashsaleid',
+        id_flashsale = isset($dataproduct->id_flashsale) ? '$dataproduct->id_flashsale' : '',
         harga_barang = $getproduk->harga_master,
         diskon_barang = $diskon,
         harga_diskon = $harga_diskon,
@@ -243,12 +234,12 @@ if ($getproduk->id_variant) {
 
     $query[] = $conn->query("UPDATE stok SET jumlah = '$hasiljumlah' WHERE id_barang = '$getproduk->id_master'");
 
-    //* UPDATE JUMLAH PEMBELIAN BARANG
+    //* UPDATE JUMLAH PEMBELIAN BARANG TANPA VARIAN
     // $total_dibeli = $conn->query("SELECT total_dibeli FROM id_master = '$getproduk->id_master'")->fetch_assoc();
     // $total_dibeli3 = $total_dibeli['total_dibeli'];
     // $query[] = $conn->query("UPDATE master_item SET total_dibeli = '$total_dibeli3' + '$total_dibeli2' WHERE id_master = '$getproduk->id_master'");
 
-    //* UPDATE STOK HISTORY PRODUCT
+    //* UPDATE STOK HISTORY PRODUCT TANPA VARIAN
     $stokawal = $jml['jumlah'];
     $query[] = $conn->query("INSERT INTO stok_history SET 
         id_history = UUID_SHORT(),

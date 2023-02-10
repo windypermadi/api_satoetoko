@@ -23,7 +23,7 @@ foreach ($data as $key => $value) {
         'tgl_berakhir' => $value['tgl_berakhir'],
         'status_voucher' => $value['status_voucher'],
         'ket_status' => '',
-        'status_klaim' => ''
+        'status_klaim' => true
     ];
 }
 

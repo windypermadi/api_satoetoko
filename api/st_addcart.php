@@ -11,16 +11,39 @@ $jumlah           = $_POST['jumlah'];
 
 if (isset($id_login) && isset($id_cabang) && isset($id_master) && isset($jumlah)) {
 
+    $datastok = mysqli_fetch_object($conn->query("SELECT sum(jumlah) as jumlah FROM stok a JOIN cabang b ON a.id_warehouse = b.id_cabang WHERE a.id_barang = '$id_master' AND a.id_warehouse = '$id_cabang'"));
+
     if (empty($id_variant)) {
+        //* CEK FLASHSALE
+        $sekarang = "SELECT * FROM flashsale a 
+        JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
+        JOIN master_item c ON b.kd_barang = c.id_master
+        WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND b.kd_barang = '$id_master' AND a.waktu_mulai <= NOW() AND a.waktu_selesai >= NOW()";
+        $ceksekarang = $conn->query($sekarang)->num_rows;
+        $getflash = $conn->query($sekarang)->fetch_object();
+
+        $akandatang = "SELECT * FROM flashsale a 
+        JOIN flashsale_detail b ON a.id_flashsale = b.kd_flashsale
+        JOIN master_item c ON b.kd_barang = c.id_master
+        WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND b.kd_barang = '$id_master' AND a.waktu_mulai >= NOW() AND a.waktu_selesai >= NOW()";
+        $cekakandatang = $conn->query($akandatang)->num_rows;
+
         $q = "SELECT id,qty FROM user_keranjang WHERE id_user = 
                 '$id_login' AND id_barang = '$id_master' AND id_gudang = '$id_cabang'";
         $cekitemdata = $conn->query($q);
 
         if ($cekitemdata->num_rows > 0) {
-            $data = $cekitemdata->fetch_object();
-            $qty = $data->qty;
-            $qty = $qty + $jumlah;
-            $query = mysqli_query($conn, "UPDATE user_keranjang SET qty = '$qty' WHERE id = '$data->id'");
+            if ($ceksekarang > 0) {
+                $response->data = null;
+                $response->message = 'Produk flashsale ini cuma dapat beli 1 produk';
+                $response->error(400);
+                die();
+            } else {
+                $data = $cekitemdata->fetch_object();
+                $qty = $data->qty;
+                $qty = $qty + $jumlah;
+                $query = mysqli_query($conn, "UPDATE user_keranjang SET qty = '$qty' WHERE id = '$data->id'");
+            }
         } else {
             $qty = $jumlah;
             $query = mysqli_query($conn, "INSERT INTO user_keranjang SET id = UUID(),

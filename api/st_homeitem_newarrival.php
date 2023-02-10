@@ -59,9 +59,17 @@ foreach ($data as $key => $value) {
     $status_jenis_harga = '1';
 
     if ($value['status_master_detail'] == '2') {
-        $imagegambar = $getimagebukufisik . $value['image_master'];
+        if (substr($value['image_master'], 0, 4) == 'http') {
+            $imagegambar = $value['image_master'];
+        } else {
+            $imagegambar = $getimagebukufisik . $value['image_master'];
+        }
     } else {
-        $imagegambar = $getimagefisik . $value['image_master'];
+        if (substr($value['image_master'], 0, 4) == 'http') {
+            $imagegambar = $value['image_master'];
+        } else {
+            $imagegambar = $getimagefisik . $value['image_master'];
+        }
     }
 
     $result2[] = [
@@ -78,20 +86,6 @@ foreach ($data as $key => $value) {
         'total_dibeli' => (int)$value['total_dibeli'],
         'rating_item' => 0,
     ];
-    // array_push($result2, array(
-    //     'id_master' => $value['id_master'],
-    //     'judul_master' => $value['judul_master'],
-    //     'image_master' => $getimagefisik . $value['image_master'],
-    //     'harga_produk' => $harga_produk,
-    //     'harga_tampil' => $harga_tampil,
-    //     'status_diskon' => $status_diskon,
-    //     'status_varian_diskon' => $status_varian_diskon,
-    //     'status_jenis_harga' => $status_jenis_harga,
-    //     'status_stok' => $status_stok,
-    //     'diskon' => $value['diskon_persen'] . "%",
-    //     'total_dibeli' => $value['total_dibeli'] . " terjual",
-    //     'rating_item' => 0,
-    // ));
 }
 
 $result['nama_list'] = 'New Arrival';

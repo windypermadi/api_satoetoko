@@ -82,7 +82,6 @@ if (isset($id_master)) {
                 JOIN kategori c ON b.parent_kategori = c.id_kategori WHERE a.id_master = 
                 '$id_master'")->fetch_object();
 
-
     switch ($data->status_master_detail) {
         case '2':
             //? buku fisik
@@ -104,30 +103,50 @@ if (isset($id_master)) {
 LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data->id_master'");
             $imageurls = array();
             while ($key = mysqli_fetch_object($imageurl)) {
+                if (substr($key->image_master, 0, 4) == 'http') {
+                    $imagegambar = $key->image_master;
+                } else {
+                    $imagegambar = $getimagebukufisik . $key->image_master;
+                }
                 array_push($imageurls, array(
                     'status_url' => '1',
                     'keterangan' => 'image',
-                    'url' => $getimagebukufisik . $key->image_master,
+                    'url' => $imagegambar,
                 ));
                 if (!empty($key->gambar_1) and $key->gambar_1 != 'default.png') {
+                    if (substr($key->gambar_1, 0, 4) == 'http') {
+                        $imagegambar = $key->gambar_1;
+                    } else {
+                        $imagegambar = $getimagebukufisik . $key->gambar_1;
+                    }
                     array_push($imageurls, array(
                         'status_url' => '1',
                         'keterangan' => 'image',
-                        'url' => $getimagebukufisik . $key->gambar_1,
+                        'url' => $imagegambar,
                     ));
                 }
                 if (!empty($key->gambar_2) and $key->gambar_2 != 'default.png') {
+                    if (substr($key->gambar_2, 0, 4) == 'http') {
+                        $imagegambar = $key->gambar_2;
+                    } else {
+                        $imagegambar = $getimagebukufisik . $key->gambar_2;
+                    }
                     array_push($imageurls, array(
                         'status_url' => '1',
                         'keterangan' => 'image',
-                        'url' => $getimagebukufisik . $key->gambar_2,
+                        'url' => $imagegambar,
                     ));
                 }
                 if (!empty($key->gambar_3) and $key->gambar_3 != 'default.png') {
+                    if (substr($key->gambar_3, 0, 4) == 'http') {
+                        $imagegambar = $key->gambar_3;
+                    } else {
+                        $imagegambar = $getimagebukufisik . $key->gambar_3;
+                    }
                     array_push($imageurls, array(
                         'status_url' => '1',
                         'keterangan' => 'image',
-                        'url' => $getimagebukufisik . $key->gambar_3,
+                        'url' => $imagegambar,
                     ));
                 }
             }
@@ -135,20 +154,26 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
             if ($datanew->status_varian == 'Y') {
                 $variant = $conn->query("SELECT * FROM variant a JOIN stok b ON a.id_variant = b.id_varian WHERE a.id_master = '$id_master'");
                 foreach ($variant as $key => $value) {
+                    if (substr($value['image_varian'], 0, 4) == 'http') {
+                        $imagegambar = $value['image_varian'];
+                    } else {
+                        $imagegambar = $getimagebukufisik . $value['image_varian'];
+                    }
+
                     $variants[] = [
                         'id_variant' => $value['id_variant'],
                         'keterangan_varian' => $value['keterangan_varian'],
                         'harga_varian' => $value['harga_varian'],
                         'diskon_rupiah_varian' => $value['diskon_rupiah_varian'],
                         'diskon_persen_varian' => $value['diskon_persen_varian'],
-                        'image_varian' => $getimagebukufisik . $value['image_varian'],
+                        'image_varian' => $imagegambar,
                         'stok' => $value['jumlah'],
                     ];
 
                     $url_variants[] = [
                         'status_url' => '1',
                         'keterangan' => 'image',
-                        'image_varian' => $getimagebukufisik . $value['image_varian']
+                        'image_varian' => $imagegambar
                     ];
                 }
             } else {
@@ -172,10 +197,15 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
 LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data->id_master'");
             $imageurls = array();
             while ($key = mysqli_fetch_object($imageurl)) {
+                if (substr($key->image_master, 0, 4) == 'http') {
+                    $imagegambar = $key->image_master;
+                } else {
+                    $imagegambar = $getimagefisik . $key->image_master;
+                }
                 array_push($imageurls, array(
                     'status_url' => '1',
                     'keterangan' => 'image',
-                    'url' => $getimagefisik . $key->image_master,
+                    'url' => $imagegambar,
                 ));
                 if ($key->video_produk != NULL) {
                     array_push($imageurls, array(
@@ -184,25 +214,40 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
                         'url' => $getvideofisik . $key->video_produk,
                     ));
                 }
-                if ($key->gambar_1 != NULL) {
+                if (!empty($key->gambar_1) and $key->gambar_1 != 'default.png') {
+                    if (substr($key->gambar_1, 0, 4) == 'http') {
+                        $imagegambar = $key->gambar_1;
+                    } else {
+                        $imagegambar = $getimagefisik . $key->gambar_1;
+                    }
                     array_push($imageurls, array(
                         'status_url' => '1',
                         'keterangan' => 'image',
-                        'url' => $getimagefisik . $key->gambar_1,
+                        'url' => $imagegambar,
                     ));
                 }
-                if ($key->gambar_2 != NULL) {
+                if (!empty($key->gambar_2) and $key->gambar_2 != 'default.png') {
+                    if (substr($key->gambar_2, 0, 4) == 'http') {
+                        $imagegambar = $key->gambar_2;
+                    } else {
+                        $imagegambar = $getimagefisik . $key->gambar_2;
+                    }
                     array_push($imageurls, array(
                         'status_url' => '1',
                         'keterangan' => 'image',
-                        'url' => $getimagefisik . $key->gambar_2,
+                        'url' => $imagegambar,
                     ));
                 }
-                if ($key->gambar_3 != NULL) {
+                if (!empty($key->gambar_3) and $key->gambar_3 != 'default.png') {
+                    if (substr($key->gambar_3, 0, 4) == 'http') {
+                        $imagegambar = $key->gambar_3;
+                    } else {
+                        $imagegambar = $getimagefisik . $key->gambar_3;
+                    }
                     array_push($imageurls, array(
                         'status_url' => '1',
                         'keterangan' => 'image',
-                        'url' => $getimagefisik . $key->gambar_3,
+                        'url' => $imagegambar,
                     ));
                 }
             }
@@ -210,20 +255,26 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
             if ($datanew->status_varian == 'Y') {
                 $variant = $conn->query("SELECT * FROM variant a JOIN stok b ON a.id_variant = b.id_varian WHERE a.id_master = '$id_master'");
                 foreach ($variant as $key => $value) {
+                    if (substr($value['image_varian'], 0, 4) == 'http') {
+                        $imagegambar = $value['image_varian'];
+                    } else {
+                        $imagegambar = $getimagefisik . $value['image_varian'];
+                    }
+
                     $variants[] = [
                         'id_variant' => $value['id_variant'],
                         'keterangan_varian' => $value['keterangan_varian'],
                         'harga_varian' => $value['harga_varian'],
                         'diskon_rupiah_varian' => $value['diskon_rupiah_varian'],
                         'diskon_persen_varian' => $value['diskon_persen_varian'],
-                        'image_varian' => $getimagefisik . $value['image_varian'],
+                        'image_varian' => substr($value['image_varian'], 0, 4) == 'http' ? $value['image_varian'] :  $getimagefisik . $value['image_varian'],
                         'stok' => $value['jumlah'],
                     ];
 
                     $url_variants[] = [
                         'status_url' => '1',
                         'keterangan' => 'image',
-                        'image_varian' => $getimagefisik . $value['image_varian']
+                        'image_varian' => substr($value['image_varian'], 0, 4) == 'http' ? $value['image_varian'] :  $getimagefisik . $value['image_varian']
                     ];
                 }
             } else {

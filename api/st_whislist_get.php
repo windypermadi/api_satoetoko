@@ -91,9 +91,17 @@ switch ($tag) {
             }
 
             if ($value['status_master_detail'] == '2') {
-                $imagegambar = $getimagebukufisik . $value['image_master'];
+                if (substr($value['image_varian'], 0, 4) == 'http') {
+                    $imagegambar = $value['image_master'];
+                } else {
+                    $imagegambar = $getimagebukufisik . $value['image_master'];
+                }
             } else {
-                $imagegambar = $getimagefisik . $value['image_master'];
+                if (substr($value['image_master'], 0, 4) == 'http') {
+                    $imagegambar = $value['image_master'];
+                } else {
+                    $imagegambar = $getimagefisik . $value['image_master'];
+                }
             }
 
             $result2[] = [

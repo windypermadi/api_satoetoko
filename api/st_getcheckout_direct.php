@@ -77,11 +77,26 @@ if ($getproduk->id_variant) {
         $diskon_format = rupiah($diskon);
         $harga_varian = rupiah($getproduk->harga_varian);
     }
+
+    if ($getproduk->status_master_detail == '2') {
+        if (substr($getproduk->image_master, 0, 4) == 'http') {
+            $imagegambar = $getproduk->image_master;
+        } else {
+            $imagegambar = $getimagebukufisik . $getproduk->image_master;
+        }
+    } else {
+        if (substr($getproduk->image_master, 0, 4) == 'http') {
+            $imagegambar = $getproduk->image_master;
+        } else {
+            $imagegambar = $getimagefisik . $getproduk->image_master;
+        }
+    }
+
     $getprodukcoba[] = [
         'id_cart' => "",
         'id_master' => $getproduk->id_master,
         'judul_master' => $getproduk->judul_master,
-        'image_master' => $getproduk->status_master_detail == '2' ? $getimagebukufisik . $getproduk->image_master : $getimagefisik . $getproduk->image_master,
+        'image_master' => $imagegambar,
         'id_variant' => $dataproduk['id_variant'],
         'keterangan_varian' => $getproduk->keterangan_varian != null ? $getproduk->keterangan_varian : "",
         'qty' => $dataraw->qty,
@@ -98,11 +113,26 @@ if ($getproduk->id_variant) {
         $diskon_format = rupiah($diskon);
         $harga_master = rupiah($getproduk->harga_master);
     }
+
+    if ($getproduk->status_master_detail == '2') {
+        if (substr($getproduk->image_master, 0, 4) == 'http') {
+            $imagegambar = $getproduk->image_master;
+        } else {
+            $imagegambar = $getimagebukufisik . $getproduk->image_master;
+        }
+    } else {
+        if (substr($getproduk->image_master, 0, 4) == 'http') {
+            $imagegambar = $getproduk->image_master;
+        } else {
+            $imagegambar = $getimagefisik . $getproduk->image_master;
+        }
+    }
+
     $getprodukcoba[] = [
         'id_cart' => "",
         'id_master' => $getproduk->id_master,
         'judul_master' => $getproduk->judul_master,
-        'image_master' => $getproduk->status_master_detail == '2' ? $getimagebukufisik . $getproduk->image_master : $getimagefisik . $getproduk->image_master,
+        'image_master' => $imagegambar,
         'id_variant' => "",
         'keterangan_varian' => "",
         'qty' => $dataraw->qty,

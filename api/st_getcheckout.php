@@ -39,11 +39,26 @@ foreach ($getproduk as $u) {
         $diskon_format = rupiah($diskon);
         $harga_master = rupiah($u->harga_varian);
         //? Harga Product
+
+        if ($data2->status_master_detail == '2') {
+            if (substr($u->image_master, 0, 4) == 'http') {
+                $imagegambar = $u->image_master;
+            } else {
+                $imagegambar = $getimagebukufisik . $u->image_master;
+            }
+        } else {
+            if (substr($u->image_master, 0, 4) == 'http') {
+                $imagegambar = $u->image_master;
+            } else {
+                $imagegambar = $getimagefisik . $u->image_master;
+            }
+        }
+
         $getprodukcoba[] = [
             'id_cart' => $u->id_cart,
             'id_master' => $u->id_master,
             'judul_master' => $u->judul_master,
-            'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $u->image_master : $getimagefisik . $u->image_master,
+            'image_master' => $imagegambar,
             'id_variant' => $u->id_variant,
             'keterangan_varian' => $u->keterangan_varian != null ? $u->keterangan_varian : "",
             'qty' => $u->qty,
@@ -64,11 +79,24 @@ foreach ($getproduk as $u) {
             $diskon_format = rupiah($harga_disc);
             $harga_master = rupiah($u->harga_master);
             //? Harga Product
+            if ($data2->status_master_detail == '2') {
+                if (substr($u->image_master, 0, 4) == 'http') {
+                    $imagegambar = $u->image_master;
+                } else {
+                    $imagegambar = $getimagebukufisik . $u->image_master;
+                }
+            } else {
+                if (substr($u->image_master, 0, 4) == 'http') {
+                    $imagegambar = $u->image_master;
+                } else {
+                    $imagegambar = $getimagefisik . $u->image_master;
+                }
+            }
             $getprodukcoba[] = [
                 'id_cart' => $u->id_cart,
                 'id_master' => $u->id_master,
                 'judul_master' => $u->judul_master,
-                'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $u->image_master : $getimagefisik . $u->image_master,
+                'image_master' => $imagegambar,
                 'id_variant' => $u->id_variant,
                 'keterangan_varian' => $u->keterangan_varian != null ? $u->keterangan_varian : "",
                 'qty' => $u->qty,
@@ -81,11 +109,24 @@ foreach ($getproduk as $u) {
             $diskon_format = rupiah($diskon);
             $harga_master = rupiah($u->harga_master);
             //? Harga Product
+            if ($data2->status_master_detail == '2') {
+                if (substr($u->image_master, 0, 4) == 'http') {
+                    $imagegambar = $u->image_master;
+                } else {
+                    $imagegambar = $getimagebukufisik . $u->image_master;
+                }
+            } else {
+                if (substr($u->image_master, 0, 4) == 'http') {
+                    $imagegambar = $u->image_master;
+                } else {
+                    $imagegambar = $getimagefisik . $u->image_master;
+                }
+            }
             $getprodukcoba[] = [
                 'id_cart' => $u->id_cart,
                 'id_master' => $u->id_master,
                 'judul_master' => $u->judul_master,
-                'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $u->image_master : $getimagefisik . $u->image_master,
+                'image_master' => $imagegambar,
                 'id_variant' => $u->id_variant,
                 'keterangan_varian' => $u->keterangan_varian != null ? $u->keterangan_varian : "",
                 'qty' => $u->qty,
@@ -122,13 +163,21 @@ $address_shipper =
         'address' => $gabung_alamat_shipper,
     ];
 
+//? SUBTOTAL
+if (!empty($dataraw['id_voucher_barang'])) {
+    //? get voucher barang
+    $getvoucherbarang = mysqli_query($conn, "SELECT * FROM voucher WHERE idvoucher = '$dataraw[id_voucher_barang]' AND status_voucher = '3'")->fetch_object();
+    $voucherBarang = $getvoucherbarang->nilai_voucher;
+} else {
+    $voucherBarang = "0";
+}
 $getdatatotal =
     [
         'subtotal_produk' => $dataraw['total'],
         'subtotal_pengiriman' => "0",
-        'subtotal_diskon' => "0",
+        'subtotal_diskon' => (string)$voucherBarang,
         'subtotal_diskon_pengiriman' => "0",
-        'subtotal' => (string) ($dataraw['total'] + $dataongkir['harga']),
+        'subtotal' => (string) ($dataraw['total'] + $dataongkir['harga'] - ($voucherBarang)),
     ];
 
 $getqtyproduk =
