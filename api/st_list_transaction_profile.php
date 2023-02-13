@@ -580,7 +580,7 @@
             case 'detail':
                 $id_transaksi         = $_GET['id_transaksi'];
 
-                $getproduk = $conn->query("SELECT c.id_master, b.total_harga_sebelum_diskon, b.harga_ongkir, b.total_harga_setelah_diskon, b.voucher_harga, c.judul_master, c.image_master, a.jumlah_beli, a.harga_barang, a.diskon_barang, a.harga_diskon, b.invoice, d.id_variant, d.keterangan_varian, d.diskon_rupiah_varian, d.image_varian, b.status_transaksi, b.kurir_pengirim, b.kurir_code, b.kurir_service, b.metode_pembayaran, b.midtrans_transaction_status, b.midtrans_payment_type, b.midtrans_token, b.midtrans_redirect_url, b.alamat_penerima, b.nama_penerima, b.label_alamat, b.telepon_penerima, b.tanggal_transaksi, b.tanggal_dibayar, b.tgl_packing, b.nomor_resi, c.status_master_detail, b.st_packing
+                $getproduk = $conn->query("SELECT c.id_master, b.total_harga_sebelum_diskon, b.harga_ongkir, b.total_harga_setelah_diskon, b.voucher_harga, b.voucher_ongkir, c.judul_master, c.image_master, a.jumlah_beli, a.harga_barang, a.diskon_barang, a.harga_diskon, b.invoice, d.id_variant, d.keterangan_varian, d.diskon_rupiah_varian, d.image_varian, b.status_transaksi, b.kurir_pengirim, b.kurir_code, b.kurir_service, b.metode_pembayaran, b.midtrans_transaction_status, b.midtrans_payment_type, b.midtrans_token, b.midtrans_redirect_url, b.alamat_penerima, b.nama_penerima, b.label_alamat, b.telepon_penerima, b.tanggal_transaksi, b.tanggal_dibayar, b.tgl_packing, b.nomor_resi, c.status_master_detail, b.st_packing
                         FROM transaksi_detail a 
                         JOIN transaksi b ON a.id_transaksi = b.id_transaksi
                         LEFT JOIN master_item c ON a.id_barang = c.id_master
@@ -659,9 +659,8 @@
                     [
                         'subtotal_produk' => (int)$getjumlahsubtotal->getjumlahsubtotal,
                         'subtotal_pengiriman' => (int)$value['harga_ongkir'],
-                        'subtotal_diskon_barang' => (int)$getjumlahsubtotal->subdiskon_barang,
-                        'subtotal_diskon_ongkir' => (int)$value['voucher_harga'],
-                        'subtotal_voucher' => (int)$value['voucher_harga'],
+                        'subtotal_diskon_barang' => (int)$value['voucher_harga'],
+                        'subtotal_diskon_ongkir' => (int)$value['voucher_ongkir'],
                         'subtotal_ppn' => 0,
                         'subtotal' => (int)($value['total_harga_setelah_diskon']),
                     ];

@@ -13,12 +13,12 @@ switch ($tag) {
         $result = array();
         if (empty($q)) {
             $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori
+            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_master_detail
             FROM master_item a JOIN stok b ON a.id_master = b.id_barang
             JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' GROUP BY a.id_master ORDER BY a.tanggal_approve DESC LIMIT $offset, $limit");
         } else {
             $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori
+            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_master_detail
             FROM master_item a JOIN stok b ON a.id_master = b.id_barang
             JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.judul_master LIKE '%$q%' GROUP BY a.id_master ORDER BY a.tanggal_approve DESC LIMIT $offset, $limit");
         }
@@ -66,10 +66,24 @@ switch ($tag) {
 
             $status_jenis_harga = '1';
 
+            if ($value['status_master_detail'] == '2') {
+                if (substr($value['image_master'], 0, 4) == 'http') {
+                    $imagegambar = $value['image_master'];
+                } else {
+                    $imagegambar = $getimagebukufisik . $value['image_master'];
+                }
+            } else {
+                if (substr($value['image_master'], 0, 4) == 'http') {
+                    $imagegambar = $value['image_master'];
+                } else {
+                    $imagegambar = $getimagefisik . $value['image_master'];
+                }
+            }
+
             array_push($result, array(
                 'id_master' => $value['id_master'],
                 'judul_master' => $value['judul_master'],
-                'image_master' => $getimagefisik . $value['image_master'],
+                'image_master' => $imagegambar,
                 'harga_produk' => $harga_produk,
                 'harga_tampil' => $harga_tampil,
                 'status_diskon' => $status_diskon,
@@ -87,12 +101,12 @@ switch ($tag) {
         $result = array();
         if (empty($q)) {
             $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah,a.id_sub_kategori, c.nama_kategori
+            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah,a.id_sub_kategori, c.nama_kategori, b.status_master_detail
             FROM master_item a JOIN stok b ON a.id_master = b.id_barang
             JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' GROUP BY a.id_master ORDER BY a.total_dibeli DESC LIMIT $offset, $limit");
         } else {
             $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah,a.id_sub_kategori, c.nama_kategori
+            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah,a.id_sub_kategori, c.nama_kategori, b.status_master_detail
             FROM master_item a JOIN stok b ON a.id_master = b.id_barang
             JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.judul_master LIKE '%$q%' GROUP BY a.id_master ORDER BY a.total_dibeli DESC LIMIT $offset, $limit");
         }
@@ -135,10 +149,24 @@ switch ($tag) {
 
             $status_jenis_harga = '1';
 
+            if ($value['status_master_detail'] == '2') {
+                if (substr($value['image_master'], 0, 4) == 'http') {
+                    $imagegambar = $value['image_master'];
+                } else {
+                    $imagegambar = $getimagebukufisik . $value['image_master'];
+                }
+            } else {
+                if (substr($value['image_master'], 0, 4) == 'http') {
+                    $imagegambar = $value['image_master'];
+                } else {
+                    $imagegambar = $getimagefisik . $value['image_master'];
+                }
+            }
+
             array_push($result, array(
                 'id_master' => $value['id_master'],
                 'judul_master' => $value['judul_master'],
-                'image_master' => $getimagefisik . $value['image_master'],
+                'image_master' => $imagegambar,
                 'harga_produk' => $harga_produk,
                 'harga_tampil' => $harga_tampil,
                 'status_diskon' => $status_diskon,
@@ -156,12 +184,12 @@ switch ($tag) {
         $result = array();
         if (empty($q)) {
             $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori
+            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, b.status_master_detail
             FROM master_item a JOIN stok b ON a.id_master = b.id_barang 
             JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' GROUP BY a.id_master ORDER BY a.harga_master ASC LIMIT $offset, $limit");
         } else {
             $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori
+            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, b.status_master_detail
             FROM master_item a JOIN stok b ON a.id_master = b.id_barang
             JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.judul_master LIKE '%$q%' GROUP BY a.id_master ORDER BY a.harga_master ASC LIMIT $offset, $limit");
         }
@@ -204,10 +232,24 @@ switch ($tag) {
 
             $status_jenis_harga = '1';
 
+            if ($value['status_master_detail'] == '2') {
+                if (substr($value['image_master'], 0, 4) == 'http') {
+                    $imagegambar = $value['image_master'];
+                } else {
+                    $imagegambar = $getimagebukufisik . $value['image_master'];
+                }
+            } else {
+                if (substr($value['image_master'], 0, 4) == 'http') {
+                    $imagegambar = $value['image_master'];
+                } else {
+                    $imagegambar = $getimagefisik . $value['image_master'];
+                }
+            }
+
             array_push($result, array(
                 'id_master' => $value['id_master'],
                 'judul_master' => $value['judul_master'],
-                'image_master' => $getimagefisik . $value['image_master'],
+                'image_master' => $imagegambar,
                 'harga_produk' => $harga_produk,
                 'harga_tampil' => $harga_tampil,
                 'status_diskon' => $status_diskon,
@@ -225,12 +267,12 @@ switch ($tag) {
         $result = array();
         if (empty($q)) {
             $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori
+            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, b.status_master_detail
             FROM master_item a JOIN stok b ON a.id_master = b.id_barang
             JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' GROUP BY a.id_master ORDER BY a.harga_master DESC LIMIT $offset, $limit");
         } else {
             $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori
+            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, b.status_master_detail
             FROM master_item a JOIN stok b ON a.id_master = b.id_barang
             JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.judul_master LIKE '%$q%' GROUP BY a.id_master ORDER BY a.harga_master DESC LIMIT $offset, $limit");
         }
@@ -273,10 +315,24 @@ switch ($tag) {
 
             $status_jenis_harga = '1';
 
+            if ($value['status_master_detail'] == '2') {
+                if (substr($value['image_master'], 0, 4) == 'http') {
+                    $imagegambar = $value['image_master'];
+                } else {
+                    $imagegambar = $getimagebukufisik . $value['image_master'];
+                }
+            } else {
+                if (substr($value['image_master'], 0, 4) == 'http') {
+                    $imagegambar = $value['image_master'];
+                } else {
+                    $imagegambar = $getimagefisik . $value['image_master'];
+                }
+            }
+
             array_push($result, array(
                 'id_master' => $value['id_master'],
                 'judul_master' => $value['judul_master'],
-                'image_master' => $getimagefisik . $value['image_master'],
+                'image_master' => $imagegambar,
                 'harga_produk' => $harga_produk,
                 'harga_tampil' => $harga_tampil,
                 'status_diskon' => $status_diskon,
@@ -294,12 +350,12 @@ switch ($tag) {
         $result = array();
         if (empty($q)) {
             $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_varian
+            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_varian, a.status_master_detail
             FROM master_item a JOIN stok b ON a.id_master = b.id_barang
             JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' GROUP BY a.id_master ORDER BY a.tanggal_approve DESC LIMIT $offset, $limit");
         } else {
             $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_varian
+            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_varian, a.status_master_detail
             FROM master_item a JOIN stok b ON a.id_master = b.id_barang 
             JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.judul_master LIKE '%$q%' GROUP BY a.id_master ORDER BY a.tanggal_approve DESC LIMIT $offset, $limit");
         }
@@ -365,6 +421,20 @@ switch ($tag) {
                 }
             }
 
+            if ($value['status_master_detail'] == '2') {
+                if (substr($value['image_master'], 0, 4) == 'http') {
+                    $imagegambar = $value['image_master'];
+                } else {
+                    $imagegambar = $getimagebukufisik . $value['image_master'];
+                }
+            } else {
+                if (substr($value['image_master'], 0, 4) == 'http') {
+                    $imagegambar = $value['image_master'];
+                } else {
+                    $imagegambar = $getimagefisik . $value['image_master'];
+                }
+            }
+
             // if ($data2->status_master_detail == '2') {
             //     $imagegambar = $getimagebukufisik . $value['image_master'];
             // } else {
@@ -374,7 +444,7 @@ switch ($tag) {
             array_push($result, array(
                 'id_master' => $value['id_master'],
                 'judul_master' => $value['judul_master'],
-                'image_master' => $data2->status_master_detail == '2' ? $getimagebukufisik . $value['image_master'] : $getimagefisik . $value['image_master'],
+                'image_master' => $imagegambar,
                 'harga_produk' => $harga_produk,
                 'harga_tampil' => $harga_tampil,
                 'status_diskon' => $status_diskon,

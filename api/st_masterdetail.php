@@ -413,6 +413,8 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
 
     $cekwhislist = $conn->query("SELECT * FROM whislist_product WHERE id_master = '$id_master'")->num_rows;
 
+    $cektotalterjual = $conn->query("SELECT COUNT(a.id_barang) as jumlah FROM transaksi_detail a JOIN transaksi b ON a.id_transaksi = b.id_transaksi WHERE b.status_transaksi = '7' AND a.id_barang = '$id_master'")->fetch_object();
+
     $data1['id_master'] = $datanew->id_master;
     $data1['judul_master'] = $datanew->judul_master;
     $data1['slug_judul_master'] = $datanew->slug_judul_master;
@@ -423,7 +425,7 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
     $data1['status_varian_diskon'] = $status_varian_diskon;
     $data1['status_jenis_harga'] = $status_jenis_harga;
     $data1['diskon'] = $jumlah_diskon . "%";
-    $data1['total_dibeli'] = $datanew->total_dibeli . " terjual";
+    $data1['total_dibeli'] = $cektotalterjual->jumlah . " terjual";
     $data1['rating_item'] = 0;
     $data1['status_whislist'] = $cekwhislist > 0 ? 'Y' : 'N';
     $data1['stok'] = (string)$stokdata;
