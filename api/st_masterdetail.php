@@ -152,7 +152,7 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
             }
 
             if ($datanew->status_varian == 'Y') {
-                $variant = $conn->query("SELECT * FROM variant a JOIN stok b ON a.id_variant = b.id_varian WHERE a.id_master = '$id_master'");
+                $variant = $conn->query("SELECT * FROM variant a JOIN stok b ON a.id_variant = b.id_varian WHERE a.id_master = '$id_master' GROUP BY a.id_variant");
                 foreach ($variant as $key => $value) {
                     if (substr($value['image_varian'], 0, 4) == 'http') {
                         $imagegambar = $value['image_varian'];
@@ -194,7 +194,7 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
             $deskripsi = $datanew->deskripsi_produk;
 
             $imageurl = $conn->query("SELECT b.image_master, a.video_produk, a.gambar_1, a.gambar_2, a.gambar_3 FROM master_fisik_detail a
-LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data->id_master'");
+            LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data->id_master'");
             $imageurls = array();
             while ($key = mysqli_fetch_object($imageurl)) {
                 if (substr($key->image_master, 0, 4) == 'http') {
@@ -253,7 +253,7 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
             }
 
             if ($datanew->status_varian == 'Y') {
-                $variant = $conn->query("SELECT * FROM variant a JOIN stok b ON a.id_variant = b.id_varian WHERE a.id_master = '$id_master'");
+                $variant = $conn->query("SELECT * FROM variant a JOIN stok b ON a.id_variant = b.id_varian WHERE a.id_master = '$id_master' GROUP BY a.id_variant");
                 foreach ($variant as $key => $value) {
                     if (substr($value['image_varian'], 0, 4) == 'http') {
                         $imagegambar = $value['image_varian'];

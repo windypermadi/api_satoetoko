@@ -13,7 +13,7 @@ if (isset($id_master) && isset($id_cabang)) {
     $data = $cekitemdata->fetch_object();
 
     if ($data->status_varian == 'Y') {
-        $variant = $conn->query("SELECT * FROM variant a JOIN stok b ON a.id_variant = b.id_varian WHERE a.id_master = '$id_master' AND b.id_warehouse = '$id_cabang' AND a.status_acc_var = '2' AND a.status_aktif_var = 'Y' AND a.status_hapus_var = 'N'");
+        $variant = $conn->query("SELECT * FROM variant a JOIN stok b ON a.id_variant = b.id_varian WHERE a.id_master = '$id_master' AND b.id_warehouse = '$id_cabang' AND a.status_acc_var = '2' AND a.status_aktif_var = 'Y' AND a.status_hapus_var = 'N' GROUP BY a.id_variant");
         foreach ($variant as $key => $value) {
             if ($data->status_master_detail == '2') {
                 if (substr($value['image_varian'], 0, 4) == 'http') {
@@ -40,7 +40,7 @@ if (isset($id_master) && isset($id_cabang)) {
             ];
         }
     } else {
-        $variant = $conn->query("SELECT * FROM master_item a LEFT JOIN stok b ON a.id_master = b.id_barang WHERE b.id_barang = '$id_master' AND b.id_warehouse = '$id_cabang' AND a.status_aktif = 'Y' AND a.status_approve = '2';");
+        $variant = $conn->query("SELECT * FROM master_item a LEFT JOIN stok b ON a.id_master = b.id_barang WHERE b.id_barang = '$id_master' AND b.id_warehouse = '$id_cabang' AND a.status_aktif = 'Y' AND a.status_approve = '2'");
         foreach ($variant as $key => $value) {
 
             //? cek apakah barang ini masuk flashsale atau tidak
