@@ -23,8 +23,6 @@ switch ($tag) {
 		} else if ($data->status_ebook == '3') {
 			//beli dan sewa
 			$status_ebook = '3';
-		} else {
-			$status_ebook = '1';
 		}
 
 		if ($data->diskon_persen != 0) {
@@ -40,18 +38,27 @@ switch ($tag) {
 			$harga_disc = (int)$data->harga_master;
 		}
 
-		if ($data->diskon_sewa_persen != 0) {
-			(float)$harga_potongan_sewa = (float)$data->harga_sewa * ((float)$data->diskon_sewa_persen / 100);
-			(float)$harga_disc_sewa = $data->harga_sewa - $harga_potongan;
-			$jumlah_diskon_sewa = $data->diskon_sewa_persen;
-		} else if ($data->diskon_sewa_rupiah != 0) {
-			(float)$harga_disc_sewa = $data->harga_sewa - $data->diskon_sewa_rupiah;
-			$jumlah_diskon_sewa = $data->diskon_sewa_rupiah;
-		} else {
-			$harga_potongan_sewa = 0;
-			$jumlah_diskon_sewa = "0";
-			$harga_disc_sewa = (int)$data->harga_sewa;
-		}
+		// if ($data->diskon_sewa_persen != 0) {
+		// 	(float)$harga_potongan_sewa = (float)$data->harga_sewa * ((float)$data->diskon_sewa_persen / 100);
+		// 	(float)$harga_disc_sewa = $data->harga_sewa - $harga_potongan;
+		// 	$jumlah_diskon_sewa = $data->diskon_sewa_persen;
+		// } else if ($data->diskon_sewa_rupiah != 0) {
+		// 	(float)$harga_disc_sewa = $data->harga_sewa - $data->diskon_sewa_rupiah;
+		// 	$jumlah_diskon_sewa = $data->diskon_sewa_rupiah;
+		// } else {
+		// 	$harga_potongan_sewa = 0;
+		// 	$jumlah_diskon_sewa = "0";
+		// 	$harga_disc_sewa = (int)$data->harga_sewa;
+		// }
+
+		// if ($data->diskon_sewa_rupiah != 0) {
+		// 	(float)$harga_disc_sewa = $data->harga_sewa - $data->diskon_sewa_rupiah;
+		// 	$jumlah_diskon_sewa = $data->diskon_sewa_rupiah;
+		// } else {
+		// 	$harga_potongan_sewa = 0;
+		// 	$jumlah_diskon_sewa = "0";
+		// 	$harga_disc_sewa = (int)$data->harga_sewa;
+		// }
 
 		$data1['id_master']    = $data->id_master;
 		$data1['judul_master'] = $data->judul_master;
@@ -65,8 +72,8 @@ switch ($tag) {
 		$data1['diskon_beli'] = (int)$jumlah_diskon;
 		$data1['harga_diskon_beli'] = (int)$harga_disc;
 		$data1['harga_sewa'] = (int)$data->harga_sewa;
-		$data1['diskon_sewa'] = (int)$jumlah_diskon_sewa;
-		$data1['harga_diskon_sewa'] 	   = (int)$harga_disc_sewa;
+		$data1['diskon_sewa'] = (int)$data->diskon_sewa_rupiah != 0 ? $data->diskon_sewa_persen : 0;
+		$data1['harga_diskon_sewa'] 	   = (int)$data->diskon_sewa_rupiah != 0 ? $data->harga_sewa - $data->diskon_sewa_rupiah : $data->harga_sewa;
 
 		if ($data) {
 			$response->code = 200;
@@ -159,8 +166,8 @@ switch ($tag) {
 				'diskon_beli' => (int)$jumlah_diskon,
 				'harga_diskon_beli' => (int)$harga_disc,
 				'harga_sewa' => (int)$value['harga_sewa'],
-				'diskon_sewa' => (int)$jumlah_diskon_sewa,
-				'harga_diskon_sewa' => (int)$harga_disc_sewa,
+				'diskon_sewa' => (int)$value['diskon_sewa_rupiah'] != 0 ? (int)$value['diskon_sewa_persen'] : 0,
+				'harga_diskon_sewa'	=> (int)$value['diskon_sewa_rupiah'] != 0 ? $value['harga_sewa'] - $value['diskon_sewa_rupiah'] : (int)$value['harga_sewa'],
 				'harga_tampil' => $harga_tampil,
 			];
 		}

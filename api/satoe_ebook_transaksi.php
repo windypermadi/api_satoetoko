@@ -15,15 +15,6 @@ switch ($tag) {
         $diskon             = $_POST['diskon'];
         $harga_diskon       = $_POST['harga_diskon'];
 
-        // $cektransaksi = mysqli_query($conn, "SELECT * FROM ebook_transaksi_detail WHERE id_user = '$id_user' AND id_master = '$id_master' AND tgl_expired >= NOW()")->num_rows;
-
-        // if ($cektransaksi > 0) {
-        //     $response->code = 400;
-        //     $response->message = 'Kamu masih punya ebook ini lho, dibaca jangan dianggurin yaa';
-        //     $response->data = '';
-        //     $response->json();
-        //     die();
-        // } else {
         $data = mysqli_fetch_object($conn->query("SELECT a.id_master, a.judul_master, a.image_master, c.nama_kategori, a.harga_master, a.diskon_rupiah, 
         a.diskon_persen, a.harga_sewa, a.diskon_sewa_rupiah, a.diskon_sewa_persen, b.sinopsis,
         b.penerbit, b.tahun_terbit, b.tahun_terbit, b.edisi, b.isbn, b.status_ebook, b.lama_sewa FROM master_item a 
@@ -451,7 +442,7 @@ switch ($tag) {
 
             array_push($result, array(
                 'id_transaksi'              => $row['id_transaksi'],
-                'invoice'                => $row['invoice'],
+                'invoice'                => id_ke_struk($row['invoice']),
                 'tgl_pembelian'                => date('d F Y h:i:s A', strtotime($row['tgl_pembelian'])),
                 'batas_pembayaran'          => date('d F Y h:i:s A', strtotime($row['batas_pembayaran'])),
                 'status_transaksi'              => $row['status_transaksi'],
@@ -510,7 +501,7 @@ switch ($tag) {
 
             array_push($result, array(
                 'id_transaksi'              => $row['id_transaksi'],
-                'invoice'                => $row['invoice'],
+                'invoice'                => id_ke_struk($row['invoice']),
                 'tgl_pembelian'                => date('d F Y h:i:s A', strtotime($row['tgl_pembelian'])),
                 'batas_pembayaran'          => date('d F Y h:i:s A', strtotime($row['batas_pembayaran'])),
                 'status_transaksi'              => $row['status_transaksi'],
@@ -571,7 +562,7 @@ switch ($tag) {
 
         $invoice = id_ke_struk($data->invoice);
         $tgl_pembelian = $data->tgl_pembelian;
-        $subtotal = (int)$data->harga_normal;
+        $subtotal = (int)$data->total_pembayaran;
         $potongan_voucher = (int)$data->potongan_voucher;
         $diskon = $data->diskon;
         $status_pembelian = $data->status_pembelian;
@@ -583,20 +574,24 @@ switch ($tag) {
         $total = $subtotal - ($potongan_voucher + $harga_diskon);
 
         $listebook = array();
-        $ebooks = $conn->query("SELECT b.judul_master, c.nama_kategori, b.image_master, b.harga_master, b.harga_sewa, a.status_pembelian, b.diskon_persen, b.diskon_rupiah FROM ebook_transaksi_detail a
+        $ebooks = $conn->query("SELECT b.judul_master, c.nama_kategori, b.image_master, b.harga_master, b.harga_sewa, a.status_pembelian, b.diskon_persen, b.diskon_rupiah, b.diskon_sewa_persen, b.diskon_sewa_rupiah FROM ebook_transaksi_detail a
         JOIN master_item b ON a.id_master = b.id_master
         JOIN kategori_sub c ON b.id_sub_kategori = c.id_sub
         JOIN kategori d ON c.parent_kategori = d.id_kategori WHERE a.id_transaksi = '$id_transaksi';");
         foreach ($ebooks as $key => $value) {
-            if ($value['status_pembelian'] == '1') {
-                $harga = $value['harga_master'];
-                $diskon_rupiah = $value['diskon_rupiah'];
-                $diskon_persen = $value['diskon_persen'];
-            } else {
-                $harga = $value['harga_sewa'];
-                $diskon_rupiah = $value['diskon_sewa_rupiah'];
-                $diskon_persen = $value['diskon_sewa_persen'];
+            switch ($value['status_pembelian']) {
+                case '1':
+                    $harga = $value['harga_master'];
+                    $diskon_rupiah = $value['diskon_rupiah'];
+                    $diskon_persen = $value['diskon_persen'];
+                    break;
+                case '2':
+                    $harga = $value['harga_sewa'];
+                    $diskon_rupiah = $value['diskon_sewa_rupiah'];
+                    $diskon_persen = $value['diskon_sewa_persen'];
+                    break;
             }
+
             array_push($listebook, array(
                 'judul_master' => $value['judul_master'],
                 'image_master' => $urlimg . $value['image_master'],
@@ -618,6 +613,7 @@ switch ($tag) {
         $data1['status_penilaian'] = 'N';
         $data1['status_payment'] = $status_payment;
         $data1['keterangan'] = $keterangan;
+        $data1['status_pembelian'] = $data->status_pembelian == '1' ? 'Beli' : 'Sewa';
         $data1['subtotal'] = (int)$subtotal;
         $data1['harga_diskon'] = $harga_diskon;
         $data1['diskon'] = $diskon;
@@ -690,9 +686,11 @@ switch ($tag) {
             $metode_pembayaran = $metode_pembayaran;
             $nomor_payment = $nomor_payment;
             $penerima_payment = $penerima_payment;
-            $total = $subtotal - ($potongan_voucher + $harga_diskon);
+            $total = $data->total_akhir_pembayaran;
+            // $total = $subtotal - ($potongan_voucher + $harga_diskon);
             $totalppn = $total * ((int)$ppn / 100);
-            $totalakhir = $total + $totalppn;
+            // $totalakhir = $total + $totalppn;
+            $totalakhir = $total;
             $total_format = "Rp" . number_format($totalakhir, 0, ',', '.');
 
             $result['batas_pembayaran'] = $batas_pembayaran;
