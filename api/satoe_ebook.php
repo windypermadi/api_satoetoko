@@ -273,8 +273,8 @@ switch ($tag) {
 				'harga_diskon_beli' => (int)$harga_disc,
 				'diskon_beli_status' => $status_diskon,
 				'harga_sewa' => (int)$value['harga_sewa'],
-				'diskon_sewa' => (int)$jumlah_diskon_sewa,
-				'harga_diskon_sewa' => (int)$harga_disc_sewa,
+				'diskon_sewa' => (int)$value['diskon_sewa_rupiah'] != 0 ? (int)$value['diskon_sewa_persen'] : 0,
+				'harga_diskon_sewa'	=> (int)$value['diskon_sewa_rupiah'] != 0 ? $value['harga_sewa'] - $value['diskon_sewa_rupiah'] : (int)$value['harga_sewa'],
 				'harga_tampil' => $harga_tampil,
 			));
 		}

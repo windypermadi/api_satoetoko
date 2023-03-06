@@ -135,11 +135,11 @@ switch ($tag) {
             $harga_diskon = (int)$data->harga_diskon;
         }
 
-        $cekBarang = $conn->query("SELECT * FROM ebook_transaksi_detail a JOIN ebook_transaksi b WHERE a.id_master = '$id_master' AND a.tgl_expired >= NOW() AND b.status_transaksi = '7'");
+        $cekBarang = $conn->query("SELECT * FROM ebook_transaksi_detail a JOIN ebook_transaksi b WHERE a.id_master = '$id_master' AND a.tgl_expired >= NOW() AND b.status_transaksi = '7' AND a.status_pembelian = '$status'");
 
         if (isset($cekBarang)) {
             $response->code = 400;
-            $response->message = "Ebook ini masih aktif";
+            $response->message = "Ebook ini masih ada di buku saya.";
             $response->data = '';
             $response->json();
             die();
