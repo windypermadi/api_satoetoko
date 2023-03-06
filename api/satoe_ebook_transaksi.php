@@ -132,26 +132,36 @@ switch ($tag) {
             $harga_diskon = (int)$data->harga_diskon;
         }
 
-        $conn->begin_transaction();
+        $cekBarang = $conn->query("SELECT * FROM ebook_transaksi_detail WHERE id_master = '$id_master' AND tgl_expired >= NOW()");
 
-        $transaction = mysqli_fetch_object($conn->query("SELECT UUID_SHORT() as id"));
-        $idtransaksi = createID('invoice', 'ebook_transaksi', 'TR');
-        $invoice = id_ke_struk($idtransaksi);
+        if (isset($cekBarang)) {
+            $response->code = 400;
+            $response->message = "Ebook ini masih aktif";
+            $response->data = '';
+            $response->json();
+            die();
+        } else {
 
-        $data2 = mysqli_fetch_object($conn->query("SELECT b.lama_sewa FROM master_item a 
+            $conn->begin_transaction();
+
+            $transaction = mysqli_fetch_object($conn->query("SELECT UUID_SHORT() as id"));
+            $idtransaksi = createID('invoice', 'ebook_transaksi', 'TR');
+            $invoice = id_ke_struk($idtransaksi);
+
+            $data2 = mysqli_fetch_object($conn->query("SELECT b.lama_sewa FROM master_item a 
         JOIN master_ebook_detail b ON a.id_master = b.id_master
         JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub 
         WHERE a.status_master_detail = '1' AND a.id_master = '$id_master'"));
 
-        $datasupplier = mysqli_fetch_object($conn->query("SELECT a.id_supplier,b.fee_admin FROM master_item a 
+            $datasupplier = mysqli_fetch_object($conn->query("SELECT a.id_supplier,b.fee_admin FROM master_item a 
         JOIN supplier b ON a.id_supplier = b.id_supplier
         WHERE a.id_master = '$id_master';"));
-        $feeadmin = $jumlahbayar * ($datasupplier->fee_admin / 100);
-        $subtotalfee = $jumlahbayar - $feeadmin;
+            $feeadmin = $jumlahbayar * ($datasupplier->fee_admin / 100);
+            $subtotalfee = $jumlahbayar - $feeadmin;
 
-        $totalakhir = (int)$jumlahbayar - (int)$harga_diskon;
+            $totalakhir = (int)$jumlahbayar - (int)$harga_diskon;
 
-        $data[] = mysqli_query($conn, "INSERT INTO ebook_transaksi SET 
+            $data[] = mysqli_query($conn, "INSERT INTO ebook_transaksi SET 
         id_transaksi = '$transaction->id',
         invoice = '$idtransaksi',
         id_user = '$id_user',
@@ -164,7 +174,7 @@ switch ($tag) {
         payment_type = '$id_payment',
         total_akhir_pembayaran = '$totalakhir'");
 
-        $data[] = $conn->query("INSERT INTO ebook_transaksi_detail SET 
+            $data[] = $conn->query("INSERT INTO ebook_transaksi_detail SET 
         id_transaksi_detail = UUID_SHORT(),
         id_transaksi = '$transaction->id',
         id_user = '$id_user',
@@ -177,93 +187,93 @@ switch ($tag) {
         sub_total = '$subtotalfee',
         tgl_create = NOW()");
 
-        $query = mysqli_query($conn, "SELECT * FROM metode_pembayaran WHERE id_payment = '$id_payment'")->fetch_assoc();
-        $icon_payment = $geticonpayment . $query['icon_payment'];
-        $metode_pembayaran = $query['metode_pembayaran'];
-        $nomor_payment = $query['nomor_payment'];
-        $penerima_payment = $query['penerima_payment'];
+            $query = mysqli_query($conn, "SELECT * FROM metode_pembayaran WHERE id_payment = '$id_payment'")->fetch_assoc();
+            $icon_payment = $geticonpayment . $query['icon_payment'];
+            $metode_pembayaran = $query['metode_pembayaran'];
+            $nomor_payment = $query['nomor_payment'];
+            $penerima_payment = $query['penerima_payment'];
 
-        if (in_array(false, $data)) {
-            $response->code = 400;
-            $response->message = mysqli_error($conn);
-            $response->data = '';
-            $response->json();
-            die();
-        } else {
-
-            $querydata = mysqli_query($conn, "SELECT * FROM ebook_transaksi a 
-            JOIN data_user b ON a.id_user = b.id_login
-            WHERE a.id_transaksi = '$transaction->id'")->fetch_assoc();
-            $invoice = $querydata['invoice'];
-            $nama_user = $querydata['nama_user'];
-            $payer_email = $querydata['email'];
-            $no_telp = $querydata['notelp'];
-
-            if ($id_payment == '0') {
-                $mtrans['transaction_details']['order_id'] = $invoice;
-                $mtrans['transaction_details']['gross_amount'] = $jumlahbayar;
-                $mtrans['credit_card']['secure'] = true;
-                $mtrans['customer_details']['first_name'] = $nama_user;
-                $mtrans['customer_details']['last_name'] = '';
-                $mtrans['customer_details']['email'] = $payer_email;
-                $mtrans['customer_details']['phone'] = $no_telp;
-                $mtrans_json = json_encode($mtrans);
-
-                $curl = curl_init();
-
-                curl_setopt_array($curl, array(
-                    CURLOPT_URL => MTRANS_URL,
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => '',
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 0,
-                    CURLOPT_FOLLOWLOCATION => true,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => 'POST',
-                    CURLOPT_POSTFIELDS => $mtrans_json,
-                    CURLOPT_HTTPHEADER => array(
-                        'Authorization: Basic ' . base64_encode(MTRANS_SERVER_KEY),
-                        'Content-Type: application/json'
-                    ),
-                ));
-
-                $response_curl = curl_exec($curl);
-                curl_close($curl);
-
-                $responses = json_decode($response_curl, true);
-
-                $payment_url = $responses['redirect_url'];
-                $payment_token = $responses['token'];
-                $res['token'] = $payment_token;
-                $res['url_payment'] = $payment_url;
-
-                $query = mysqli_query($conn, "UPDATE ebook_transaksi SET token_payment = '$payment_token', url_payment = '$payment_url' WHERE id_transaksi= '$transaction->id'");
-
-                if (!isset($responses['token'])) {
-                    respon_json_status_500();
-                    $respon['pesan'] = "Sorry, we encountered internal server error. We will fix this soon.";
-                    die(json_encode($respon));
-                }
-
-                $response->code = 200;
-                $response->message = 'result';
-                $response->data = $res;
+            if (in_array(false, $data)) {
+                $response->code = 400;
+                $response->message = mysqli_error($conn);
+                $response->data = '';
                 $response->json();
                 die();
             } else {
-                $total_format = "Rp" . number_format($jumlahbayar, 0, ',', '.');
 
-                $result['batas_pembayaran'] = $exp_date;
-                $result['id_transaksi'] = $idtransaksi;
-                $result['invoice'] = $invoice;
-                $result['id_payment'] = $id_payment;
-                $result['icon_payment'] = $geticonpayment . $icon_payment;
-                $result['metode_pembayaran'] = $metode_pembayaran;
-                $result['nomor_payment'] = $nomor_payment;
-                $result['penerima_payment'] = $penerima_payment;
-                $result['total_harga'] = (int)$jumlahbayar;
-                $result['nomor_konfirmasi'] = GETWA;
-                $result['text_konfirmasi'] = "Halo Bapak/Ibu, Silahkan melakukan pembayaran manual dengan 
+                $querydata = mysqli_query($conn, "SELECT * FROM ebook_transaksi a 
+            JOIN data_user b ON a.id_user = b.id_login
+            WHERE a.id_transaksi = '$transaction->id'")->fetch_assoc();
+                $invoice = $querydata['invoice'];
+                $nama_user = $querydata['nama_user'];
+                $payer_email = $querydata['email'];
+                $no_telp = $querydata['notelp'];
+
+                if ($id_payment == '0') {
+                    $mtrans['transaction_details']['order_id'] = $invoice;
+                    $mtrans['transaction_details']['gross_amount'] = $jumlahbayar;
+                    $mtrans['credit_card']['secure'] = true;
+                    $mtrans['customer_details']['first_name'] = $nama_user;
+                    $mtrans['customer_details']['last_name'] = '';
+                    $mtrans['customer_details']['email'] = $payer_email;
+                    $mtrans['customer_details']['phone'] = $no_telp;
+                    $mtrans_json = json_encode($mtrans);
+
+                    $curl = curl_init();
+
+                    curl_setopt_array($curl, array(
+                        CURLOPT_URL => MTRANS_URL,
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_ENCODING => '',
+                        CURLOPT_MAXREDIRS => 10,
+                        CURLOPT_TIMEOUT => 0,
+                        CURLOPT_FOLLOWLOCATION => true,
+                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST => 'POST',
+                        CURLOPT_POSTFIELDS => $mtrans_json,
+                        CURLOPT_HTTPHEADER => array(
+                            'Authorization: Basic ' . base64_encode(MTRANS_SERVER_KEY),
+                            'Content-Type: application/json'
+                        ),
+                    ));
+
+                    $response_curl = curl_exec($curl);
+                    curl_close($curl);
+
+                    $responses = json_decode($response_curl, true);
+
+                    $payment_url = $responses['redirect_url'];
+                    $payment_token = $responses['token'];
+                    $res['token'] = $payment_token;
+                    $res['url_payment'] = $payment_url;
+
+                    $query = mysqli_query($conn, "UPDATE ebook_transaksi SET token_payment = '$payment_token', url_payment = '$payment_url' WHERE id_transaksi= '$transaction->id'");
+
+                    if (!isset($responses['token'])) {
+                        respon_json_status_500();
+                        $respon['pesan'] = "Sorry, we encountered internal server error. We will fix this soon.";
+                        die(json_encode($respon));
+                    }
+
+                    $response->code = 200;
+                    $response->message = 'result';
+                    $response->data = $res;
+                    $response->json();
+                    die();
+                } else {
+                    $total_format = "Rp" . number_format($jumlahbayar, 0, ',', '.');
+
+                    $result['batas_pembayaran'] = $exp_date;
+                    $result['id_transaksi'] = $idtransaksi;
+                    $result['invoice'] = $invoice;
+                    $result['id_payment'] = $id_payment;
+                    $result['icon_payment'] = $geticonpayment . $icon_payment;
+                    $result['metode_pembayaran'] = $metode_pembayaran;
+                    $result['nomor_payment'] = $nomor_payment;
+                    $result['penerima_payment'] = $penerima_payment;
+                    $result['total_harga'] = (int)$jumlahbayar;
+                    $result['nomor_konfirmasi'] = GETWA;
+                    $result['text_konfirmasi'] = "Halo Bapak/Ibu, Silahkan melakukan pembayaran manual dengan 
             mengirimkan bukti transaksi.\n\nBerikut informasi tagihan anda : 
                 \nNomor Invoice : *$invoice*
                 \nJumlah     : *$total_format*
@@ -274,12 +284,13 @@ switch ($tag) {
                 \n\nTerimakasih\nHormat Kami, 
                 \n\nTim SatoeToko";
 
-                $conn->commit();
-                $response->code = 200;
-                $response->message = 'done';
-                $response->data = $result;
-                $response->json();
-                die();
+                    $conn->commit();
+                    $response->code = 200;
+                    $response->message = 'done';
+                    $response->data = $result;
+                    $response->json();
+                    die();
+                }
             }
         }
         break;
@@ -309,21 +320,31 @@ switch ($tag) {
             $harga_diskon = (int)$data->harga_diskon;
         }
 
-        $conn->begin_transaction();
+        $cekBarang = $conn->query("SELECT * FROM ebook_transaksi_detail WHERE id_master = '$id_master' AND tgl_expired >= NOW()");
 
-        $transaction = mysqli_fetch_object($conn->query("SELECT UUID_SHORT() as id"));
-        $idtransaksi = createID('invoice', 'ebook_transaksi', 'TR');
-        $invoice = id_ke_struk($idtransaksi);
+        if (isset($cekBarang)) {
+            $response->code = 400;
+            $response->message = "Ebook ini masih aktif";
+            $response->data = '';
+            $response->json();
+            die();
+        } else {
 
-        $data2 = mysqli_fetch_object($conn->query("SELECT b.lama_sewa FROM master_item a 
+            $conn->begin_transaction();
+
+            $transaction = mysqli_fetch_object($conn->query("SELECT UUID_SHORT() as id"));
+            $idtransaksi = createID('invoice', 'ebook_transaksi', 'TR');
+            $invoice = id_ke_struk($idtransaksi);
+
+            $data2 = mysqli_fetch_object($conn->query("SELECT b.lama_sewa FROM master_item a 
             JOIN master_ebook_detail b ON a.id_master = b.id_master
             JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub 
             WHERE a.status_master_detail = '1' AND a.id_master = '$id_master'"));
-        $lama = $data2->lama_sewa;
+            $lama = $data2->lama_sewa;
 
-        $totalakhir = (int)$jumlahbayar - (int)$harga_diskon;
+            $totalakhir = (int)$jumlahbayar - (int)$harga_diskon;
 
-        $data[] = mysqli_query($conn, "INSERT INTO ebook_transaksi SET 
+            $data[] = mysqli_query($conn, "INSERT INTO ebook_transaksi SET 
             id_transaksi = '$transaction->id',
             invoice = '$idtransaksi',
             id_user = '$id_user',
@@ -337,8 +358,8 @@ switch ($tag) {
             payment_type = '$id_payment',
             total_akhir_pembayaran = '$totalakhir'");
 
-        if ($status == '1') {
-            $data[] = $conn->query("INSERT INTO ebook_transaksi_detail SET 
+            if ($status == '1') {
+                $data[] = $conn->query("INSERT INTO ebook_transaksi_detail SET 
             id_transaksi_detail = UUID_SHORT(),
             id_transaksi = '$transaction->id',
             id_user = '$id_user',
@@ -348,8 +369,8 @@ switch ($tag) {
             harga_diskon = '$harga_diskon',
             status_pembelian = '$status',
             tgl_create = NOW()");
-        } else if ($status == '2') {
-            $data[] = $conn->query("INSERT INTO ebook_transaksi_detail SET 
+            } else if ($status == '2') {
+                $data[] = $conn->query("INSERT INTO ebook_transaksi_detail SET 
             id_transaksi_detail = UUID_SHORT(),
             id_transaksi = '$transaction->id',
             id_user = '$id_user',
@@ -361,27 +382,28 @@ switch ($tag) {
             tgl_create = NOW(),
             tgl_expired = DATE_ADD(NOW(), 
         INTERVAL '$lama' DAY)");
-        }
+            }
 
-        $query = mysqli_query($conn, "SELECT * FROM metode_pembayaran WHERE id_payment = '$id_payment'")->fetch_assoc();
-        $icon_payment = $geticonpayment . $query['icon_payment'];
-        $metode_pembayaran = $query['metode_pembayaran'];
-        $nomor_payment = $query['nomor_payment'];
-        $penerima_payment = $query['penerima_payment'];
+            $query = mysqli_query($conn, "SELECT * FROM metode_pembayaran WHERE id_payment = '$id_payment'")->fetch_assoc();
+            $icon_payment = $geticonpayment . $query['icon_payment'];
+            $metode_pembayaran = $query['metode_pembayaran'];
+            $nomor_payment = $query['nomor_payment'];
+            $penerima_payment = $query['penerima_payment'];
 
-        if (in_array(false, $data)) {
-            $response->code = 400;
-            $response->message = mysqli_error($conn);
-            $response->data = '';
-            $response->json();
-            die();
-        } else {
-            $conn->commit();
-            $response->code = 200;
-            $response->message = 'Selamat transaksi kamu telah berhasil.';
-            $response->data = '';
-            $response->json();
-            die();
+            if (in_array(false, $data)) {
+                $response->code = 400;
+                $response->message = mysqli_error($conn);
+                $response->data = '';
+                $response->json();
+                die();
+            } else {
+                $conn->commit();
+                $response->code = 200;
+                $response->message = 'Selamat transaksi kamu telah berhasil.';
+                $response->data = '';
+                $response->json();
+                die();
+            }
         }
         break;
     case "cancel_transaksi":

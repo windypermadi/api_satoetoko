@@ -60,6 +60,8 @@ switch ($tag) {
 		// 	$harga_disc_sewa = (int)$data->harga_sewa;
 		// }
 
+		$status_diskon = $jumlah_diskon != $data->diskon_sewa_persen ? "UP TO" : "OFF";
+
 		$data1['id_master']    = $data->id_master;
 		$data1['judul_master'] = $data->judul_master;
 		$data1['image_master'] = $urlimg . $data->image_master;
@@ -70,6 +72,7 @@ switch ($tag) {
 		$data1['lama_sewa']  = $data->lama_sewa;
 		$data1['harga_beli'] = (int)$data->harga_master;
 		$data1['diskon_beli'] = (int)$jumlah_diskon;
+		$data1['diskon_beli_status'] = $status_diskon;
 		$data1['harga_diskon_beli'] = (int)$harga_disc;
 		$data1['harga_sewa'] = (int)$data->harga_sewa;
 		$data1['diskon_sewa'] = (int)$data->diskon_sewa_rupiah != 0 ? $data->diskon_sewa_persen : 0;
@@ -153,6 +156,8 @@ switch ($tag) {
 				$harga_tampil = "Rp" . number_format($value['harga_sewa'], 0, ',', '.') . "-" . "Rp" . number_format($value['harga_master'], 0, ',', '.');
 			}
 
+			$status_diskon = $jumlah_diskon != $value['diskon_sewa_persen'] ? "UP TO" : "OFF";
+
 			$datalist[] = [
 				'id_master' => $value['id_master'],
 				'judul_master' => $value['judul_master'],
@@ -164,6 +169,7 @@ switch ($tag) {
 				'lama_sewa' => $value['lama_sewa'],
 				'harga_beli' => (int)$value['harga_master'],
 				'diskon_beli' => (int)$jumlah_diskon,
+				'diskon_beli_status' => $status_diskon,
 				'harga_diskon_beli' => (int)$harga_disc,
 				'harga_sewa' => (int)$value['harga_sewa'],
 				'diskon_sewa' => (int)$value['diskon_sewa_rupiah'] != 0 ? (int)$value['diskon_sewa_persen'] : 0,
@@ -251,6 +257,8 @@ switch ($tag) {
 				$harga_tampil = "Rp" . number_format($value['harga_sewa'], 0, ',', '.') . "-" . "Rp" . number_format($value['harga_master'], 0, ',', '.');
 			}
 
+			$status_diskon = $jumlah_diskon != $value['diskon_sewa_persen'] ? "UP TO" : "OFF";
+
 			array_push($datalist, array(
 				'id_master' => $value['id_master'],
 				'judul_master' => $value['judul_master'],
@@ -263,6 +271,7 @@ switch ($tag) {
 				'harga_beli' => (int)$value['harga_master'],
 				'diskon_beli' => (int)$jumlah_diskon,
 				'harga_diskon_beli' => (int)$harga_disc,
+				'diskon_beli_status' => $status_diskon,
 				'harga_sewa' => (int)$value['harga_sewa'],
 				'diskon_sewa' => (int)$jumlah_diskon_sewa,
 				'harga_diskon_sewa' => (int)$harga_disc_sewa,

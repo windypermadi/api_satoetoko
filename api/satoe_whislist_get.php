@@ -66,6 +66,8 @@ switch ($tag) {
                 $harga_tampil = "Rp" . number_format($value['harga_sewa'], 0, ',', '.') . "-" . "Rp" . number_format($value['harga_master'], 0, ',', '.');
             }
 
+            $status_diskon = $jumlah_diskon != $value['diskon_sewa_persen'] ? "UP TO" : "OFF";
+
             array_push($datalist, array(
                 'id_master' => $value['id_master'],
                 'judul_master' => $value['judul_master'],
@@ -77,6 +79,7 @@ switch ($tag) {
                 'lama_sewa' => $value['lama_sewa'],
                 'harga_beli' => (int)$value['harga_master'],
                 'diskon_beli' => (int)$jumlah_diskon,
+                'diskon_beli_status' => $status_diskon,
                 'harga_diskon_beli' => (int)$harga_disc,
                 'harga_sewa' => (int)$value['harga_sewa'],
                 'diskon_sewa' => (int)$value['diskon_sewa_rupiah'] != 0 ? (int)$value['diskon_sewa_persen'] : 0,
