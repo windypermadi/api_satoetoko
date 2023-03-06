@@ -294,7 +294,7 @@ switch ($tag) {
 		}
 		break;
 	case "jumlah":
-		$data = $conn->query("SELECT count(id_master) as jumlah_produk FROM master_item WHERE status_master_detail = '1'")->fetch_object();
+		$data = $conn->query("SELECT count(id_master) as jumlah_produk FROM master_item WHERE status_master_detail = '1' AND status_aktif = 'Y' AND status_hapus = 'N'")->fetch_object();
 
 		$response->data = "Sekitar " . $data->jumlah_produk . " hasil";
 		$response->sukses(200);

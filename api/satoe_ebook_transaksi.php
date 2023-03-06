@@ -41,7 +41,9 @@ switch ($tag) {
             die();
         }
 
-        $ebooks = $conn->query("SELECT * FROM master_item a LEFT JOIN kategori_sub b ON a.id_sub_kategori = b.id_sub 
+        $ebooks = $conn->query("SELECT * FROM master_item a 
+        LEFT JOIN kategori_sub b ON a.id_sub_kategori = b.id_sub
+        LEFT JOIN master_ebook_detail c ON a.id_master = c.id_master
         WHERE a.id_master = '$id_master'");
         foreach ($ebooks as $key => $value) {
             $listebook[] = [
@@ -49,6 +51,7 @@ switch ($tag) {
                 'judul_master' => $value['judul_master'],
                 'image_master' => $urlimg . $value['image_master'],
                 'nama_kategori' => $value['nama_kategori'],
+                'lama_sewa' => $status == '2' ? $value['lama_sewa'] : "",
             ];
         }
 
@@ -132,7 +135,7 @@ switch ($tag) {
             $harga_diskon = (int)$data->harga_diskon;
         }
 
-        $cekBarang = $conn->query("SELECT * FROM ebook_transaksi_detail WHERE id_master = '$id_master' AND tgl_expired >= NOW()");
+        $cekBarang = $conn->query("SELECT * FROM ebook_transaksi_detail a JOIN ebook_transaksi b WHERE a.id_master = '$id_master' AND a.tgl_expired >= NOW() AND b.status_transaksi = '7'");
 
         if (isset($cekBarang)) {
             $response->code = 400;
@@ -148,16 +151,18 @@ switch ($tag) {
             $idtransaksi = createID('invoice', 'ebook_transaksi', 'TR');
             $invoice = id_ke_struk($idtransaksi);
 
-            $data2 = mysqli_fetch_object($conn->query("SELECT b.lama_sewa FROM master_item a 
+            $data2 = mysqli_fetch_object($conn->query("SELECT b.lama_sewa, a.fee_produk FROM master_item a 
         JOIN master_ebook_detail b ON a.id_master = b.id_master
         JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub 
         WHERE a.status_master_detail = '1' AND a.id_master = '$id_master'"));
 
-            $datasupplier = mysqli_fetch_object($conn->query("SELECT a.id_supplier,b.fee_admin FROM master_item a 
-        JOIN supplier b ON a.id_supplier = b.id_supplier
-        WHERE a.id_master = '$id_master';"));
-            $feeadmin = $jumlahbayar * ($datasupplier->fee_admin / 100);
-            $subtotalfee = $jumlahbayar - $feeadmin;
+            //     $datasupplier = mysqli_fetch_object($conn->query("SELECT a.id_supplier,b.fee_admin FROM master_item a 
+            // JOIN supplier b ON a.id_supplier = b.id_supplier
+            // WHERE a.id_master = '$id_master';"));
+            //     $feeadmin = $jumlahbayar * ($datasupplier->fee_admin / 100);
+
+            $feetoko = $harga_diskon - ($harga_diskon * ($data2->fee_produk / 100));
+            $subtotalfee = $jumlahbayar - $feetoko;
 
             $totalakhir = (int)$jumlahbayar - (int)$harga_diskon;
 
@@ -183,7 +188,7 @@ switch ($tag) {
         diskon = '$diskon',
         harga_diskon = '$harga_diskon',
         status_pembelian = '$status',
-        fee_toko = '$feeadmin',
+        fee_toko = '$feetoko',
         sub_total = '$subtotalfee',
         tgl_create = NOW()");
 
@@ -320,7 +325,7 @@ switch ($tag) {
             $harga_diskon = (int)$data->harga_diskon;
         }
 
-        $cekBarang = $conn->query("SELECT * FROM ebook_transaksi_detail WHERE id_master = '$id_master' AND tgl_expired >= NOW()");
+        $cekBarang = $conn->query("SELECT * FROM ebook_transaksi_detail a JOIN ebook_transaksi b WHERE a.id_master = '$id_master' AND a.tgl_expired >= NOW() AND b.status_transaksi = '7'");
 
         if (isset($cekBarang)) {
             $response->code = 400;
@@ -596,10 +601,11 @@ switch ($tag) {
         $total = $subtotal - ($potongan_voucher + $harga_diskon);
 
         $listebook = array();
-        $ebooks = $conn->query("SELECT b.judul_master, c.nama_kategori, b.image_master, b.harga_master, b.harga_sewa, a.status_pembelian, b.diskon_persen, b.diskon_rupiah, b.diskon_sewa_persen, b.diskon_sewa_rupiah FROM ebook_transaksi_detail a
+        $ebooks = $conn->query("SELECT b.judul_master, c.nama_kategori, b.image_master, b.harga_master, b.harga_sewa, a.status_pembelian, b.diskon_persen, b.diskon_rupiah, b.diskon_sewa_persen, b.diskon_sewa_rupiah, e.lama_sewa FROM ebook_transaksi_detail a
         JOIN master_item b ON a.id_master = b.id_master
         JOIN kategori_sub c ON b.id_sub_kategori = c.id_sub
-        JOIN kategori d ON c.parent_kategori = d.id_kategori WHERE a.id_transaksi = '$id_transaksi';");
+        JOIN kategori d ON c.parent_kategori = d.id_kategori
+        JOIN master_ebook_detail e ON a.id_master = e.id_master WHERE a.id_transaksi = '$id_transaksi';");
         foreach ($ebooks as $key => $value) {
             switch ($value['status_pembelian']) {
                 case '1':
@@ -622,6 +628,7 @@ switch ($tag) {
                 'diskon_rupiah' => (int)$diskon_rupiah,
                 'diskon_persen' => $diskon_persen . "%",
                 'harga_master_total' => (int)$harga - (int)$diskon_rupiah,
+                'lama_sewa' => $value['status_pembelian'] == '2' ? $value['lama_sewa'] : "",
             ));
         }
 
