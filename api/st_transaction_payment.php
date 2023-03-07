@@ -78,7 +78,7 @@ if (isset($id_transaksi)) {
             $invoice =  $cektransaksi['invoice'];
             $metode_pembayaran =  $cektransaksi['invoice'];
 
-            $result['batas_pembayaran'] = $exp_date;
+            $result['batas_pembayaran'] = $cektransaksi['tanggal_exp'];
             $result['id_transaksi'] = $cektransaksi['id_transaksi'];
             $result['invoice'] = $cektransaksi['invoice'];
             $result['icon_payment'] = $data_payment->icon_payment;

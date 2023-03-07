@@ -39,8 +39,11 @@ foreach ($data as $key => $value) {
 			(float)$harga_disc = $varian->diskon_rupiah_varian;
 		}
 
-		$harga_produk = rupiah($min_normal) . " - " . rupiah($max_normal);
-		$harga_tampil = rupiah($min) . " - " . rupiah($max);
+		$harga_produks = $min_normal != $max_normal ?  rupiah($min_normal) . " - " . rupiah($max_normal) : rupiah($min_normal);
+		$harga_tampils = $min_normal != $max_normal ?  rupiah($min) . " - " . rupiah($max) : rupiah($min);
+
+		$harga_produk = $harga_produks;
+		$harga_tampil = $harga_tampils;
 	} else {
 		$jumlah_diskon = $value['diskon_persen'];
 		$status_varian_diskon = 'OFF';
