@@ -580,7 +580,7 @@
             case 'detail':
                 $id_transaksi         = $_GET['id_transaksi'];
 
-                $getproduk = $conn->query("SELECT c.id_master, b.total_harga_sebelum_diskon, b.harga_ongkir, b.total_harga_setelah_diskon, b.voucher_harga, b.voucher_ongkir, c.judul_master, c.image_master, a.jumlah_beli, a.harga_barang, a.diskon_barang, a.harga_diskon, b.invoice, d.id_variant, d.keterangan_varian, d.diskon_rupiah_varian, d.image_varian, b.status_transaksi, b.kurir_pengirim, b.kurir_code, b.kurir_service, b.metode_pembayaran, b.midtrans_transaction_status, b.midtrans_payment_type, b.midtrans_token, b.midtrans_redirect_url, b.alamat_penerima, b.nama_penerima, b.label_alamat, b.telepon_penerima, b.tanggal_transaksi, b.tanggal_dibayar, b.tanggal_diterima, b.tgl_packing, b.nomor_resi, c.status_master_detail, b.st_packing, DATE_ADD(b.tanggal_diterima, INTERVAL 7 DAY) as tanggal_diterima
+                $getproduk = $conn->query("SELECT c.id_master, b.total_harga_sebelum_diskon, b.harga_ongkir, b.total_harga_setelah_diskon, b.voucher_harga, b.voucher_ongkir, c.judul_master, c.image_master, a.jumlah_beli, a.harga_barang, a.diskon_barang, a.harga_diskon, b.invoice, d.id_variant, d.keterangan_varian, d.diskon_rupiah_varian, d.image_varian, b.status_transaksi, b.kurir_pengirim, b.kurir_code, b.kurir_service, b.metode_pembayaran, b.midtrans_transaction_status, b.midtrans_payment_type, b.midtrans_token, b.midtrans_redirect_url, b.alamat_penerima, b.nama_penerima, b.label_alamat, b.telepon_penerima, b.tanggal_transaksi, b.tanggal_dibayar, b.tanggal_diterima, b.tgl_packing, b.nomor_resi, c.status_master_detail, b.st_packing, DATE_ADD(b.tanggal_diterima, INTERVAL 7 DAY) as tanggal_diterima, b.catatan_pembeli
                         FROM transaksi_detail a 
                         JOIN transaksi b ON a.id_transaksi = b.id_transaksi
                         LEFT JOIN master_item c ON a.id_barang = c.id_master
@@ -844,6 +844,10 @@
                     'keterangan' => $keterangan,
                 ];
 
+                $catatan = [
+                    'catatan' => $catatan_pembeli,
+                ];
+
                 //! Metode Pembayaran
                 if ($value['metode_pembayaran'] == '0') {
                     $metode_pembayaran = 'Pembayaran Otomatis Midtrans';
@@ -877,6 +881,7 @@
                 $data1['data_shipment'] = $informasi_pengiriman;
                 $data1['data_faktur'] = '';
                 $data1['notifikasi'] = $notif;
+                $data1['catatan'] = $catatan;
 
                 if ($data1) {
                     $response->data = $data1;
