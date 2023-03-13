@@ -54,10 +54,24 @@ if (!empty($idsub)) {
 
         $status_jenis_harga = '1';
 
+        if ($value['status_master_detail'] == '2') {
+            if (substr($value['image_master'], 0, 4) == 'http') {
+                $imagegambar = $value['image_master'];
+            } else {
+                $imagegambar = $getimagebukufisik . $value['image_master'];
+            }
+        } else {
+            if (substr($value['image_master'], 0, 4) == 'http') {
+                $imagegambar = $value['image_master'];
+            } else {
+                $imagegambar = $getimagefisik . $value['image_master'];
+            }
+        }
+
         $result[] = [
             'id_master' => $value['id_master'],
             'judul_master' => $value['judul_master'],
-            'image_master' => $getimagefisik . $value['image_master'],
+            'image_master' => $imagegambar,
             'harga_produk' => $harga_produk,
             'harga_tampil' => $harga_tampil,
             'status_diskon' => $status_diskon,

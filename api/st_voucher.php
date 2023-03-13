@@ -17,11 +17,21 @@ switch ($tag) {
         $data = $conn->query("SELECT * FROM voucher WHERE tgl_mulai <= NOW() AND tgl_berakhir >= NOW() $search AND kuota_voucher != 0 AND tipe_voucher != '2'");
         foreach ($data as $key => $value) {
 
-            $cekpunya = $conn->query("SELECT * FROM voucher_user WHERE iduser = '$iduser' AND idvoucher = '$value[idvoucher]'")->fetch_object();
-            if ($cekpunya->iduser_voucher) {
-                $status = True;
+            $cekpunya = $conn->query("SELECT * FROM voucher_user vu 
+            JOIN voucher v ON vu.idvoucher = v.idvoucher 
+            WHERE vu.iduser = '$iduser' AND vu.idvoucher = '$value[idvoucher]'")->fetch_object();
+            if ($cekpunya->status_berulang == 'Y') {
+                if ($cekpunya->status_pakai == '1') {
+                    $status = False;
+                } else {
+                    $status = True;
+                }
             } else {
-                $status = False;
+                if ($cekpunya->iduser_voucher) {
+                    $status = True;
+                } else {
+                    $status = False;
+                }
             }
 
             $ketstatus = statusvoucher($value['status_voucher']);
@@ -57,11 +67,21 @@ switch ($tag) {
         $data = $conn->query("SELECT * FROM voucher WHERE tgl_mulai <= NOW() AND tgl_berakhir >= NOW() AND kode_voucher = '$q' AND tipe_voucher = '2' AND kuota_voucher != 0");
         foreach ($data as $key => $value) {
 
-            $cekpunya = $conn->query("SELECT * FROM voucher_user WHERE iduser = '$iduser' AND idvoucher = '$value[idvoucher]'")->fetch_object();
-            if ($cekpunya->iduser_voucher) {
-                $status = True;
+            $cekpunya = $conn->query("SELECT * FROM voucher_user vu 
+            JOIN voucher v ON vu.idvoucher = v.idvoucher 
+            WHERE vu.iduser = '$iduser' AND vu.idvoucher = '$value[idvoucher]'")->fetch_object();
+            if ($cekpunya->status_berulang == 'Y') {
+                if ($cekpunya->status_pakai == '1') {
+                    $status = False;
+                } else {
+                    $status = True;
+                }
             } else {
-                $status = False;
+                if ($cekpunya->iduser_voucher) {
+                    $status = True;
+                } else {
+                    $status = False;
+                }
             }
 
             $ketstatus = statusvoucher($value['status_voucher']);
@@ -99,12 +119,21 @@ switch ($tag) {
         $data = $conn->query("SELECT * FROM voucher WHERE status_voucher = '1' $search AND tgl_mulai <= NOW() AND tgl_berakhir >= NOW() AND kuota_voucher != 0 AND tipe_voucher != '2'");
         foreach ($data as $key => $value) {
 
-            $cekpunya = $conn->query("SELECT * FROM voucher_user WHERE iduser = '$iduser' AND idvoucher = '$value[idvoucher]'")->fetch_object();
-
-            if ($cekpunya->iduser_voucher) {
-                $status = True;
+            $cekpunya = $conn->query("SELECT * FROM voucher_user vu 
+            JOIN voucher v ON vu.idvoucher = v.idvoucher 
+            WHERE vu.iduser = '$iduser' AND vu.idvoucher = '$value[idvoucher]'")->fetch_object();
+            if ($cekpunya->status_berulang == 'Y') {
+                if ($cekpunya->status_pakai == '1') {
+                    $status = False;
+                } else {
+                    $status = True;
+                }
             } else {
-                $status = False;
+                if ($cekpunya->iduser_voucher) {
+                    $status = True;
+                } else {
+                    $status = False;
+                }
             }
 
             $ketstatus = statusvoucher($value['status_voucher']);
@@ -142,11 +171,21 @@ switch ($tag) {
         $data = $conn->query("SELECT * FROM voucher WHERE status_voucher = '2' AND tgl_mulai <= NOW() AND tgl_berakhir >= NOW() AND kuota_voucher != 0 AND tipe_voucher != '2'");
         foreach ($data as $key => $value) {
 
-            $cekpunya = $conn->query("SELECT * FROM voucher_user WHERE iduser = '$iduser' AND idvoucher = '$value[idvoucher]'")->fetch_object();
-            if ($cekpunya->iduser_voucher) {
-                $status = True;
+            $cekpunya = $conn->query("SELECT * FROM voucher_user vu 
+            JOIN voucher v ON vu.idvoucher = v.idvoucher 
+            WHERE vu.iduser = '$iduser' AND vu.idvoucher = '$value[idvoucher]'")->fetch_object();
+            if ($cekpunya->status_berulang == 'Y') {
+                if ($cekpunya->status_pakai == '1') {
+                    $status = False;
+                } else {
+                    $status = True;
+                }
             } else {
-                $status = False;
+                if ($cekpunya->iduser_voucher) {
+                    $status = True;
+                } else {
+                    $status = False;
+                }
             }
 
             $ketstatus = statusvoucher($value['status_voucher']);
@@ -180,14 +219,24 @@ switch ($tag) {
         } else {
             $search = "";
         }
-        $data = $conn->query("SELECT * FROM voucher WHERE status_voucher = '3' $search AND tgl_mulai <= NOW() AND tgl_berakhir >= NOW() AND tipe_voucher != '2'");
+        $data = $conn->query("SELECT * FROM voucher WHERE status_voucher = '3' AND tipe_voucher != '3' $search AND tgl_mulai <= NOW() AND tgl_berakhir >= NOW() AND tipe_voucher != '2'");
         foreach ($data as $key => $value) {
 
-            $cekpunya = $conn->query("SELECT * FROM voucher_user WHERE iduser = '$iduser' AND idvoucher = '$value[idvoucher]'")->fetch_object();
-            if ($cekpunya->iduser_voucher) {
-                $status = True;
+            $cekpunya = $conn->query("SELECT * FROM voucher_user vu 
+            JOIN voucher v ON vu.idvoucher = v.idvoucher 
+            WHERE vu.iduser = '$iduser' AND vu.idvoucher = '$value[idvoucher]'")->fetch_object();
+            if ($cekpunya->status_berulang == 'Y') {
+                if ($cekpunya->status_pakai == '1') {
+                    $status = False;
+                } else {
+                    $status = True;
+                }
             } else {
-                $status = False;
+                if ($cekpunya->iduser_voucher) {
+                    $status = True;
+                } else {
+                    $status = False;
+                }
             }
 
             $ketstatus = statusvoucher($value['status_voucher']);

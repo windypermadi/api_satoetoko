@@ -28,7 +28,7 @@
                 foreach ($data as $key) {
 
                     if (!empty($key['id_variant'])) {
-                        $getvar = $conn->query("SELECT b.status_master_detail, a.image_varian FROM variant a 
+                        $getvar = $conn->query("SELECT b.status_master_detail, a.image_varian, b.judul_master FROM variant a 
                         JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$key[id_variant]'")->fetch_object();
                         if ($getvar->status_master_detail == '2') {
                             if (substr($getvar->image_varian, 0, 4) == 'http') {
@@ -43,6 +43,8 @@
                                 $imagegambar = $getimagefisik . $getvar->image_varian;
                             }
                         }
+                        $judul = $getvar->judul_master;
+                        $judul_varian = $key['keterangan_varian'];
                     } else {
                         if ($key['status_master_detail'] == '2') {
                             if (substr($key['image_master'], 0, 4) == 'http') {
@@ -57,6 +59,8 @@
                                 $imagegambar = $getimagefisik . $key['image_master'];
                             }
                         }
+                        $judul = $key['judul_master'];
+                        $judul_varian = $key['keterangan_varian'];
                     }
 
                     $getjumlah_produk = $conn->query("SELECT count(id_transaksi) as jumlah_produk FROM transaksi_detail
@@ -80,12 +84,6 @@
 
                     $jumlah = $cek_jumlah['jumlah_beli'];
 
-                    if (empty($key['judul_master'])) {
-                        $judul = $key['keterangan_varian'];
-                    } else {
-                        $judul = $key['judul_master'];
-                    }
-
                     $result[] = [
                         'id_transaksi' => $key['id_transaksi'],
                         'exp_date' => $exp_date,
@@ -100,7 +98,7 @@
                         'harga_tampil' => rupiah($key['harga_diskon']),
                         'status_diskon' => $key['diskon_barang'] != 0 ? 'Y' : 'N',
                         'image_master' => $imagegambar,
-                        'keterangan_varian' => $key['keterangan_varian'],
+                        'keterangan_varian' => $judul_varian,
                         'jumlah_produk' => $jumlah,
                         'status_lebih_satu' => $status_lebih_satu,
                         'keterangan_lebih_satu' => $keterangan_lebih_satu,
@@ -803,40 +801,64 @@
                         'ket_ambil_ditempat' => $ketambil
                     ];
 
-                if ($status_ambilditempat == 'Y') {
-                    if ($status_transaksi == '1') {
-                        $status_notif = 'Menunggu Pembayaran';
-                        $keterangan = 'Silahkan melakukan pembayaran paling lambat ' . $exp_date . ' dengan ' . $metode_pembayaran;
-                    } else if ($status_transaksi == '3') {
-                        $status_notif = 'Pesananmu siap diambil';
-                        $keterangan = '';
-                    } else if ($status_transaksi == '5') {
-                        $status_notif = 'Pesananmu sedang dalam perjalanan';
-                        $keterangan = 'Produk diperkirakan akan sampai pada NULL';
-                    } else if ($status_transaksi == '7') {
-                        $status_notif = 'Pesanan selesai';
-                        $keterangan = 'Pesananmu sudah diambil, silahkan beri penilaian terhadap produk ini';
-                    } else if ($status_transaksi == '9') {
-                        $status_notif = 'Pesanan dibatalkan';
-                        $keterangan = 'Kamu telah membatalkan pesanan ini. Cek rincian pembatalan untuk informasi lebih lanjut.';
-                    }
-                } else {
-                    if ($status_transaksi == '1') {
-                        $status_notif = 'Menunggu Pembayaran';
-                        $keterangan = 'Silahkan melakukan pembayaran paling lambat ' . $exp_date . ' dengan ' . $metode_pembayaran;
-                    } else if ($status_transaksi == '3') {
-                        $status_notif = 'Pesananmu sedang dikemas oleh penjual';
-                        $keterangan = 'Penjual harus mengatur pengiriman pesananmu paling lambat NULL';
-                    } else if ($status_transaksi == '5') {
-                        $status_notif = 'Pesananmu sedang dalam perjalanan';
-                        $keterangan = 'Produk diperkirakan akan sampai pada NULL';
-                    } else if ($status_transaksi == '7') {
-                        $status_notif = 'Pesanan selesai';
-                        $keterangan = 'Nilai pesanan sebelum ' . $value['tanggal_diterima'];
-                    } else if ($status_transaksi == '9') {
-                        $status_notif = 'Pesanan dibatalkan';
-                        $keterangan = 'Kamu telah membatalkan pesanan ini. Cek rincian pembatalan untuk informasi lebih lanjut.';
-                    }
+                switch ($status_ambilditempat) {
+                    case 'Y':
+                        switch ($status_transaksi) {
+                            case '1':
+                                $status_notif = 'Menunggu Pembayaran';
+                                $keterangan = 'Silahkan melakukan pembayaran paling lambat ' . $exp_date;
+                                break;
+                            case '3':
+                                $status_notif = 'Pesananmu siap diambil';
+                                $keterangan = '';
+                                break;
+                            case '5':
+                                $status_notif = 'Pesananmu siap diambil';
+                                $keterangan = '';
+                                break;
+                            case '7':
+                                $status_notif = 'Pesanan selesai';
+                                $keterangan = 'Pesananmu sudah diambil, silahkan beri penilaian terhadap produk ini';
+                                break;
+                            case '9':
+                                $status_notif = 'Pesanan dibatalkan';
+                                $keterangan = 'Kamu telah membatalkan pesanan ini. Cek rincian pembatalan untuk informasi lebih lanjut.';
+                                break;
+                            default:
+                                $status_notif = '';
+                                $keterangan = '';
+                                break;
+                        }
+                        break;
+
+                    default:
+                        switch ($status_transaksi) {
+                            case '1':
+                                $status_notif = 'Menunggu Pembayaran';
+                                $keterangan = 'Silahkan melakukan pembayaran paling lambat ' . $exp_date;
+                                break;
+                            case '3':
+                                $status_notif = 'Pesananmu sedang dikemas oleh penjual';
+                                $keterangan = 'Penjual harus mengatur pengiriman pesananmu';
+                                break;
+                            case '5':
+                                $status_notif = 'Pesananmu sedang dalam perjalanan';
+                                $keterangan = 'Produk pesananmu sedang diantarkan oleh kurir';
+                                break;
+                            case '7':
+                                $status_notif = 'Pesanan selesai';
+                                $keterangan = 'Nilai pesanan sebelum ' . $value['tanggal_diterima'];
+                                break;
+                            case '9':
+                                $status_notif = 'Pesanan dibatalkan';
+                                $keterangan = 'Kamu telah membatalkan pesanan ini. Cek rincian pembatalan untuk informasi lebih lanjut.';
+                                break;
+                            default:
+                                $status_notif = '';
+                                $keterangan = '';
+                                break;
+                        }
+                        break;
                 }
 
                 $notif = [
@@ -845,7 +867,7 @@
                 ];
 
                 $catatan = [
-                    'catatan' => $catatan_pembeli,
+                    'catatan' => $value['catatan_pembeli'],
                 ];
 
                 //! Metode Pembayaran
