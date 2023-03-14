@@ -121,6 +121,21 @@ foreach ($getproduk as $u) {
         keluar = '$u->qty',
         stok_awal = '$stokawal',  
         stok_sekarang = '$hasiljumlah'");
+
+        $ceksaldoawal = $conn->query("SELECT * FROM saldo WHERE id_supplier = '$u->id_supplier' ORDER BY tanggal_posting DESC LIMIT 1")->fetch_object();
+
+        //* UPDATE SALDO HISTORY SALDO MASUK DAN KELUAR
+        $jumlahsaldoakhir = $dataraw->harga_normal + $ceksaldoawal->saldo_akhir;
+        $query[] = $conn->query("INSERT INTO saldo SET 
+        id_saldo = UUID_SHORT(),
+        id_supplier = '$u->id_supplier',
+        tanggal_posting = NOW(),
+        keterangan = 'SALDO MASUK TRANSAKSI CUSTOMER DARI APLIKASI',
+        id_transaksi = '$transaction->id',
+        saldo_masuk = $dataraw->harga_normal,
+        saldo_keluar = 0,
+        saldo_awal = $ceksaldoawal->saldo_akhir,
+        saldo_akhir = $jumlahsaldoakhir");
     } else {
         //* DENGAN VARIAN
         $diskon = ($u->harga_master) - ($u->diskon_rupiah);
@@ -203,6 +218,21 @@ foreach ($getproduk as $u) {
         keluar = '$u->qty',
         stok_awal = '$stokawal',  
         stok_sekarang = '$hasiljumlah'");
+
+        $ceksaldoawal = $conn->query("SELECT * FROM saldo WHERE id_supplier = '$u->id_supplier' ORDER BY tanggal_posting DESC LIMIT 1")->fetch_object();
+
+        //* UPDATE SALDO HISTORY SALDO MASUK DAN KELUAR
+        $jumlahsaldoakhir = $dataraw->harga_normal + $ceksaldoawal->saldo_akhir;
+        $query[] = $conn->query("INSERT INTO saldo SET 
+        id_saldo = UUID_SHORT(),
+        id_supplier = '$u->id_supplier',
+        tanggal_posting = NOW(),
+        keterangan = 'SALDO MASUK TRANSAKSI CUSTOMER DARI APLIKASI',
+        id_transaksi = '$transaction->id',
+        saldo_masuk = $dataraw->harga_normal,
+        saldo_keluar = 0,
+        saldo_awal = $ceksaldoawal->saldo_akhir,
+        saldo_akhir = $jumlahsaldoakhir");
     }
 }
 

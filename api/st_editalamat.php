@@ -52,7 +52,7 @@
                             WHERE id = '$id'");
 
         if ($query) {
-            $response->data = null;
+            $response->data = $query2;
             $response->sukses(200);
         } else {
             $response->data = null;
