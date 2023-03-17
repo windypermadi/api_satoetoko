@@ -187,11 +187,50 @@ $getqtyproduk =
 //     'harga' => "Rp" . number_format($dataongkir['harga'], 0, ',', '.'),
 // ];
 
+//? VOUCHER
+$voucherquery = "SELECT * FROM voucher WHERE idvoucher = '$dataraw2[id_voucher_barang]'";
+$voucher = $conn->query($voucherquery)->fetch_assoc();
+
+$ketstatus = statusvoucher($voucher['status_voucher']);
+$getvoucher = [
+    'idvoucher' => $voucher['idvoucher'],
+    'kode_voucher' => $voucher['kode_voucher'],
+    'nama_voucher' => $voucher['nama_voucher'],
+    'deskripsi_voucher' => $voucher['deskripsi_voucher'],
+    'nilai_voucher' => (int)$voucher['nilai_voucher'],
+    'minimal_transaksi' => (int)$voucher['minimal_transaksi'],
+    'tgl_mulai' => $voucher['tgl_mulai'],
+    'tgl_berakhir' => $voucher['tgl_berakhir'],
+    'status_voucher' => $voucher['status_voucher'],
+    'ket_status' => $ketstatus,
+    'status_klaim' => false
+];
+
 $data1['data_address_buyer'] = $address;
 $data1['data_address_shipper'] = $address_shipper;
 $data1['data_product'] = $getprodukcoba;
+$data1['data_voucher'] = $getvoucher;
 $data1['data_qty_product'] = $getqtyproduk;
 $data1['data_price'] = $getdatatotal;
 
 $response->data = $data1;
 $response->sukses(200);
+
+function statusvoucher($val = null)
+{
+    switch ($val) {
+        case '1':
+            $ketstatus = 'Diskon Ebook';
+            break;
+        case '2':
+            $ketstatus = 'Gratis Ongkir';
+            break;
+        case '3':
+            $ketstatus = 'Diskon';
+            break;
+        default:
+            $ketstatus = 'Unknown';
+            break;
+    }
+    return $ketstatus;
+}
