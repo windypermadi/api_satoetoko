@@ -168,7 +168,7 @@ switch ($tag) {
         } else {
             $search = "";
         }
-        $data = $conn->query("SELECT * FROM voucher WHERE status_voucher = '2' AND tgl_mulai <= NOW() AND tgl_berakhir >= NOW() AND kuota_voucher != 0 AND tipe_voucher != '2'");
+        $data = $conn->query("SELECT * FROM voucher WHERE status_voucher = '2' AND tgl_mulai <= NOW() AND tgl_berakhir >= NOW() AND kuota_voucher != 0 AND tipe_voucher = '1'");
         foreach ($data as $key => $value) {
 
             $cekpunya = $conn->query("SELECT * FROM voucher_user vu 
@@ -219,7 +219,7 @@ switch ($tag) {
         } else {
             $search = "";
         }
-        $data = $conn->query("SELECT * FROM voucher WHERE status_voucher = '3' AND tipe_voucher != '3' $search AND tgl_mulai <= NOW() AND tgl_berakhir >= NOW() AND tipe_voucher != '2'");
+        $data = $conn->query("SELECT * FROM voucher WHERE status_voucher = '3' AND tipe_voucher = '1' $search AND tgl_mulai <= NOW() AND tgl_berakhir >= NOW()");
         foreach ($data as $key => $value) {
 
             $cekpunya = $conn->query("SELECT * FROM voucher_user vu 
