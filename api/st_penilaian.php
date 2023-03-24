@@ -12,14 +12,17 @@
 
         switch ($tag) {
             case 'before':
-                $data = $conn->query("SELECT a.id_transaksi, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, c.harga_master, b.harga_diskon, b.diskon_barang, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian, c.status_master_detail, b.jumlah_beli, a.nomor_resi
-                FROM transaksi a
-                JOIN transaksi_detail b ON a.id_transaksi = b.id_transaksi
-                JOIN master_item c ON b.id_barang = c.id_master 
-                JOIN stok d ON c.id_master = d.id_barang 
-                JOIN cabang e ON d.id_warehouse = e.id_cabang
-                LEFT JOIN variant f ON b.id_barang = f.id_variant
-                WHERE a.id_user = '$id_login' AND a.status_transaksi = '7' GROUP BY a.id_transaksi ORDER BY a.tanggal_transaksi DESC;");
+                $data = $conn->query("SELECT t.id_transaksi, c.nama_cabang, ca.nama_cabang as nama_cabang_var, mi.judul_master, v.id_variant, mi.image_master, t.invoice, t.tanggal_transaksi, mi.harga_master, td.harga_diskon, td.diskon_barang, v.harga_varian, v.diskon_rupiah_varian, t.total_harga_setelah_diskon, t.status_transaksi, t.kurir_code, v.keterangan_varian, mi.status_master_detail, td.jumlah_beli, t.nomor_resi 
+                FROM transaksi t 
+                JOIN transaksi_detail td ON t.id_transaksi = td.id_transaksi
+                LEFT JOIN master_item mi ON td.id_barang = mi.id_master
+                LEFT JOIN variant v ON td.id_barang = v.id_variant
+                LEFT JOIN stok s ON td.id_barang = s.id_barang
+                LEFT JOIN stok st ON td.id_barang = st.id_varian
+                LEFT JOIN cabang c ON s.id_warehouse = c.id_cabang
+                LEFT JOIN cabang ca ON st.id_warehouse = ca.id_cabang
+                WHERE t.id_user = '$id_login' AND t.status_transaksi = '7'  AND status_rating = 'false'  
+                GROUP BY t.id_transaksi ORDER BY t.tanggal_transaksi DESC");
 
                 //status transaksi | total produk | batas transaksi
                 $status_transaksi = 'Transaksi Selesai';
@@ -62,18 +65,42 @@
                         $ketambil = '';
                     }
 
-                    if ($key['status_master_detail'] == '2') {
-                        if (substr($key['image_master'], 0, 4) == 'http') {
-                            $imagegambar = $key['image_master'];
+                    if (!empty($key['id_variant'])) {
+                        $getvar = $conn->query("SELECT b.status_master_detail, a.image_varian, b.judul_master FROM variant a 
+                        JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$key[id_variant]'")->fetch_object();
+                        if ($getvar->status_master_detail == '2') {
+                            if (substr($getvar->image_varian, 0, 4) == 'http') {
+                                $imagegambar = $getvar->image_varian;
+                            } else {
+                                $imagegambar = $getimagebukufisik . $getvar->image_varian;
+                            }
                         } else {
-                            $imagegambar = $getimagebukufisik . $key['image_master'];
+                            if (substr($getvar->image_varian, 0, 4) == 'http') {
+                                $imagegambar = $getvar->image_varian;
+                            } else {
+                                $imagegambar = $getimagefisik . $getvar->image_varian;
+                            }
                         }
+                        $judul = $getvar->judul_master;
+                        $judul_varian = $key['keterangan_varian'];
+                        $cabang = $key['nama_cabang_var'];
                     } else {
-                        if (substr($key['image_master'], 0, 4) == 'http') {
-                            $imagegambar = $key['image_master'];
+                        if ($key['status_master_detail'] == '2') {
+                            if (substr($key['image_master'], 0, 4) == 'http') {
+                                $imagegambar = $key['image_master'];
+                            } else {
+                                $imagegambar = $getimagebukufisik . $key['image_master'];
+                            }
                         } else {
-                            $imagegambar = $getimagefisik . $key['image_master'];
+                            if (substr($key['image_master'], 0, 4) == 'http') {
+                                $imagegambar = $key['image_master'];
+                            } else {
+                                $imagegambar = $getimagefisik . $key['image_master'];
+                            }
                         }
+                        $judul = $key['judul_master'];
+                        $judul_varian = $key['keterangan_varian'];
+                        $cabang = $key['nama_cabang'];
                     }
 
                     $result[] = [
@@ -84,10 +111,10 @@
                         'status_transaksi' => $status_transaksi,
                         'status_ambil_ditempat' => $ambilditempat,
                         'status_ambil_ditempat_ket' => $ketambil,
-                        'nama_cabang' => $key['nama_cabang'],
-                        'judul_master' => $key['judul_master'],
+                        'nama_cabang' => $cabang,
+                        'judul_master' => $judul,
                         'jumlah_beli' => 'x ' . $key['jumlah_beli'],
-                        'harga_master' => rupiah($key['harga_master']),
+                        'harga_master' => $key['harga_master'] != NULL ? rupiah($key['harga_master']) : rupiah($key['harga_varian']),
                         'harga_tampil' => rupiah($key['harga_diskon']),
                         'status_diskon' => $key['diskon_barang'] != 0 ? 'Y' : 'N',
                         'image_master' => $imagegambar,

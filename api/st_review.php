@@ -7,78 +7,7 @@ $tag = $_REQUEST['tag'];
 
 if (!empty($tag)) {
     switch ($tag) {
-        case 'show':
-            $idUser  = $_REQUEST['idUser'] ?? '';
-            $idProduct  = $_REQUEST['idProduct'];
-            $gettotalreview = $conn->query("SELECT SUM(rating)/COUNT(id_review) as counting_review, COUNT(id_review) as counting_ulasan FROM review WHERE id_barang = '$idProduct'")->fetch_object();
-            $getproduk = $conn->query("SELECT * FROM review WHERE id_barang = '$idProduct'");
-            foreach ($getproduk as $key => $value) {
-                if ($value['id_variant'] != NULL) {
-                    $getstatusmaster = $conn->query("SELECT b.status_master_detail FROM variant a JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$value[id_variant]'")->fetch_assoc();
-
-                    $getjudulmaster = $conn->query("SELECT judul_master FROM variant a LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$value[id_variant]'")->fetch_assoc();
-
-                    $judul_master = $getjudulmaster['judul_master'];
-                    $variasi = $value['keterangan_varian'];
-
-                    if ($getstatusmaster['status_master_detail'] == '2') {
-                        if (substr($value['image_varian'], 0, 4) == 'http') {
-                            $image = $value['image_varian'];
-                        } else {
-                            $image = $getimagebukufisik . $value['image_varian'];
-                        }
-                    } else {
-                        if (substr($value['image_varian'], 0, 4) == 'http') {
-                            $image = $value['image_varian'];
-                        } else {
-                            $image = $getimagefisik . $value['image_varian'];
-                        }
-                    }
-                } else {
-                    $getstatusmaster = $conn->query("SELECT status_master_detail FROM master_item WHERE id_master = '$value[id_master]'")->fetch_assoc();
-
-                    $judul_master = $value['judul_master'];
-                    $variasi = "";
-
-                    if ($getstatusmaster['status_master_detail'] == '2') {
-                        if (substr($value['image_master'], 0, 4) == 'http') {
-                            $image = $value['image_master'];
-                        } else {
-                            $image = $getimagebukufisik . $value['image_master'];
-                        }
-                    } else {
-                        if (substr($value['image_master'], 0, 4) == 'http') {
-                            $image = $value['image_master'];
-                        } else {
-                            $image = $getimagefisik . $value['image_master'];
-                        }
-                    }
-                }
-
-                $headReview = [
-                    "totalReview" => $gettotalreview['counting_review'],
-                    "totalUlasan" => $gettotalreview['counting_ulasan']
-
-                ];
-
-                $getlistreview[] = [
-                    "totalReview" => $gettotalreview['counting_review'],
-                    "totalUlasan" => $gettotalreview['counting_ulasan']
-
-                ];
-
-                $datakepala['head'] = $headReview;
-                $datakepala['listReview'] = $getlistreview;
-            }
-            if ($datakepala) {
-                $response->data = $datakepala;
-                $response->sukses(200);
-            } else {
-                $response->data = [];
-                $response->sukses(200);
-            }
-
-            break;
+            //! input rating per barang
         case 'showInput':
             $id_transaksi  = $_REQUEST['idTransaksi'];
             $getproduk = $conn->query("SELECT a.id_transaksi_detail, c.id_master, c.judul_master, d.id_variant, d.keterangan_varian, c.image_master,  d.image_varian
@@ -90,9 +19,10 @@ if (!empty($tag)) {
                 if ($value['id_variant'] != NULL) {
                     $getstatusmaster = $conn->query("SELECT b.status_master_detail FROM variant a JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$value[id_variant]'")->fetch_assoc();
 
-                    $getjudulmaster = $conn->query("SELECT judul_master FROM variant a LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$value[id_variant]'")->fetch_assoc();
+                    // $getjudulmaster = $conn->query("SELECT judul_master FROM variant a LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$value[id_variant]'")->fetch_assoc();
+                    $getvarian = $conn->query("SELECT b.judul_master, b.status_master_detail,a.id_master FROM variant a LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$value[id_variant]'")->fetch_assoc();
 
-                    $judul_master = $getjudulmaster['judul_master'];
+                    $judul_master = $getvarian['judul_master'];
                     $variasi = $value['keterangan_varian'];
 
                     if ($getstatusmaster['status_master_detail'] == '2') {
@@ -131,7 +61,7 @@ if (!empty($tag)) {
 
                 $getprodukcoba[] = [
                     "id_transaksi_detail" => $value['id_transaksi_detail'],
-                    "id_master" => $value['id_master'],
+                    "idProduct" => $value['id_variant'] != NULL ? $value['id_variant'] : $value['id_master'],
                     "judul_master" => $judul_master,
                     "variasi" => $variasi,
                     "image_master" => $image
