@@ -14,8 +14,13 @@ if (!empty($tag)) {
                         FROM transaksi_detail a 
                         JOIN transaksi b ON a.id_transaksi = b.id_transaksi
                         LEFT JOIN master_item c ON a.id_barang = c.id_master
-                        LEFT JOIN variant d ON a.id_barang = d.id_variant WHERE a.id_transaksi = '$id_transaksi'");
+                        LEFT JOIN variant d ON a.id_barang = d.id_variant 
+                        LEFT JOIN review r ON a.id_barang = r.id_barang WHERE a.id_transaksi = '$id_transaksi' GROUP BY a.id_transaksi_detail");
             foreach ($getproduk as $key => $value) {
+                // $getreview = $conn->query("SELECT * FROM review WHERE id_barang = '$value[id_master]'");
+                // foreach ($getreview as $key) {
+                //     if (isset($key))
+                // }
                 if ($value['id_variant'] != NULL) {
                     $getstatusmaster = $conn->query("SELECT b.status_master_detail FROM variant a JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$value[id_variant]'")->fetch_assoc();
 
@@ -85,14 +90,19 @@ if (!empty($tag)) {
             $rating = $_POST['rating'];
             $hideUser = $_POST['isHide'];
             if (!empty($idDetail) && !empty($idBarang) && !empty($idUser)) {
-                $addReview = $conn->query("INSERT INTO review SET id_review = UUID_SHORT(),
-                id_detail_transaksi = '$idDetail',
-                id_barang = '$idBarang',
-                id_user = '$idUser',
-                deskripsi = '$deskripsi',
-                rating = $rating,
-                tgl_review = NOW(),
-                hide_nick = '$hideUser'");
+                $cekRating = $conn->query("SELECT * FROM review WHERE id_user = '$idUser' AND id_barang = '$idBarang' AND id_detail_transaksi = '$idDetail'")->fetch_object();
+                if (isset($cekRating->id_review)) {
+                    $addReview = $conn->query("UPDATE review SET deskripsi = '$deskripsi',rating = $rating, tgl_edit = NOW() WHERE id_detail_transaksi = '$idDetail' AND id_barang = '$idBarang' AND id_user = '$idUser';");
+                } else {
+                    $addReview = $conn->query("INSERT INTO review SET id_review = UUID_SHORT(),
+                    id_detail_transaksi = '$idDetail',
+                    id_barang = '$idBarang',
+                    id_user = '$idUser',
+                    deskripsi = '$deskripsi',
+                    rating = $rating,
+                    tgl_review = NOW(),
+                    hide_nick = '$hideUser'");
+                }
 
                 if ($addReview) {
                     $response->data = "Selamat kamu berhasil review produk ini.";

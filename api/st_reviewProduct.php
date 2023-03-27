@@ -68,6 +68,7 @@ foreach ($getproduk as $key => $value) {
 
     $getlistreview = [
         "text" => $value['deskripsi'],
+        "rating" => (float)$value['rating'],
         "foto" => 'foto',
         "video" => 'video',
         "varian" => 'varian',
@@ -75,8 +76,12 @@ foreach ($getproduk as $key => $value) {
     ];
 
     $datakepala['head'] = $headReview;
-    $datakepala['listReview'][]['user'] = $user;
-    $datakepala['listReview'][]['review'] = $getlistreview;
+    $datakepala['listReview'][] = [
+        'user' => $user,
+        'review' => $getlistreview
+    ];
+    // $datakepala['listReview']['user'] = $user;
+    // $datakepala['listReview']['review'] = $getlistreview;
 }
 if ($datakepala) {
     $response->data = $datakepala;

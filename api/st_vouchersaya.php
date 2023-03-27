@@ -25,8 +25,8 @@ switch ($tag) {
         $data = $conn->query("SELECT * FROM voucher_user a 
             JOIN voucher b ON a.idvoucher=b.idvoucher 
             WHERE a.iduser = '$iduser' $search
-            AND b.tgl_mulai <= CURRENT_DATE
-            AND b.tgl_berakhir >= CURRENT_DATE $filters");
+            AND b.tgl_mulai <= NOW()
+            AND b.tgl_berakhir >= NOW() AND a.status_pakai = '0' $filters");
         foreach ($data as $key => $value) {
 
             $cekpunya = $conn->query("SELECT * FROM voucher_user WHERE iduser = '$iduser' AND idvoucher = '$value[idvoucher]'")->fetch_object();
@@ -74,9 +74,9 @@ switch ($tag) {
         $data = $conn->query("SELECT * FROM voucher_user a 
             JOIN voucher b ON a.idvoucher=b.idvoucher 
             WHERE a.iduser = '$iduser' $search
-            AND b.tgl_mulai <= CURRENT_DATE
-            AND b.tgl_berakhir >= CURRENT_DATE
-            AND b.status_voucher = '1' $filters");
+            AND b.tgl_mulai <= NOW()
+            AND b.tgl_berakhir >= NOW()
+            AND b.status_voucher = '1' AND a.status_pakai = '0' $filters");
         foreach ($data as $key => $value) {
 
             $cekpunya = $conn->query("SELECT * FROM voucher_user WHERE iduser = '$iduser' AND idvoucher = '$value[idvoucher]'")->fetch_object();
@@ -126,9 +126,9 @@ switch ($tag) {
         $data = $conn->query("SELECT * FROM voucher_user a 
             JOIN voucher b ON a.idvoucher=b.idvoucher 
             WHERE a.iduser = '$iduser' $search
-            AND b.tgl_mulai <= CURRENT_DATE
-            AND b.tgl_berakhir >= CURRENT_DATE
-            AND b.status_voucher = '2' $filters");
+            AND b.tgl_mulai <= NOW()
+            AND b.tgl_berakhir >= NOW()
+            AND b.status_voucher = '2' AND a.status_pakai = '0' $filters");
         foreach ($data as $key => $value) {
 
             $cekpunya = $conn->query("SELECT * FROM voucher_user WHERE iduser = '$iduser' AND idvoucher = '$value[idvoucher]'")->fetch_object();
@@ -177,9 +177,9 @@ switch ($tag) {
         $data = $conn->query("SELECT * FROM voucher_user a 
             JOIN voucher b ON a.idvoucher=b.idvoucher 
             WHERE a.iduser = '$iduser' $search
-            AND b.tgl_mulai <= CURRENT_DATE
-            AND b.tgl_berakhir >= CURRENT_DATE
-            AND b.status_voucher = '3' $filters");
+            AND b.tgl_mulai <= NOW()
+            AND b.tgl_berakhir >= NOW()
+            AND b.status_voucher = '3' AND a.status_pakai = '0' $filters");
         foreach ($data as $key => $value) {
 
             $cekpunya = $conn->query("SELECT * FROM voucher_user WHERE iduser = '$iduser' AND idvoucher = '$value[idvoucher]'")->fetch_object();
