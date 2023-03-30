@@ -9,7 +9,14 @@ $idProduct = $_REQUEST['idProduct'];
 $getsum = $conn->query("SELECT SUM(rating) as rating, COUNT(id_review) as count_rating FROM review WHERE id_barang = '$idProduct'")->fetch_object();
 $getaverage = $getsum->rating / $getsum->count_rating;
 $getUser = $conn->query("SELECT * FROM data_user du 
-JOIN review r ON du.id_login = r.id_user")->fetch_object();
+JOIN review r ON du.id_login = r.id_user");
+foreach ($getUser as $key => $value) {
+    $user = [
+        "nama" => $value['nama_user'],
+        "profile" => $getprofile . $value['profil_user'],
+        "isHide" => $value['hide_nick']
+    ];
+}
 
 $getproduk = $conn->query("SELECT * FROM review WHERE id_barang = '$idProduct'");
 foreach ($getproduk as $key => $value) {
@@ -58,12 +65,6 @@ foreach ($getproduk as $key => $value) {
     $headReview = [
         "totalReview" => $getaverage,
         "totalUlasan" => $getsum->count_rating
-    ];
-
-    $user = [
-        "nama" => $getUser->nama_user,
-        "profile" => $getUser->profil_user,
-        "isHide" => $getUser->hide_nick
     ];
 
     $getlistreview = [

@@ -11,6 +11,109 @@
     if (isset($id_login)) {
 
         switch ($tag) {
+            case 'semua':
+                $data = $conn->query("SELECT a.id_transaksi, f.id_variant, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, b.harga_barang, b.harga_diskon, b.diskon_barang, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian, c.status_master_detail, b.jumlah_beli, a.nomor_resi, a.tanggal_exp
+                FROM transaksi a
+                JOIN transaksi_detail b ON a.id_transaksi = b.id_transaksi
+                LEFT JOIN master_item c ON b.id_barang = c.id_master 
+                LEFT JOIN stok d ON c.id_master = d.id_barang 
+                LEFT JOIN cabang e ON a.id_cabang = e.id_cabang
+                LEFT JOIN variant f ON b.id_barang = f.id_variant
+                WHERE a.id_user = '$id_login' AND a.tanggal_exp >= NOW() GROUP BY a.id_transaksi ORDER BY a.tanggal_transaksi DESC");
+
+                //status transaksi | total produk | batas transaksi
+                $status_transaksi = 'Menunggu Pembayaran';
+
+                foreach ($data as $key) {
+
+                    if (!empty($key['id_variant'])) {
+                        $getvar = $conn->query("SELECT b.status_master_detail, a.image_varian, b.judul_master FROM variant a 
+                        JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$key[id_variant]'")->fetch_object();
+                        if ($getvar->status_master_detail == '2') {
+                            if (substr($getvar->image_varian, 0, 4) == 'http') {
+                                $imagegambar = $getvar->image_varian;
+                            } else {
+                                $imagegambar = $getimagebukufisik . $getvar->image_varian;
+                            }
+                        } else {
+                            if (substr($getvar->image_varian, 0, 4) == 'http') {
+                                $imagegambar = $getvar->image_varian;
+                            } else {
+                                $imagegambar = $getimagefisik . $getvar->image_varian;
+                            }
+                        }
+                        $judul = $getvar->judul_master;
+                        $judul_varian = $key['keterangan_varian'];
+                    } else {
+                        if ($key['status_master_detail'] == '2') {
+                            if (substr($key['image_master'], 0, 4) == 'http') {
+                                $imagegambar = $key['image_master'];
+                            } else {
+                                $imagegambar = $getimagebukufisik . $key['image_master'];
+                            }
+                        } else {
+                            if (substr($key['image_master'], 0, 4) == 'http') {
+                                $imagegambar = $key['image_master'];
+                            } else {
+                                $imagegambar = $getimagefisik . $key['image_master'];
+                            }
+                        }
+                        $judul = $key['judul_master'];
+                        $judul_varian = $key['keterangan_varian'];
+                    }
+
+                    $getjumlah_produk = $conn->query("SELECT count(id_transaksi) as jumlah_produk FROM transaksi_detail
+                    WHERE id_transaksi = '$key[id_transaksi]'")->fetch_assoc();
+
+                    if ($getjumlah_produk['jumlah_produk'] > 1) {
+                        $status_lebih_satu = 'Y';
+                        $keterangan_lebih_satu = $getjumlah_produk['jumlah_produk'] - 1 . ' produk lainnya';
+                    } else {
+                        $status_lebih_satu = 'N';
+                        $keterangan_lebih_satu = '';
+                    }
+
+                    $cek_jumlah = $conn->query("SELECT sum(jumlah_beli) FROM `transaksi_detail` WHERE `id_transaksi` LIKE '$key[id_transaksi]'")->fetch_assoc();
+
+                    $date = date_create($key['tanggal_transaksi']);
+                    date_add($date,  date_interval_create_from_date_string("1 days"));
+                    $exp_date = date_format($date, "Y-m-d H:i:s");
+
+                    $ambilditempat = $key['kurir_code'] == '00' ? 'Ambil Ditempat' : '';
+
+                    $jumlah = $cek_jumlah['jumlah_beli'];
+
+                    $result[] = [
+                        'id_transaksi' => $key['id_transaksi'],
+                        'invoice' => $key['invoice'],
+                        'exp_date' => $exp_date,
+                        'total' => rupiah($key['total_harga_setelah_diskon']),
+                        'status' => $key['status_transaksi'],
+                        'status_transaksi' => $status_transaksi,
+                        'status_ambil_ditempat' => $ambilditempat,
+                        'nama_cabang' => $key['nama_cabang'],
+                        'judul_master' => $judul,
+                        'jumlah_beli' => 'x ' . $key['jumlah_beli'],
+                        'harga_master' => rupiah($key['harga_barang']),
+                        'harga_tampil' => rupiah($key['harga_diskon']),
+                        'status_diskon' => $key['diskon_barang'] != 0 ? 'Y' : 'N',
+                        'image_master' => $imagegambar,
+                        'keterangan_varian' => $judul_varian,
+                        'jumlah_produk' => $jumlah,
+                        'status_lebih_satu' => $status_lebih_satu,
+                        'keterangan_lebih_satu' => $keterangan_lebih_satu,
+                        'nomor_resi' => $key['nomor_resi']
+                    ];
+                }
+
+                if ($result) {
+                    $response->data = $result;
+                    $response->sukses(200);
+                } else {
+                    $response->data = [];
+                    $response->sukses(200);
+                }
+                break;
             case 'sebelum':
                 // $cekexpired = $conn->query("SELECT * FROM transaksi WHERE id_user = '$id_loid_logingin'");
                 $data = $conn->query("SELECT a.id_transaksi, f.id_variant, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, b.harga_barang, b.harga_diskon, b.diskon_barang, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian, c.status_master_detail, b.jumlah_beli, a.nomor_resi, a.tanggal_exp
@@ -86,6 +189,7 @@
 
                     $result[] = [
                         'id_transaksi' => $key['id_transaksi'],
+                        'invoice' => $key['invoice'],
                         'exp_date' => $exp_date,
                         'total' => rupiah($key['total_harga_setelah_diskon']),
                         'status' => $key['status_transaksi'],
@@ -210,6 +314,7 @@
 
                     $result[] = [
                         'id_transaksi' => $key['id_transaksi'],
+                        'invoice' => $key['invoice'],
                         'exp_date' => $exp_date,
                         'total' => rupiah($key['total_harga_setelah_diskon']),
                         'status' => $key['status_transaksi'],
@@ -291,6 +396,7 @@
 
                     $result[] = [
                         'id_transaksi' => $key['id_transaksi'],
+                        'invoice' => $key['invoice'],
                         'exp_date' => $exp_date,
                         'total' => rupiah($key['total_harga_setelah_diskon']),
                         'status' => $key['status_transaksi'],
@@ -386,6 +492,7 @@
 
                     $result[] = [
                         'id_transaksi' => $key['id_transaksi'],
+                        'invoice' => $key['invoice'],
                         'exp_date' => $exp_date,
                         'total' => rupiah($key['total_harga_setelah_diskon']),
                         'status' => $key['status_transaksi'],
@@ -467,6 +574,7 @@
 
                     $result[] = [
                         'id_transaksi' => $key['id_transaksi'],
+                        'invoice' => $key['invoice'],
                         'exp_date' => $exp_date,
                         'total' => rupiah($key['total_harga_setelah_diskon']),
                         'status' => '9',
@@ -547,6 +655,7 @@
 
                     $result[] = [
                         'id_transaksi' => $key['id_transaksi'],
+                        'invoice' => $key['invoice'],
                         'exp_date' => $exp_date,
                         'total' => rupiah($key['total_harga_setelah_diskon']),
                         'status' => $key['status_transaksi'],
@@ -895,15 +1004,15 @@
                     ];
 
                 $data1['data_transaction'] = $getdatatransaction;
-                $data1['data_address_buyer'] = $address;
-                $data1['data_product'] = $getprodukcoba;
-                $data1['data_price'] = $getdatatotal;
-                $data1['data_payment'] = $metodepem;
-                $data1['data_order'] = $informasi_pesanan;
-                $data1['data_shipment'] = $informasi_pengiriman;
-                $data1['data_faktur'] = '';
-                $data1['notifikasi'] = $notif;
-                $data1['catatan'] = $catatan;
+                // $data1['data_address_buyer'] = $address;
+                // $data1['data_product'] = $getprodukcoba;
+                // $data1['data_price'] = $getdatatotal;
+                // $data1['data_payment'] = $metodepem;
+                // $data1['data_order'] = $informasi_pesanan;
+                // $data1['data_shipment'] = $informasi_pengiriman;
+                // $data1['data_faktur'] = '';
+                // $data1['notifikasi'] = $notif;
+                // $data1['catatan'] = $catatan;
 
                 if ($data1) {
                     $response->data = $data1;

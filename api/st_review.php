@@ -10,21 +10,16 @@ if (!empty($tag)) {
             //! input rating per barang
         case 'showInput':
             $id_transaksi  = $_REQUEST['idTransaksi'];
-            $getproduk = $conn->query("SELECT a.id_transaksi_detail, c.id_master, c.judul_master, d.id_variant, d.keterangan_varian, c.image_master,  d.image_varian
-                        FROM transaksi_detail a 
-                        JOIN transaksi b ON a.id_transaksi = b.id_transaksi
-                        LEFT JOIN master_item c ON a.id_barang = c.id_master
-                        LEFT JOIN variant d ON a.id_barang = d.id_variant 
-                        LEFT JOIN review r ON a.id_barang = r.id_barang WHERE a.id_transaksi = '$id_transaksi' GROUP BY a.id_transaksi_detail");
-            foreach ($getproduk as $key => $value) {
-                // $getreview = $conn->query("SELECT * FROM review WHERE id_barang = '$value[id_master]'");
-                // foreach ($getreview as $key) {
-                //     if (isset($key))
-                // }
+
+            $query = $conn->query("SELECT mi.id_master, v.id_variant, td.id_transaksi_detail, mi.judul_master, v.keterangan_varian, mi.image_master, v.image_varian, td.id_barang,r.* FROM transaksi_detail td 
+            LEFT JOIN master_item mi ON td.id_barang = mi.id_master
+            LEFT JOIN variant v ON td.id_barang = v.id_variant
+            LEFT JOIN review r ON td.id_transaksi_detail = r.id_detail_transaksi
+            WHERE td.id_transaksi = '$id_transaksi' AND r.id_review IS NULL;");
+            foreach ($query as $key => $value) {
                 if ($value['id_variant'] != NULL) {
                     $getstatusmaster = $conn->query("SELECT b.status_master_detail FROM variant a JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$value[id_variant]'")->fetch_assoc();
 
-                    // $getjudulmaster = $conn->query("SELECT judul_master FROM variant a LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$value[id_variant]'")->fetch_assoc();
                     $getvarian = $conn->query("SELECT b.judul_master, b.status_master_detail,a.id_master FROM variant a LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$value[id_variant]'")->fetch_assoc();
 
                     $judul_master = $getvarian['judul_master'];
@@ -90,11 +85,13 @@ if (!empty($tag)) {
             $rating = $_POST['rating'];
             $hideUser = $_POST['isHide'];
             if (!empty($idDetail) && !empty($idBarang) && !empty($idUser)) {
+                $gettransaksi = $conn->query("SELECT id_transaksi FROM transaksi_detail WHERE id_transaksi_detail = '$idDetail'")->fetch_object();
                 $cekRating = $conn->query("SELECT * FROM review WHERE id_user = '$idUser' AND id_barang = '$idBarang' AND id_detail_transaksi = '$idDetail'")->fetch_object();
                 if (isset($cekRating->id_review)) {
                     $addReview = $conn->query("UPDATE review SET deskripsi = '$deskripsi',rating = $rating, tgl_edit = NOW() WHERE id_detail_transaksi = '$idDetail' AND id_barang = '$idBarang' AND id_user = '$idUser';");
                 } else {
                     $addReview = $conn->query("INSERT INTO review SET id_review = UUID_SHORT(),
+                    id_transaksi = '$gettransaksi->id_transaksi',
                     id_detail_transaksi = '$idDetail',
                     id_barang = '$idBarang',
                     id_user = '$idUser',

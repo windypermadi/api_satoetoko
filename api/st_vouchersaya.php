@@ -174,6 +174,26 @@ switch ($tag) {
         }
         $q = $_GET['q'] ?? '';
         !empty($q) ? $search = " AND b.nama_voucher LIKE '%$q%'" : $search = "";
+        $data = $conn->query("SELECT * FROM voucher 
+			WHERE tipe_voucher = '3'
+            AND tgl_mulai <= NOW()
+            AND tgl_berakhir >= NOW()");
+        foreach ($data as $key => $value) {
+            $datalist[] = [
+                'idvoucher' => $value['idvoucher'],
+                'kode_voucher' => $value['kode_voucher'],
+                'nama_voucher' => $value['nama_voucher'],
+                'deskripsi_voucher' => $value['deskripsi_voucher'],
+                'nilai_voucher' => (int)$value['nilai_voucher'],
+                'minimal_transaksi' => (int)$value['minimal_transaksi'],
+                'tgl_mulai' => $value['tgl_mulai'],
+                'tgl_berakhir' => $value['tgl_berakhir'],
+                'status_voucher' => $value['status_voucher'],
+                'ket_status' => '',
+                'status_klaim' => true
+            ];
+        }
+
         $data = $conn->query("SELECT * FROM voucher_user a 
             JOIN voucher b ON a.idvoucher=b.idvoucher 
             WHERE a.iduser = '$iduser' $search
