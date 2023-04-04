@@ -81,8 +81,6 @@ foreach ($getproduk as $key => $value) {
         'user' => $user,
         'review' => $getlistreview
     ];
-    // $datakepala['listReview']['user'] = $user;
-    // $datakepala['listReview']['review'] = $getlistreview;
 }
 if ($datakepala) {
     $response->data = $datakepala;

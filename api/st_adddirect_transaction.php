@@ -67,11 +67,11 @@ if (empty($dataproduk['id_variant'])) {
 $getproduk = $conn->query($que)->fetch_object();
 
 if ($getproduk->status_master_detail == '2') {
-    $berat += $getproduk->berat_buku * $getproduk->qty;
-    $berat_detail = $getproduk->berat_buku * $getproduk->qty;
+    $berat += $getproduk->berat_buku * $dataraw->qty;
+    $berat_detail = $getproduk->berat_buku * $dataraw->qty;
 } else if ($getproduk->status_master_detail == '3') {
-    $berat += $getproduk->berat_fisik * $getproduk->qty;
-    $berat_detail = $getproduk->berat_fisik * $getproduk->qty;
+    $berat += $getproduk->berat_fisik * $dataraw->qty;
+    $berat_detail = $getproduk->berat_fisik * $dataraw->qty;
 }
 
 if (empty(trim($dataraw->catatan_pembeli))) {
@@ -135,7 +135,7 @@ if ($getproduk->id_variant) {
     //! INSERT TRANSAKSI DETAIL ADA VARIANT
     $harga_diskon = $getproduk->harga_varian - $getproduk->diskon_rupiah_varian;
     $feetoko = $harga_diskon - ($harga_diskon * ($getproduk->fee_admin / 100));
-    $sbtotal = round($harga_diskon * $getproduk->qty);
+    $sbtotal = round($harga_diskon * $dataraw->qty);
 
     $query[] = $conn->query("INSERT INTO transaksi_detail SET 
         id_transaksi_detail = UUID_SHORT(),

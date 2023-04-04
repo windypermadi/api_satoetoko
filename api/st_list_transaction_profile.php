@@ -85,7 +85,6 @@
 
                     $result[] = [
                         'id_transaksi' => $key['id_transaksi'],
-                        'invoice' => $key['invoice'],
                         'exp_date' => $exp_date,
                         'total' => rupiah($key['total_harga_setelah_diskon']),
                         'status' => $key['status_transaksi'],
@@ -189,7 +188,6 @@
 
                     $result[] = [
                         'id_transaksi' => $key['id_transaksi'],
-                        'invoice' => $key['invoice'],
                         'exp_date' => $exp_date,
                         'total' => rupiah($key['total_harga_setelah_diskon']),
                         'status' => $key['status_transaksi'],
@@ -314,7 +312,6 @@
 
                     $result[] = [
                         'id_transaksi' => $key['id_transaksi'],
-                        'invoice' => $key['invoice'],
                         'exp_date' => $exp_date,
                         'total' => rupiah($key['total_harga_setelah_diskon']),
                         'status' => $key['status_transaksi'],
@@ -396,7 +393,6 @@
 
                     $result[] = [
                         'id_transaksi' => $key['id_transaksi'],
-                        'invoice' => $key['invoice'],
                         'exp_date' => $exp_date,
                         'total' => rupiah($key['total_harga_setelah_diskon']),
                         'status' => $key['status_transaksi'],
@@ -426,12 +422,12 @@
                 }
                 break;
             case 'selesai':
-                $data = $conn->query("SELECT a.id_transaksi, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, c.harga_master, b.harga_diskon, b.diskon_barang, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.keterangan_varian, c.status_master_detail, b.jumlah_beli, a.nomor_resi
+                $data = $conn->query("SELECT a.id_transaksi, e.nama_cabang, c.judul_master, c.image_master, a.invoice, a.tanggal_transaksi, c.harga_master, f.image_varian, b.harga_diskon, b.diskon_barang, a.total_harga_setelah_diskon, a.status_transaksi, a.kurir_code, f.id_variant, f.keterangan_varian, c.status_master_detail, b.jumlah_beli, a.nomor_resi, f.harga_varian, f.diskon_rupiah_varian
                 FROM transaksi a
                 JOIN transaksi_detail b ON a.id_transaksi = b.id_transaksi
-                JOIN master_item c ON b.id_barang = c.id_master 
-                JOIN stok d ON c.id_master = d.id_barang 
-                JOIN cabang e ON d.id_warehouse = e.id_cabang
+                LEFT JOIN master_item c ON b.id_barang = c.id_master 
+                LEFT JOIN stok d ON c.id_master = d.id_barang 
+                LEFT JOIN cabang e ON d.id_warehouse = e.id_cabang
                 LEFT JOIN variant f ON b.id_barang = f.id_variant
                 WHERE a.id_user = '$id_login' AND a.status_transaksi = '7' GROUP BY a.id_transaksi ORDER BY a.tanggal_transaksi DESC;");
 
@@ -439,6 +435,60 @@
                 $status_transaksi = 'Transaksi Selesai';
 
                 foreach ($data as $key) {
+
+                    if ($key['id_variant'] != NULL) {
+                        $getstatusmaster = $conn->query("SELECT b.status_master_detail FROM variant a JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$key[id_variant]'")->fetch_assoc();
+
+                        $getjudulmaster = $conn->query("SELECT a.id_master, b.judul_master FROM variant a LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$key[id_variant]'")->fetch_assoc();
+
+                        $getcabang = $conn->query("SELECT * FROM stok a LEFT JOIN cabang b ON a.id_warehouse = b.id_cabang WHERE a.id_varian = '$key[id_variant]'")->fetch_assoc();
+
+                        $judul_master = $getjudulmaster['judul_master'];
+                        $variasi = $key['keterangan_varian'];
+                        $master = $getjudulmaster['id_master'];
+                        $cabang = $getcabang['nama_cabang'];
+
+                        $harga = $key['harga_varian'];
+                        $harga_diskon = $key['diskon_rupiah_varian'];
+
+                        if ($getstatusmaster['status_master_detail'] == '2') {
+                            if (substr($key['image_varian'], 0, 4) == 'http') {
+                                $image = $key['image_varian'];
+                            } else {
+                                $image = $getimagebukufisik . $key['image_varian'];
+                            }
+                        } else {
+                            if (substr($key['image_varian'], 0, 4) == 'http') {
+                                $image = $key['image_varian'];
+                            } else {
+                                $image = $getimagefisik . $key['image_varian'];
+                            }
+                        }
+                    } else {
+                        $getstatusmaster = $conn->query("SELECT status_master_detail FROM master_item WHERE id_master = '$key[id_master]'")->fetch_assoc();
+
+                        $judul_master = $key['judul_master'];
+                        $variasi = "";
+                        $master = $key['id_master'];
+                        $cabang = $key['nama_cabang'];
+
+                        $harga = $key['harga_diskon'];
+                        $harga_diskon = $key['diskon_barang'];
+
+                        if ($key['status_master_detail'] == '2') {
+                            if (substr($key['image_master'], 0, 4) == 'http') {
+                                $image = $key['image_master'];
+                            } else {
+                                $image = $getimagebukufisik . $key['image_master'];
+                            }
+                        } else {
+                            if (substr($key['image_master'], 0, 4) == 'http') {
+                                $image = $key['image_master'];
+                            } else {
+                                $image = $getimagefisik . $key['image_master'];
+                            }
+                        }
+                    }
 
                     $getjumlah_produk = $conn->query("SELECT count(id_transaksi) as jumlah_produk FROM transaksi_detail
                     WHERE id_transaksi = '$key[id_transaksi]'")->fetch_assoc();
@@ -476,37 +526,22 @@
                         $ketambil = '';
                     }
 
-                    if ($key['status_master_detail'] == '2') {
-                        if (substr($key['image_master'], 0, 4) == 'http') {
-                            $imagegambar = $key['image_master'];
-                        } else {
-                            $imagegambar = $getimagebukufisik . $key['image_master'];
-                        }
-                    } else {
-                        if (substr($key['image_master'], 0, 4) == 'http') {
-                            $imagegambar = $key['image_master'];
-                        } else {
-                            $imagegambar = $getimagefisik . $key['image_master'];
-                        }
-                    }
-
                     $result[] = [
                         'id_transaksi' => $key['id_transaksi'],
-                        'invoice' => $key['invoice'],
                         'exp_date' => $exp_date,
                         'total' => rupiah($key['total_harga_setelah_diskon']),
                         'status' => $key['status_transaksi'],
                         'status_transaksi' => $status_transaksi,
                         'status_ambil_ditempat' => $ambilditempat,
                         'status_ambil_ditempat_ket' => $ketambil,
-                        'nama_cabang' => $key['nama_cabang'],
-                        'judul_master' => $key['judul_master'],
+                        'nama_cabang' => $cabang,
+                        'judul_master' => $judul_master,
                         'jumlah_beli' => 'x ' . $key['jumlah_beli'],
-                        'harga_master' => rupiah($key['harga_master']),
-                        'harga_tampil' => rupiah($key['harga_diskon']),
+                        'harga_master' => rupiah($harga),
+                        'harga_tampil' => rupiah($harga_diskon),
                         'status_diskon' => $key['diskon_barang'] != 0 ? 'Y' : 'N',
-                        'image_master' => $imagegambar,
-                        'keterangan_varian' => $key['keterangan_varian'],
+                        'image_master' => $image,
+                        'keterangan_varian' => $variasi,
                         'jumlah_produk' => $jumlah,
                         'status_lebih_satu' => $status_lebih_satu,
                         'keterangan_lebih_satu' => $keterangan_lebih_satu,
@@ -574,7 +609,6 @@
 
                     $result[] = [
                         'id_transaksi' => $key['id_transaksi'],
-                        'invoice' => $key['invoice'],
                         'exp_date' => $exp_date,
                         'total' => rupiah($key['total_harga_setelah_diskon']),
                         'status' => '9',
@@ -655,7 +689,6 @@
 
                     $result[] = [
                         'id_transaksi' => $key['id_transaksi'],
-                        'invoice' => $key['invoice'],
                         'exp_date' => $exp_date,
                         'total' => rupiah($key['total_harga_setelah_diskon']),
                         'status' => $key['status_transaksi'],
@@ -701,10 +734,11 @@
                     if ($value['id_variant'] != NULL) {
                         $getstatusmaster = $conn->query("SELECT b.status_master_detail FROM variant a JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$value[id_variant]'")->fetch_assoc();
 
-                        $getjudulmaster = $conn->query("SELECT judul_master FROM variant a LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$value[id_variant]'")->fetch_assoc();
+                        $getjudulmaster = $conn->query("SELECT a.id_master, b.judul_master FROM variant a LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_variant = '$value[id_variant]'")->fetch_assoc();
 
                         $judul_master = $getjudulmaster['judul_master'];
                         $variasi = $value['keterangan_varian'];
+                        $master = $getjudulmaster['id_master'];
 
                         if ($getstatusmaster['status_master_detail'] == '2') {
                             if (substr($value['image_varian'], 0, 4) == 'http') {
@@ -724,6 +758,7 @@
 
                         $judul_master = $value['judul_master'];
                         $variasi = "";
+                        $master = $value['id_master'];
 
                         if ($getstatusmaster['status_master_detail'] == '2') {
                             if (substr($value['image_master'], 0, 4) == 'http') {
@@ -741,7 +776,7 @@
                     }
 
                     $getprodukcoba[] = [
-                        "id_master" => $value['id_master'],
+                        "id_master" => $master,
                         "judul_master" => $judul_master,
                         "variasi" => $variasi,
                         "image_master" => $image,
@@ -1004,15 +1039,15 @@
                     ];
 
                 $data1['data_transaction'] = $getdatatransaction;
-                // $data1['data_address_buyer'] = $address;
-                // $data1['data_product'] = $getprodukcoba;
-                // $data1['data_price'] = $getdatatotal;
-                // $data1['data_payment'] = $metodepem;
-                // $data1['data_order'] = $informasi_pesanan;
-                // $data1['data_shipment'] = $informasi_pengiriman;
-                // $data1['data_faktur'] = '';
-                // $data1['notifikasi'] = $notif;
-                // $data1['catatan'] = $catatan;
+                $data1['data_address_buyer'] = $address;
+                $data1['data_product'] = $getprodukcoba;
+                $data1['data_price'] = $getdatatotal;
+                $data1['data_payment'] = $metodepem;
+                $data1['data_order'] = $informasi_pesanan;
+                $data1['data_shipment'] = $informasi_pengiriman;
+                $data1['data_faktur'] = '';
+                $data1['notifikasi'] = $notif;
+                $data1['catatan'] = $catatan;
 
                 if ($data1) {
                     $response->data = $data1;
