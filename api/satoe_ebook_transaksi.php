@@ -441,6 +441,7 @@ switch ($tag) {
             $status_transaksi = $row['status_transaksi'];
             $batas_pembayaran = date('Y-m-d H:i:s', strtotime($row['batas_pembayaran']));
             $waktu_sekarang = date('Y-m-d H:i:s');
+
             if ($status_transaksi == '1') {
                 $keterangan = 'Menunggu Pembayaran';
             } else if ($status_transaksi == '1' and $batas_pembayaran >= $waktu_sekarang) {
@@ -501,9 +502,20 @@ switch ($tag) {
 
         $result = array();
         while ($row = mysqli_fetch_array($query)) {
+
+            $date = date_create($row['tgl_pembelian']);
+            date_add($date,  date_interval_create_from_date_string("1 days"));
+            $exp_date = date_format($date, "Y-m-d H:i:s");
+
             $status_transaksi = $row['status_transaksi'];
             if ($status_transaksi == '1') {
-                $keterangan = 'Menunggu Pembayaran';
+                if ($exp_date <= date('Y-m-d H:i:s')) {
+                    $status_transaksi = '9';
+                    $keterangan = 'Dibatalkan';
+                } else {
+                    $status_transaksi = '1';
+                    $keterangan = 'Menunggu Pembayaran';
+                }
             } else if ($status_transaksi == '2') {
                 $keterangan = 'Menunggu Verifikasi Pembayaran';
             } else if ($status_transaksi == '3') {
@@ -531,7 +543,7 @@ switch ($tag) {
                 'invoice'                => id_ke_struk($row['invoice']),
                 'tgl_pembelian'                => date('d F Y h:i:s A', strtotime($row['tgl_pembelian'])),
                 'batas_pembayaran'          => date('d F Y h:i:s A', strtotime($row['batas_pembayaran'])),
-                'status_transaksi'              => $row['status_transaksi'],
+                'status_transaksi'              => $status_transaksi,
                 'keterangan_status'              => $keterangan,
                 'total_pembayaran'              => (int)$row['total_pembayaran'],
             ));
@@ -563,8 +575,19 @@ switch ($tag) {
         $status_transaksi = $data->status_transaksi;
         $status_payment = $data->status_payment;
 
+        $date = date_create($data->tgl_pembelian);
+        date_add($date,  date_interval_create_from_date_string("1 days"));
+        $exp_date = date_format($date, "Y-m-d H:i:s");
+
         if ($status_transaksi == '1') {
-            $keterangan = 'Menunggu Pembayaran';
+
+            if ($exp_date <= date('Y-m-d H:i:s')) {
+                $status_transaksi = '9';
+                $keterangan = 'Dibatalkan';
+            } else {
+                $status_transaksi = '1';
+                $keterangan = 'Menunggu Pembayaran';
+            }
         } else if ($status_transaksi == '2') {
             $keterangan = 'Menunggu Verifikasi Pembayaran';
         } else if ($status_transaksi == '3') {
