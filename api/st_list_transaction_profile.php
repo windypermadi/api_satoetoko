@@ -449,7 +449,7 @@
                         $cabang = $getcabang['nama_cabang'];
 
                         $harga = $key['harga_varian'];
-                        $harga_diskon = $key['diskon_rupiah_varian'];
+                        $harga_diskon = $key['harga_diskon'];
 
                         if ($getstatusmaster['status_master_detail'] == '2') {
                             if (substr($key['image_varian'], 0, 4) == 'http') {
@@ -472,8 +472,8 @@
                         $master = $key['id_master'];
                         $cabang = $key['nama_cabang'];
 
-                        $harga = $key['harga_diskon'];
-                        $harga_diskon = $key['diskon_barang'];
+                        $harga = $key['harga_master'];
+                        $harga_diskon = $key['harga_diskon'];
 
                         if ($key['status_master_detail'] == '2') {
                             if (substr($key['image_master'], 0, 4) == 'http') {
@@ -720,7 +720,7 @@
             case 'detail':
                 $id_transaksi         = $_GET['id_transaksi'];
 
-                $getproduk = $conn->query("SELECT c.id_master, b.total_harga_sebelum_diskon, b.harga_ongkir, b.total_harga_setelah_diskon, b.voucher_harga, b.voucher_ongkir, c.judul_master, c.image_master, a.jumlah_beli, a.harga_barang, a.diskon_barang, a.harga_diskon, b.invoice, d.id_variant, d.keterangan_varian, d.diskon_rupiah_varian, d.image_varian, b.status_transaksi, b.kurir_pengirim, b.kurir_code, b.kurir_service, b.metode_pembayaran, b.midtrans_transaction_status, b.midtrans_payment_type, b.midtrans_token, b.midtrans_redirect_url, b.alamat_penerima, b.nama_penerima, b.label_alamat, b.telepon_penerima, b.tanggal_transaksi, b.tanggal_dibayar, b.tanggal_diterima, b.tgl_packing, b.nomor_resi, c.status_master_detail, b.st_packing, DATE_ADD(b.tanggal_diterima, INTERVAL 7 DAY) as tanggal_diterima, b.catatan_pembeli
+                $getproduk = $conn->query("SELECT c.id_master, b.total_harga_sebelum_diskon, b.harga_ongkir, b.total_harga_setelah_diskon, b.voucher_harga, b.voucher_ongkir, c.judul_master, c.image_master, a.jumlah_beli, a.harga_barang, a.diskon_barang, a.harga_diskon, b.invoice, d.id_variant, d.keterangan_varian, d.diskon_rupiah_varian, d.image_varian, b.status_transaksi, b.kurir_pengirim, b.kurir_code, b.kurir_service, b.metode_pembayaran, b.midtrans_transaction_status, b.midtrans_payment_type, b.midtrans_token, b.midtrans_redirect_url, b.alamat_penerima, b.nama_penerima, b.label_alamat, b.telepon_penerima, b.tanggal_transaksi, b.tanggal_dibayar, b.tanggal_diterima, b.tgl_packing, b.nomor_resi, c.status_master_detail, b.st_packing, DATE_ADD(b.tanggal_diterima, INTERVAL 7 DAY) as tanggal_diterima, b.catatan_pembeli, b.biaya_platform
                         FROM transaksi_detail a 
                         JOIN transaksi b ON a.id_transaksi = b.id_transaksi
                         LEFT JOIN master_item c ON a.id_barang = c.id_master
@@ -796,7 +796,6 @@
                         'detail_pengiriman' => '',
                         'waktu_pengiriman' => ''
                     ];
-
                 $getdatatotal =
                     [
                         'subtotal_produk' => (int)$getjumlahsubtotal->getjumlahsubtotal,
@@ -804,6 +803,8 @@
                         'subtotal_diskon_barang' => (int)$value['voucher_harga'],
                         'subtotal_diskon_ongkir' => (int)$value['voucher_ongkir'],
                         'subtotal_ppn' => 0,
+                        '' => 0,
+                        'biaya_platform' => $value['biaya_platform'] != 0 ? (int)$value['biaya_platform'] : 0,
                         'subtotal' => (int)($value['total_harga_setelah_diskon']),
                     ];
 
@@ -865,6 +866,8 @@
                     } else if ($st_packing == '2') {
                         $ketambil = 'Masih proses';
                     } else if ($st_packing == '3') {
+                        $status_notifcod = 'Pesananmu siap diambil
+                                Jam operasional toko 10.00 WIB - 17.00 WIB';
                         $ketambil = 'Siap Diambil';
                     } else {
                         $ketambil = 'Sudah Diambil';
@@ -953,11 +956,29 @@
                                 $keterangan = 'Silahkan melakukan pembayaran paling lambat ' . $exp_date;
                                 break;
                             case '3':
-                                $status_notif = 'Pesananmu siap diambil';
+                                $ambilditempat = $value['kurir_code'];
+                                $status_ambilditempat = $ambilditempat == '00' ? 'Y' : 'N';
+                                if ($status_ambilditempat == 'Y') {
+                                    $st_packing = $value['st_packing'];
+                                    if ($st_packing == '1') {
+                                        $ketambil = 'Belum di packing';
+                                    } else if ($st_packing == '2') {
+                                        $ketambil = 'Masih proses';
+                                    } else if ($st_packing == '3') {
+                                        $status_notifcod = 'Pesananmu siap diambil Jam operasional toko 10.00 WIB - 17.00 WIB';
+                                        $ketambil = 'Siap Diambil';
+                                    } else {
+                                        $ketambil = 'Sudah Diambil';
+                                    }
+                                } else {
+                                    $ketambil = '';
+                                }
+                                $status_notif = $status_notifcod;
                                 $keterangan = '';
                                 break;
                             case '5':
-                                $status_notif = 'Pesananmu siap diambil';
+                                $status_notif = 'Pesananmu siap diambil
+                                Jam operasional toko 10.00 WIB - 17.00 WIB';
                                 $keterangan = '';
                                 break;
                             case '7':

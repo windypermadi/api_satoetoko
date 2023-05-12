@@ -173,13 +173,16 @@ if (!empty($dataraw['id_voucher_barang'])) {
 } else {
     $voucherBarang = "0";
 }
+
+$platform = $conn->query("SELECT biaya_penanganan FROM profile")->fetch_object();
 $getdatatotal =
     [
         'subtotal_produk' => $dataraw['total'],
         'subtotal_pengiriman' => "0",
         'subtotal_diskon' => (string)$voucherBarang,
         'subtotal_diskon_pengiriman' => "0",
-        'subtotal' => (string) ($dataraw['total'] + $dataongkir['harga'] - ($voucherBarang)),
+        'biaya_platform' => $platform->biaya_penanganan != 0 ? (string)$platform->biaya_penanganan : "0",
+        'subtotal' => (string) ($dataraw['total'] + $dataongkir['harga'] - ($voucherBarang) + ($platform->biaya_penanganan)),
     ];
 
 $getqtyproduk =

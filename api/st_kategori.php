@@ -12,9 +12,12 @@ if (!empty($idsub)) {
     } else {
         $search = "";
     }
+    $limit = $_GET['limit'] ?? '';
+    $offset = $_GET['offset'] ?? '';
+
     $query = mysqli_query($conn, "SELECT * FROM master_item a 
-            JOIN stok b ON a.id_master = b.id_barang 
-            WHERE a.id_sub_kategori LIKE '$idsub' $search");
+            LEFT JOIN stok b ON a.id_master = b.id_barang 
+            WHERE a.id_sub_kategori LIKE '$idsub' $search AND a.status_approve = '2' LIMIT $limit, $offset");
     foreach ($query as $key => $value) {
         //! untuk varian harga diskon atau enggak
         $varian_harga = 'N';

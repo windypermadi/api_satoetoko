@@ -165,13 +165,15 @@ $address_shipper =
         'address' => $gabung_alamat_shipper,
     ];
 
+$platform = $conn->query("SELECT biaya_penanganan FROM profile")->fetch_object();
 $getdatatotal =
     [
         'subtotal_produk' => $dataraw2['total'] * $dataraw2['qty'],
         'subtotal_pengiriman' => "0",
         'subtotal_diskon' => "0",
         'subtotal_diskon_pengiriman' => "0",
-        'subtotal' => (string) (($dataraw2['total'] * $dataraw2['qty']) + $dataongkir['harga']),
+        'biaya_platform' => $platform->biaya_penanganan != 0 ? (string)$platform->biaya_penanganan : "0",
+        'subtotal' => (string) (($dataraw2['total'] * $dataraw2['qty']) + $dataongkir['harga'] + $platform->biaya_penanganan),
     ];
 
 $getqtyproduk =

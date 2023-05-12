@@ -46,7 +46,7 @@ if (empty($dataproduk['id_variant'])) {
             c.keterangan_varian,b.harga_master, b.diskon_rupiah, c.harga_varian, c.diskon_rupiah_varian, 
             a.qty, c.diskon_rupiah_varian, d.berat as berat_buku, e.berat as berat_fisik, 
             b.status_master_detail, a.id_gudang, COUNT(a.id) as jumlah_produk,
-            f.id_supplier, b.fee_produk FROM user_keranjang a
+            b.id_supplier, b.fee_produk FROM user_keranjang a
             JOIN master_item b ON a.id_barang = b.id_master
             LEFT JOIN variant c ON a.id_variant = c.id_variant
             LEFT JOIN master_buku_detail d ON b.id_master = d.id_master
@@ -95,6 +95,7 @@ $query[] = mysqli_query($conn, "INSERT INTO transaksi SET
         telepon_penerima = '$telepon_penerima',
         total_harga_sebelum_diskon = '$dataraw->harga_normal',
         total_harga_setelah_diskon = '$dataraw->jumlahbayar',
+        biaya_platform = '$dataraw->biaya_platform',
         total_berat = '$berat',
         harga_ongkir = '$data_ongkir_harga',
         voucher_harga = '$dataraw->harga_voucher_barang',
@@ -237,6 +238,10 @@ if ($getproduk->id_variant) {
         $flashsaleid = '';
     }
 
+    $harga_diskon = $getproduk->harga_master - $getproduk->diskon_rupiah;
+    $feetoko = $harga_diskon - ($harga_diskon * ($getproduk->fee_admin / 100));
+    $sbtotal = round($harga_diskon * $dataraw->qty);
+
     $query[] = $conn->query("INSERT INTO transaksi_detail SET 
         id_transaksi_detail = UUID_SHORT(),
         id_transaksi = '$transaction->id',
@@ -265,24 +270,24 @@ if ($getproduk->id_variant) {
 
     //* UPDATE STOK HISTORY PRODUCT
     $stokawal = $jml['jumlah'];
-    $query[] = $conn->query("INSERT INTO stok_history SET 
+    $qqq = "INSERT INTO stok_history SET 
         id_history = UUID_SHORT(),
         tanggal_input = '$tanggal_sekarang',
         master_item = '$getproduk->id_master',
-        varian_item = '$getproduk->id_variant',
-        id_warehouse = '$getproduk->id_gudang',
+        varian_item = '$dataraw->id_variant',
+        id_warehouse = '$dataraw->id_cabang',
         keterangan = 'TRANSAKSI MASUK',
         masuk = '0',
         keluar = '$dataraw->qty',
         stok_awal = '$stokawal',  
-        stok_sekarang = '$hasiljumlah'");
-
+        stok_sekarang = '$hasiljumlah'";
+    $query[] = $conn->query($qqq);
 
     $ceksaldoawal = $conn->query("SELECT * FROM saldo WHERE id_supplier = '$getproduk->id_supplier' ORDER BY tanggal_posting DESC LIMIT 1")->fetch_object();
-
+    $awal = $ceksaldoawal->saldo_akhir > 0 ? $ceksaldoawal->saldo_akhir : 0;
     //* UPDATE SALDO HISTORY SALDO MASUK DAN KELUAR
-    $jumlahsaldoakhir = $sbtotal + $ceksaldoawal->saldo_akhir;
-    $query[] = $conn->query("INSERT INTO saldo SET 
+    $jumlahsaldoakhir = $sbtotal + $awal;
+    $qqq1 = "INSERT INTO saldo SET 
         id_saldo = UUID_SHORT(),
         id_supplier = '$getproduk->id_supplier',
         tanggal_posting = NOW(),
@@ -290,8 +295,10 @@ if ($getproduk->id_variant) {
         id_transaksi = '$transaction->id',
         saldo_masuk = $dataraw->harga_normal,
         saldo_keluar = 0,
-        saldo_awal = $ceksaldoawal->saldo_akhir,
-        saldo_akhir = $jumlahsaldoakhir");
+        saldo_awal = $awal,
+        saldo_akhir = $jumlahsaldoakhir";
+    $query[] = $conn->query($qqq1);
+    // var_dump($qqq1);die;	
 }
 
 if (in_array(false, $query)) {

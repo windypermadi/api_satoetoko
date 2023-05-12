@@ -29,11 +29,13 @@ $dataongkir = [
   'harga' => $data['harga'],
 ];
 
+$platform = $conn->query("SELECT biaya_penanganan FROM profile")->fetch_object();
 $getdatatotal =
   [
-    'subtotal' => (string) ($data['subtotal'] + $data['harga']),
+    'subtotal' => (string) ($data['subtotal'] + $data['harga'] + $platform->biaya_penanganan),
     'subtotal_produk' => $data['subtotal'],
     'subtotal_pengiriman' => $data['harga'],
+    'biaya_platform' => $platform->biaya_penanganan != 0 ? (string)$platform->biaya_penanganan : "0",
     'subtotal_diskon' => "0",
   ];
 

@@ -267,6 +267,7 @@ $query[] = mysqli_query($conn, "INSERT INTO transaksi SET
         telepon_penerima = '$telepon_penerima',
         total_harga_sebelum_diskon = '$dataraw->harga_normal',
         total_harga_setelah_diskon = '$dataraw->jumlahbayar',
+        biaya_platform = '$dataraw->biaya_platform',
         total_berat = $berat,
         harga_ongkir = $data_ongkir_harga,
         voucher_harga = '$dataraw->harga_voucher_barang',

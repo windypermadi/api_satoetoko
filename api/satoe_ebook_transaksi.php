@@ -325,9 +325,9 @@ switch ($tag) {
             $harga_diskon = (int)$data->harga_diskon;
         }
 
-        $cekBarang = $conn->query("SELECT * FROM ebook_transaksi_detail a JOIN ebook_transaksi b WHERE a.id_master = '$id_master' AND a.tgl_expired >= NOW() AND b.status_transaksi = '7'");
+        $cekBarang = $conn->query("SELECT * FROM ebook_transaksi_detail a JOIN ebook_transaksi b WHERE a.id_master = '$id_master' AND b.id_user = '$id_user' AND (a.tgl_expired >= NOW()) AND b.status_transaksi = '7'")->fetch_object();
 
-        if (isset($cekBarang)) {
+        if (isset($cekBarang->id_transaksi_detail)) {
             $response->code = 400;
             $response->message = "Ebook ini masih aktif";
             $response->data = '';
@@ -498,7 +498,7 @@ switch ($tag) {
 
         $query = mysqli_query($conn, "SELECT a.id_transaksi, a.invoice, a.tgl_pembelian, a.batas_pembayaran, a.status_transaksi, a.total_pembayaran, a.total_akhir_pembayaran FROM ebook_transaksi a 
             JOIN ebook_transaksi_detail b ON a.id_transaksi = b.id_transaksi
-            WHERE a.status_transaksi != '1' OR a.batas_pembayaran <= NOW() AND a.id_user = '$id_user' ORDER BY a.tgl_pembelian DESC;");
+            WHERE (a.status_transaksi != '1' OR a.batas_pembayaran <= NOW()) AND a.id_user = '$id_user' ORDER BY a.tgl_pembelian DESC;");
 
         $result = array();
         while ($row = mysqli_fetch_array($query)) {
