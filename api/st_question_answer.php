@@ -10,7 +10,7 @@ foreach ($data as $key => $value) {
     $result[] = [
         'idcategory' => $value['idcategory'],
         'title' => $value['title'],
-        'icon' => $value['icon']
+        'icon' => $$geticonkategori . $value['icon']
     ];
 }
 

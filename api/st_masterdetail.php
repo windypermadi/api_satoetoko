@@ -189,13 +189,14 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
             break;
         case '3':
             //? barang fisik
-            $datanew = mysqli_fetch_object($conn->query("SELECT a.id_master, a.judul_master, a.slug_judul_master, d.nama_kategori, a.harga_master, a.diskon_rupiah,
+            $datanew = mysqli_fetch_object($conn->query("SELECT a.id_master, a.judul_master, a.sku_induk, a.slug_judul_master, d.nama_kategori, a.harga_master, a.diskon_rupiah,
                     a.diskon_persen, a.harga_sewa, a.diskon_sewa_rupiah, a.diskon_sewa_persen, b.deskripsi_produk, b.status_bahaya, b.merek,
                     b.status_garansi, b.berat, b.dimensi, b.masa_garansi, b.konsumsi_daya, b.masa_garansi, b.negara_asal, b.tegangan, b.daya_listrik,
                     b.masa_penyimpanan, b.tanggal_kadaluarsa, a.image_master, b.video_produk, b.gambar_1, b.gambar_2, b.gambar_3, a.status_varian FROM master_item a
                     LEFT JOIN master_fisik_detail b ON a.id_master = b.id_master
                     LEFT JOIN kategori_sub d ON a.id_sub_kategori = d.id_sub
                     WHERE a.status_approve = '2' AND a.status_aktif = 'Y' AND a.status_hapus = 'N' AND a.id_master = '$id_master'"));
+
 
             $deskripsi = $datanew->deskripsi_produk;
 
@@ -424,6 +425,23 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
 
     $cektotalterjual = $conn->query("SELECT COUNT(a.id_barang) as jumlah FROM transaksi_detail a JOIN transaksi b ON a.id_transaksi = b.id_transaksi WHERE b.status_transaksi = '7' AND a.id_barang = '$id_master'")->fetch_object();
 
+    $curl = curl_init();
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => '103.137.254.78/test_api_satoe/apiv2_stok.php',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS => array('tipe' => 'cek', 'sku' => $datanew->sku_induk, 'warehouse' => '01'),
+    ));
+
+    $response1 = curl_exec($curl);
+    curl_close($curl);
+    $datastokserver = json_decode($response1, true);
+
     $data1['id_master'] = $datanew->id_master;
     $data1['judul_master'] = $datanew->judul_master;
     $data1['slug_judul_master'] = $datanew->slug_judul_master;
@@ -437,7 +455,7 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
     $data1['total_dibeli'] = $cektotalterjual->jumlah . " terjual";
     $data1['rating_item'] = 0;
     $data1['status_whislist'] = $cekwhislist > 0 ? 'Y' : 'N';
-    $data1['stok'] = (string)$stokdata != '' ? (string)$stokdata : '0';
+    $data1['stok'] = $datastokserver['pesan'][0]['stok'] > 0 ? (string)$datastokserver['pesan'][0]['stok'] : '0';
     $data1['warehouse'] = $warehousedatas;
 
     if ($datanew->status_bahaya == '1') {

@@ -6,10 +6,10 @@ $response = new Response();
 $getmaintenance = $conn->query("SELECT * FROM maintenance")->fetch_object();
 $result = [
     'idmaintenance' => $getmaintenance->idmaintenance,
-    'versi_aplikasi' => $getmaintenance->versi_aplikasi,
+    'versi_aplikasi' => (int)$getmaintenance->versi_aplikasi,
     'deskripsi' => $getmaintenance->deskripsi,
-    'status' => $getmaintenance->status,
-    'status_ket' => $getmaintenance->status == '0' ? 'Tidak sedang Maintenance' : 'Sedang Maintenance'
+    'status' => $getmaintenance->status == 'false' ? false : true,
+    'status_ket' => $getmaintenance->status == 'false' ? 'Tidak sedang Maintenance' : 'Sedang Maintenance'
 ];
 
 $response->data = $result;

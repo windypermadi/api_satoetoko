@@ -51,7 +51,7 @@ if ($valid == '1') {
                         status_alamat_utama='$status_alamat_utama',
                         status_alamat_pengembalian='$status_alamat_pengembalian'");
 
-    if ($query) {
+    if ($query2) {
         $response->data = null;
         $response->sukses(200);
     } else {

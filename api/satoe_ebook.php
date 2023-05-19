@@ -38,28 +38,6 @@ switch ($tag) {
 			$harga_disc = (int)$data->harga_master;
 		}
 
-		// if ($data->diskon_sewa_persen != 0) {
-		// 	(float)$harga_potongan_sewa = (float)$data->harga_sewa * ((float)$data->diskon_sewa_persen / 100);
-		// 	(float)$harga_disc_sewa = $data->harga_sewa - $harga_potongan;
-		// 	$jumlah_diskon_sewa = $data->diskon_sewa_persen;
-		// } else if ($data->diskon_sewa_rupiah != 0) {
-		// 	(float)$harga_disc_sewa = $data->harga_sewa - $data->diskon_sewa_rupiah;
-		// 	$jumlah_diskon_sewa = $data->diskon_sewa_rupiah;
-		// } else {
-		// 	$harga_potongan_sewa = 0;
-		// 	$jumlah_diskon_sewa = "0";
-		// 	$harga_disc_sewa = (int)$data->harga_sewa;
-		// }
-
-		// if ($data->diskon_sewa_rupiah != 0) {
-		// 	(float)$harga_disc_sewa = $data->harga_sewa - $data->diskon_sewa_rupiah;
-		// 	$jumlah_diskon_sewa = $data->diskon_sewa_rupiah;
-		// } else {
-		// 	$harga_potongan_sewa = 0;
-		// 	$jumlah_diskon_sewa = "0";
-		// 	$harga_disc_sewa = (int)$data->harga_sewa;
-		// }
-
 		$status_diskon = $jumlah_diskon != $data->diskon_sewa_persen ? "UP TO" : "OFF";
 
 		$data1['id_master']    = $data->id_master;
@@ -107,7 +85,7 @@ switch ($tag) {
 				a.diskon_persen, a.harga_sewa, a.diskon_sewa_rupiah, a.diskon_sewa_persen, b.sinopsis,
 				b.penerbit, b.tahun_terbit, b.tahun_terbit, b.edisi, b.isbn, b.status_ebook, b.lama_sewa FROM master_item a 
 				LEFT JOIN master_ebook_detail b ON a.id_master = b.id_master
-				LEFT JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_master_detail = '1' AND a.status_approve = '2' AND a.judul_master LIKE '%$q%' AND a.status_aktif = 'Y' AND a.status_hapus = 'N' ORDER BY a.judul_master ASC LIMIT $offset, $limit");
+				LEFT JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_master_detail = '1' AND a.status_approve = '2' AND (a.judul_master LIKE '%$q%' OR b.penerbit LIKE '%$q%') AND a.status_aktif = 'Y' AND a.status_hapus = 'N' ORDER BY a.judul_master ASC LIMIT $offset, $limit");
 		}
 
 		foreach ($data as $key => $value) {
@@ -166,6 +144,7 @@ switch ($tag) {
 				'rating_ebook' => 0,
 				'nama_kategori' => $value['nama_kategori'],
 				'sinopsis' => $value['sinopsis'],
+				'penerbit' => $value['penerbit'],
 				'lama_sewa' => $value['lama_sewa'],
 				'harga_beli' => (int)$value['harga_master'],
 				'diskon_beli' => (int)$jumlah_diskon,

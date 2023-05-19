@@ -13,16 +13,33 @@ switch ($tag) {
         $result = array();
         if (empty($q)) {
             $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_master_detail
+            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_master_detail, a.sku_induk
             FROM master_item a LEFT JOIN stok b ON a.id_master = b.id_barang
-            JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.status_master_detail != '1' GROUP BY a.id_master ORDER BY a.tanggal_posting DESC LIMIT $offset, $limit");
+            JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.status_master_detail != '1' GROUP BY a.id_master ORDER BY `jumlah` DESC, a.tanggal_posting DESC LIMIT $offset, $limit");
         } else {
             $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_master_detail
+            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_master_detail, a.sku_induk
             FROM master_item a LEFT JOIN stok b ON a.id_master = b.id_barang
-            JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.status_master_detail != '1' AND a.judul_master LIKE '%$q%' GROUP BY a.id_master ORDER BY a.tanggal_posting DESC LIMIT $offset, $limit");
+            JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.status_master_detail != '1' AND a.judul_master LIKE '%$q%' GROUP BY a.id_master ORDER BY jumlah DESC, a.tanggal_posting DESC LIMIT $offset, $limit");
         }
         foreach ($data as $key => $value) {
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => '103.137.254.78/test_api_satoe/apiv2_stok.php',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => array('tipe' => 'cek', 'sku' => $value['sku_induk'], 'warehouse' => '01'),
+            ));
+
+            $response1 = curl_exec($curl);
+            curl_close($curl);
+            $datastokserver = json_decode($response1, true);
 
             $datamaster = "SELECT * FROM master_item WHERE id_master = 
                 '$value[id_master]'";
@@ -89,7 +106,7 @@ switch ($tag) {
                 'status_diskon' => $status_diskon,
                 'status_varian_diskon' => $status_varian_diskon,
                 'status_jenis_harga' => $status_jenis_harga,
-                'status_stok' => $value['jumlah'] > 0 ? 'Y' : 'N',
+                'status_stok' => $datastokserver['pesan'][0]['stok'] > 0 ? 'Y' : 'N',
                 'diskon' => $value['diskon_persen'] . "%",
                 'total_dibeli' => (int)$value['total_dibeli'],
                 'rating_item' => 0,
@@ -101,16 +118,33 @@ switch ($tag) {
         $result = array();
         if (empty($q)) {
             $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah,a.id_sub_kategori, c.nama_kategori, b.status_master_detail
+            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_master_detail, a.sku_induk
             FROM master_item a LEFT JOIN stok b ON a.id_master = b.id_barang
-            JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.status_master_detail != '1' GROUP BY a.id_master ORDER BY a.total_dibeli DESC LIMIT $offset, $limit");
+            JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.status_master_detail != '1' GROUP BY a.id_master ORDER BY jumlah DESC, a.total_dibeli DESC LIMIT $offset, $limit");
         } else {
             $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah,a.id_sub_kategori, c.nama_kategori, b.status_master_detail
+            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_master_detail, a.sku_induk
             FROM master_item a LEFT JOIN stok b ON a.id_master = b.id_barang
-            JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.judul_master LIKE '%$q%' AND a.status_master_detail != '1' GROUP BY a.id_master ORDER BY a.total_dibeli DESC LIMIT $offset, $limit");
+            JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.status_master_detail != '1' AND a.judul_master LIKE '%$q%' GROUP BY a.id_master ORDER BY jumlah DESC, a.total_dibeli DESC LIMIT $offset, $limit");
         }
         foreach ($data as $key => $value) {
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => '103.137.254.78/test_api_satoe/apiv2_stok.php',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => array('tipe' => 'cek', 'sku' => $value['sku_induk'], 'warehouse' => '01'),
+            ));
+
+            $response1 = curl_exec($curl);
+            curl_close($curl);
+            $datastokserver = json_decode($response1, true);
 
             //! untuk varian harga diskon atau enggak
             $varian_harga = 'N';
@@ -172,7 +206,7 @@ switch ($tag) {
                 'status_diskon' => $status_diskon,
                 'status_varian_diskon' => $status_varian_diskon,
                 'status_jenis_harga' => $status_jenis_harga,
-                'status_stok' => $value['jumlah'] > 0 ? 'Y' : 'N',
+                'status_stok' => $datastokserver['pesan'][0]['stok'] > 0 ? 'Y' : 'N',
                 'diskon' => $value['diskon_persen'] . "%",
                 'total_dibeli' => (int)$value['total_dibeli'],
                 'rating_item' => 0,
@@ -184,16 +218,33 @@ switch ($tag) {
         $result = array();
         if (empty($q)) {
             $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, b.status_master_detail
-            FROM master_item a LEFT JOIN stok b ON a.id_master = b.id_barang 
-            JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.status_master_detail != '1' GROUP BY a.id_master ORDER BY a.harga_master ASC LIMIT $offset, $limit");
+            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_master_detail, a.sku_induk
+            FROM master_item a LEFT JOIN stok b ON a.id_master = b.id_barang
+            JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.status_master_detail != '1' GROUP BY a.id_master ORDER BY jumlah DESC, a.harga_master ASC LIMIT $offset, $limit");
         } else {
             $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, b.status_master_detail
-            FROM master_item a JOIN stok b ON a.id_master = b.id_barang
-            JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.judul_master LIKE '%$q%' AND a.status_master_detail != '1' GROUP BY a.id_master ORDER BY a.harga_master ASC LIMIT $offset, $limit");
+            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_master_detail, a.sku_induk
+            FROM master_item a LEFT JOIN stok b ON a.id_master = b.id_barang
+            JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.status_master_detail != '1' AND a.judul_master LIKE '%$q%' GROUP BY a.id_master ORDER BY jumlah DESC, a.harga_master ASC LIMIT $offset, $limit");
         }
         foreach ($data as $key => $value) {
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => '103.137.254.78/test_api_satoe/apiv2_stok.php',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => array('tipe' => 'cek', 'sku' => $value['sku_induk'], 'warehouse' => '01'),
+            ));
+
+            $response1 = curl_exec($curl);
+            curl_close($curl);
+            $datastokserver = json_decode($response1, true);
 
             //! untuk varian harga diskon atau enggak
             $varian_harga = 'N';
@@ -255,7 +306,7 @@ switch ($tag) {
                 'status_diskon' => $status_diskon,
                 'status_varian_diskon' => $status_varian_diskon,
                 'status_jenis_harga' => $status_jenis_harga,
-                'status_stok' => $value['jumlah'] > 0 ? 'Y' : 'N',
+                'status_stok' => $datastokserver['pesan'][0]['stok'] > 0 ? 'Y' : 'N',
                 'diskon' => $value['diskon_persen'] . "%",
                 'total_dibeli' => (int)$value['total_dibeli'],
                 'rating_item' => 0,
@@ -267,16 +318,34 @@ switch ($tag) {
         $result = array();
         if (empty($q)) {
             $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, b.status_master_detail
+            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_master_detail, a.sku_induk
             FROM master_item a LEFT JOIN stok b ON a.id_master = b.id_barang
-            JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.status_master_detail != '1' GROUP BY a.id_master ORDER BY a.harga_master DESC LIMIT $offset, $limit");
+            JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.status_master_detail != '1' GROUP BY a.id_master ORDER BY jumlah DESC, a.harga_master DESC LIMIT $offset, $limit");
         } else {
             $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, b.status_master_detail
+            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_master_detail, a.sku_induk
             FROM master_item a LEFT JOIN stok b ON a.id_master = b.id_barang
-            JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.judul_master LIKE '%$q%' AND a.status_master_detail != '1' GROUP BY a.id_master ORDER BY a.harga_master DESC LIMIT $offset, $limit");
+            JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.status_master_detail != '1' AND a.judul_master LIKE '%$q%' GROUP BY a.id_master ORDER BY jumlah DESC, a.harga_master DESC LIMIT $offset, $limit");
         }
         foreach ($data as $key => $value) {
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => '103.137.254.78/test_api_satoe/apiv2_stok.php',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => array('tipe' => 'cek', 'sku' => $value['sku_induk'], 'warehouse' => '01'),
+            ));
+
+            $response1 = curl_exec($curl);
+            curl_close($curl);
+            $datastokserver = json_decode($response1, true);
+
 
             //! untuk varian harga diskon atau enggak
             $varian_harga = 'N';
@@ -338,7 +407,7 @@ switch ($tag) {
                 'status_diskon' => $status_diskon,
                 'status_varian_diskon' => $status_varian_diskon,
                 'status_jenis_harga' => $status_jenis_harga,
-                'status_stok' => $value['jumlah'] > 0 ? 'Y' : 'N',
+                'status_stok' => $datastokserver['pesan'][0]['stok'] > 0 ? 'Y' : 'N',
                 'diskon' => $value['diskon_persen'] . "%",
                 'total_dibeli' => (int)$value['total_dibeli'],
                 'rating_item' => 0,
@@ -350,16 +419,33 @@ switch ($tag) {
         $result = array();
         if (empty($q)) {
             $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_varian, a.status_master_detail
+            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_varian, a.status_master_detail, a.sku_induk
             FROM master_item a LEFT JOIN stok b ON a.id_master = b.id_barang
-            JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.status_master_detail != '1' GROUP BY a.id_master ORDER BY a.tanggal_posting DESC LIMIT $offset, $limit");
+            JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.status_master_detail != '1' GROUP BY a.id_master ORDER BY jumlah DESC, a.tanggal_posting DESC LIMIT $offset, $limit");
         } else {
             $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_varian, a.status_master_detail
+            a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_varian, a.status_master_detail, a.sku_induk
             FROM master_item a LEFT JOIN stok b ON a.id_master = b.id_barang 
-            JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.judul_master LIKE '%$q%' AND a.status_master_detail != '1' GROUP BY a.id_master ORDER BY a.tanggal_posting DESC LIMIT $offset, $limit");
+            JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND a.judul_master LIKE '%$q%' AND a.status_master_detail != '1' GROUP BY a.id_master ORDER BY jumlah DESC, a.tanggal_posting DESC LIMIT $offset, $limit");
         }
         foreach ($data as $key => $value) {
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => '103.137.254.78/test_api_satoe/apiv2_stok.php',
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => '',
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => array('tipe' => 'cek', 'sku' => $value['sku_induk'], 'warehouse' => '01'),
+            ));
+
+            $response1 = curl_exec($curl);
+            curl_close($curl);
+            $datastokserver = json_decode($response1, true);
 
 
             $datamaster = "SELECT * FROM master_item WHERE id_master = 
@@ -454,7 +540,7 @@ switch ($tag) {
                 'status_diskon' => $status_diskon,
                 'status_varian_diskon' => $status_varian_diskon,
                 'status_jenis_harga' => $status_jenis_harga,
-                'status_stok' => $value['jumlah'] > 0 ? 'Y' : 'N',
+                'status_stok' => $datastokserver['pesan'][0]['stok'] > 0 ? 'Y' : 'N',
                 'diskon' => $jumlah_diskon . "%",
                 'total_dibeli' => (int)$value['total_dibeli'],
                 'rating_item' => 0,

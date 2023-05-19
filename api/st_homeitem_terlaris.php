@@ -8,13 +8,30 @@ $offset = $_GET['offset'];
 
 $result2 = array();
 $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
-a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_master_detail, a.status_varian
+a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah, a.id_sub_kategori, c.nama_kategori, a.status_master_detail, a.status_varian, a.sku_induk
 FROM master_item a LEFT JOIN stok b ON a.id_master = b.id_barang
 JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub
 LEFT JOIN master_buku_detail d ON a.id_master = d.id_master
 LEFT JOIN master_fisik_detail e ON a.id_master = e.id_master
-WHERE (d.id_master IS NOT NULL OR e.id_master IS NOT NULL) AND a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' GROUP BY a.id_master ORDER BY a.total_dibeli DESC LIMIT $offset, $limit");
+WHERE (d.id_master IS NOT NULL OR e.id_master IS NOT NULL) AND a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' GROUP BY a.id_master ORDER BY jumlah ASC, a.total_dibeli DESC LIMIT $offset, $limit");
 foreach ($data as $key => $value) {
+
+    $curl = curl_init();
+    curl_setopt_array($curl, array(
+        CURLOPT_URL => '103.137.254.78/test_api_satoe/apiv2_stok.php',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS => array('tipe' => 'cek', 'sku' => $value['sku_induk'], 'warehouse' => '01'),
+    ));
+
+    $response1 = curl_exec($curl);
+    curl_close($curl);
+    $datastokserver = json_decode($response1, true);
 
     //! untuk varian harga diskon atau enggak
     if ($value['status_varian'] == 'Y') {
@@ -84,7 +101,7 @@ foreach ($data as $key => $value) {
         'status_diskon' => $status_diskon,
         'status_varian_diskon' => $status_varian_diskon,
         'status_jenis_harga' => $status_jenis_harga,
-        'status_stok' => $value['jumlah'] > 0 ? 'Y' : 'N',
+        'status_stok' => $datastokserver['pesan'][0]['stok'] > 0 ? 'Y' : 'N',
         'diskon' => $jumlah_diskon . "%",
         'total_dibeli' => (int)$value['total_dibeli'],
         'rating_item' => 0,

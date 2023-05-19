@@ -720,7 +720,7 @@
             case 'detail':
                 $id_transaksi         = $_GET['id_transaksi'];
 
-                $getproduk = $conn->query("SELECT c.id_master, b.total_harga_sebelum_diskon, b.harga_ongkir, b.total_harga_setelah_diskon, b.voucher_harga, b.voucher_ongkir, c.judul_master, c.image_master, a.jumlah_beli, a.harga_barang, a.diskon_barang, a.harga_diskon, b.invoice, d.id_variant, d.keterangan_varian, d.diskon_rupiah_varian, d.image_varian, b.status_transaksi, b.kurir_pengirim, b.kurir_code, b.kurir_service, b.metode_pembayaran, b.midtrans_transaction_status, b.midtrans_payment_type, b.midtrans_token, b.midtrans_redirect_url, b.alamat_penerima, b.nama_penerima, b.label_alamat, b.telepon_penerima, b.tanggal_transaksi, b.tanggal_dibayar, b.tanggal_diterima, b.tgl_packing, b.nomor_resi, c.status_master_detail, b.st_packing, DATE_ADD(b.tanggal_diterima, INTERVAL 7 DAY) as tanggal_diterima, b.catatan_pembeli, b.biaya_platform
+                $getproduk = $conn->query("SELECT c.id_master, b.total_harga_sebelum_diskon, b.harga_ongkir, b.total_harga_setelah_diskon, b.voucher_harga, b.voucher_ongkir, c.judul_master, c.image_master, a.jumlah_beli, a.harga_barang, a.diskon_barang, a.harga_diskon, b.invoice, d.id_variant, d.keterangan_varian, d.diskon_rupiah_varian, d.image_varian, b.status_transaksi, b.kurir_pengirim, b.kurir_code, b.kurir_service, b.metode_pembayaran, b.midtrans_transaction_status, b.midtrans_payment_type, b.midtrans_token, b.midtrans_redirect_url, b.alamat_penerima, b.nama_penerima, b.label_alamat, b.telepon_penerima, b.tanggal_transaksi, b.tanggal_dibayar, b.tanggal_diterima, b.tgl_packing, b.nomor_resi, c.status_master_detail, b.st_packing, DATE_ADD(b.tanggal_diterima, INTERVAL 7 DAY) as tanggal_diterima, b.catatan_pembeli, b.biaya_platform, b.id_user
                         FROM transaksi_detail a 
                         JOIN transaksi b ON a.id_transaksi = b.id_transaksi
                         LEFT JOIN master_item c ON a.id_barang = c.id_master
@@ -753,6 +753,9 @@
                                 $image = $getimagefisik . $value['image_varian'];
                             }
                         }
+
+                        $getReview = $conn->query("SELECT * FROM review WHERE id_barang = '$value[id_variant]' AND id_transaksi = '$id_transaksi' AND id_user = '$value[id_user]'")->num_rows;
+                        $review[] = $getReview > 0 ? true : false;
                     } else {
                         $getstatusmaster = $conn->query("SELECT status_master_detail FROM master_item WHERE id_master = '$value[id_master]'")->fetch_assoc();
 
@@ -773,7 +776,13 @@
                                 $image = $getimagefisik . $value['image_master'];
                             }
                         }
+
+                        $getReview = $conn->query("SELECT * FROM review WHERE id_barang = '$value[id_master]' AND id_transaksi = '$id_transaksi' AND id_user = '$value[id_user]'")->num_rows;
+                        $review[] = $getReview > 0 ? true : false;
                     }
+
+                    // $getReview = $conn->query("SELECT * FROM review WHERE id_barang = '$value[id_master]' AND id_transaksi = '$id_transaksi' AND id_user = '$value[id_user]'")->num_rows;
+                    // $review[] = $getReview > 0 ? true : false;
 
                     $getprodukcoba[] = [
                         "id_master" => $master,
@@ -904,9 +913,9 @@
                     case '7':
                         $tanggal_waktu_transaksi = $value['tanggal_transaksi'];
                         $tanggal_waktu_dibayar = $value['tanggal_dibayar'];
-                        $tanggal_waktu_pengiriman = $value['tgl_packing'];
+                        $tanggal_waktu_pengiriman = $value['tgl_packing'] != NULL ? $value['tgl_packing'] : "0000-00-00 00:00:00";
                         $tanggal_waktu_pembatalan = "0000-00-00 00:00:00";
-                        $tanggal_waktu_selesai = $value['tanggal_diterima'];
+                        $tanggal_waktu_selesai = $value['tanggal_diterima'] != NULL ? $value['tanggal_diterima'] : "0000-00-00 00:00:00";
                         $tanggal_waktu_pengembalian = "0000-00-00 00:00:00";
                         break;
                     case '9':
@@ -961,8 +970,10 @@
                                 if ($status_ambilditempat == 'Y') {
                                     $st_packing = $value['st_packing'];
                                     if ($st_packing == '1') {
+                                        $status_notifcod = 'Pesananmu sedang dikemas';
                                         $ketambil = 'Belum di packing';
                                     } else if ($st_packing == '2') {
+                                        $status_notifcod = 'Pesananmu masih diproses';
                                         $ketambil = 'Masih proses';
                                     } else if ($st_packing == '3') {
                                         $status_notifcod = 'Pesananmu siap diambil Jam operasional toko 10.00 WIB - 17.00 WIB';
@@ -1030,6 +1041,13 @@
                     'status' => $status_notif,
                     'keterangan' => $keterangan,
                 ];
+                // var_dump($review);
+                // die;
+                $review = in_array(false, $review) ? false : true;
+
+                $data_review = [
+                    'isReview' => $review,
+                ];
 
                 $catatan = [
                     'catatan' => $value['catatan_pembeli'],
@@ -1067,6 +1085,7 @@
                 $data1['data_order'] = $informasi_pesanan;
                 $data1['data_shipment'] = $informasi_pengiriman;
                 $data1['data_faktur'] = '';
+                $data1['data_review'] = $data_review;
                 $data1['notifikasi'] = $notif;
                 $data1['catatan'] = $catatan;
 
