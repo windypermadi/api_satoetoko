@@ -3,21 +3,18 @@ require_once('../config/koneksi.php');
 include "response.php";
 $response = new Response();
 
-$idsub = $_GET['id_sub'] ?? '';
+$penerbit = $_GET['penerbit'] ?? '';
 
-if (!empty($idsub)) {
-    $q = $_GET['q'] ?? '';
-    if (!empty($q)) {
-        $search = " AND a.judul_master LIKE '%$q%'";
-    } else {
-        $search = "";
-    }
-    $limit = $_GET['limit'] ?? '';
-    $offset = $_GET['offset'] ?? '';
+$q = $_GET['q'] ?? '';
+$search = !empty($q) ? " AND med.penerbit LIKE '%$q%'" : "";
+$limit = $_GET['limit'] ?? '';
+$offset = $_GET['offset'] ?? '';
 
-    $query = mysqli_query($conn, "SELECT * FROM master_item a 
-            LEFT JOIN stok b ON a.id_master = b.id_barang 
-            WHERE a.id_sub_kategori LIKE '$idsub' $search AND a.status_approve = '2' LIMIT $limit, $offset");
+$query = "SELECT * FROM master_item mi JOIN master_ebook_detail med ON mi.id_master = med.id_master WHERE mi.status_approve = '2' $search";
+
+if (!empty($penerbit)) {
+    $querys = $query . " AND med.penerbit = '$penerbit' LIMIT $offset, $limit";
+    $query = mysqli_query($conn, $querys);
     foreach ($query as $key => $value) {
 
         $curl = curl_init();
@@ -98,29 +95,17 @@ if (!empty($idsub)) {
             'status_diskon' => $status_diskon,
             'status_varian_diskon' => $status_varian_diskon,
             'status_jenis_harga' => $status_jenis_harga,
-            'status_stok' => $datastokserver['pesan'][0]['stok'] > 0 ? 'Y' : 'N',
+            // 'status_stok' => $datastokserver['pesan'][0]['stok'] > 0 ? 'Y' : 'N',
             'diskon' => $value['diskon_persen'] . "%",
             'total_dibeli' => (int)$value['total_dibeli'],
             'rating_item' => 0,
         ];
     }
 } else {
-    $q = $_GET['q'] ?? '';
-    if (!empty($q)) {
-        $search = " WHERE nama_kategori LIKE '%$q%'";
-    } else {
-        $search = "";
-    }
-    $query = mysqli_query($conn, "SELECT * FROM kategori_sub a 
-            JOIN master_item b ON a.id_sub = b.id_sub_kategori $search
-            GROUP BY a.id_sub ORDER BY a.nama_kategori");
+    $query = mysqli_query($conn, $query . " GROUP BY med.penerbit");
     foreach ($query as $key => $value) {
-
         $result[] = [
-            'id_kategori'    => $value['id_sub'],
-            'kode_kategori'    => $value['kode_kategori'],
-            'nama_kategori'     => $value['nama_kategori'],
-            'icon_apps'     => $geticonkategori . $value['icon'],
+            'penerbit'    => $value['penerbit'],
         ];
     }
 }

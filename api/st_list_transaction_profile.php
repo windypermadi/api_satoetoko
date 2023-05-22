@@ -1085,7 +1085,7 @@
                 $data1['data_order'] = $informasi_pesanan;
                 $data1['data_shipment'] = $informasi_pengiriman;
                 $data1['data_faktur'] = '';
-                $data1['data_review'] = $data_review;
+                $data1['datareview'] = $data_review;
                 $data1['notifikasi'] = $notif;
                 $data1['catatan'] = $catatan;
 

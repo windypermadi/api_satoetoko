@@ -18,7 +18,7 @@ foreach ($data as $key => $value) {
 
     $curl = curl_init();
     curl_setopt_array($curl, array(
-        CURLOPT_URL => '103.137.254.78/test_api_satoe/apiv2_stok.php',
+        CURLOPT_URL => 'http://103.137.254.78/test_api_satoe/apiv2_stok.php',
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
