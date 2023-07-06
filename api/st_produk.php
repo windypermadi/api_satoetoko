@@ -1,6 +1,7 @@
 <?php
 require_once('../config/koneksi.php');
 include "response.php";
+include "function/function_stok.php";
 $response = new Response();
 
 $limit = $_GET['limit'];
@@ -24,22 +25,8 @@ switch ($tag) {
         }
         foreach ($data as $key => $value) {
 
-            $curl = curl_init();
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => 'http://103.137.254.78/test_api_satoe/apiv2_stok.php',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS => array('tipe' => 'cek', 'sku' => $value['sku_induk'], 'warehouse' => '01'),
-            ));
-
-            $response1 = curl_exec($curl);
-            curl_close($curl);
-            $datastokserver = json_decode($response1, true);
+            //! Cek Stok dari pak Bobby
+            $datastokserver = CekStok($value['sku_induk'], '');
 
             $datamaster = "SELECT * FROM master_item WHERE id_master = 
                 '$value[id_master]'";
@@ -106,7 +93,7 @@ switch ($tag) {
                 'status_diskon' => $status_diskon,
                 'status_varian_diskon' => $status_varian_diskon,
                 'status_jenis_harga' => $status_jenis_harga,
-                'status_stok' => $datastokserver['pesan'][0]['stok'] > 0 ? 'Y' : 'N',
+                'status_stok' => $datastokserver > 0 ? 'Y' : 'N',
                 'diskon' => $value['diskon_persen'] . "%",
                 'total_dibeli' => (int)$value['total_dibeli'],
                 'rating_item' => 0,
@@ -129,22 +116,8 @@ switch ($tag) {
         }
         foreach ($data as $key => $value) {
 
-            $curl = curl_init();
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => 'http://103.137.254.78/test_api_satoe/apiv2_stok.php',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS => array('tipe' => 'cek', 'sku' => $value['sku_induk'], 'warehouse' => '01'),
-            ));
-
-            $response1 = curl_exec($curl);
-            curl_close($curl);
-            $datastokserver = json_decode($response1, true);
+            //! Cek Stok dari pak Bobby
+            $datastokserver = CekStok($value['sku_induk'], '');
 
             //! untuk varian harga diskon atau enggak
             $varian_harga = 'N';
@@ -206,7 +179,7 @@ switch ($tag) {
                 'status_diskon' => $status_diskon,
                 'status_varian_diskon' => $status_varian_diskon,
                 'status_jenis_harga' => $status_jenis_harga,
-                'status_stok' => $datastokserver['pesan'][0]['stok'] > 0 ? 'Y' : 'N',
+                'status_stok' => $datastokserver > 0 ? 'Y' : 'N',
                 'diskon' => $value['diskon_persen'] . "%",
                 'total_dibeli' => (int)$value['total_dibeli'],
                 'rating_item' => 0,
@@ -229,22 +202,8 @@ switch ($tag) {
         }
         foreach ($data as $key => $value) {
 
-            $curl = curl_init();
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => 'http://103.137.254.78/test_api_satoe/apiv2_stok.php',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS => array('tipe' => 'cek', 'sku' => $value['sku_induk'], 'warehouse' => '01'),
-            ));
-
-            $response1 = curl_exec($curl);
-            curl_close($curl);
-            $datastokserver = json_decode($response1, true);
+            //! Cek Stok dari pak Bobby
+            $datastokserver = CekStok($value['sku_induk'], '');
 
             //! untuk varian harga diskon atau enggak
             $varian_harga = 'N';
@@ -306,7 +265,7 @@ switch ($tag) {
                 'status_diskon' => $status_diskon,
                 'status_varian_diskon' => $status_varian_diskon,
                 'status_jenis_harga' => $status_jenis_harga,
-                'status_stok' => $datastokserver['pesan'][0]['stok'] > 0 ? 'Y' : 'N',
+                'status_stok' => $datastokserver > 0 ? 'Y' : 'N',
                 'diskon' => $value['diskon_persen'] . "%",
                 'total_dibeli' => (int)$value['total_dibeli'],
                 'rating_item' => 0,
@@ -329,23 +288,8 @@ switch ($tag) {
         }
         foreach ($data as $key => $value) {
 
-            $curl = curl_init();
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => 'http://103.137.254.78/test_api_satoe/apiv2_stok.php',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS => array('tipe' => 'cek', 'sku' => $value['sku_induk'], 'warehouse' => '01'),
-            ));
-
-            $response1 = curl_exec($curl);
-            curl_close($curl);
-            $datastokserver = json_decode($response1, true);
-
+            //! Cek Stok dari pak Bobby
+            $datastokserver = CekStok($value['sku_induk'], '');
 
             //! untuk varian harga diskon atau enggak
             $varian_harga = 'N';
@@ -407,7 +351,7 @@ switch ($tag) {
                 'status_diskon' => $status_diskon,
                 'status_varian_diskon' => $status_varian_diskon,
                 'status_jenis_harga' => $status_jenis_harga,
-                'status_stok' => $datastokserver['pesan'][0]['stok'] > 0 ? 'Y' : 'N',
+                'status_stok' => $datastokserver > 0 ? 'Y' : 'N',
                 'diskon' => $value['diskon_persen'] . "%",
                 'total_dibeli' => (int)$value['total_dibeli'],
                 'rating_item' => 0,
@@ -430,23 +374,8 @@ switch ($tag) {
         }
         foreach ($data as $key => $value) {
 
-            $curl = curl_init();
-            curl_setopt_array($curl, array(
-                CURLOPT_URL => 'http://103.137.254.78/test_api_satoe/apiv2_stok.php',
-                CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_ENCODING => '',
-                CURLOPT_MAXREDIRS => 10,
-                CURLOPT_TIMEOUT => 0,
-                CURLOPT_FOLLOWLOCATION => true,
-                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                CURLOPT_CUSTOMREQUEST => 'POST',
-                CURLOPT_POSTFIELDS => array('tipe' => 'cek', 'sku' => $value['sku_induk'], 'warehouse' => '01'),
-            ));
-
-            $response1 = curl_exec($curl);
-            curl_close($curl);
-            $datastokserver = json_decode($response1, true);
-
+            //! Cek Stok dari pak Bobby
+            $datastokserver = CekStok($value['sku_induk'], '');
 
             $datamaster = "SELECT * FROM master_item WHERE id_master = 
                 '$value[id_master]'";
@@ -540,7 +469,7 @@ switch ($tag) {
                 'status_diskon' => $status_diskon,
                 'status_varian_diskon' => $status_varian_diskon,
                 'status_jenis_harga' => $status_jenis_harga,
-                'status_stok' => $datastokserver['pesan'][0]['stok'] > 0 ? 'Y' : 'N',
+                'status_stok' => $datastokserver > 0 ? 'Y' : 'N',
                 'diskon' => $jumlah_diskon . "%",
                 'total_dibeli' => (int)$value['total_dibeli'],
                 'rating_item' => 0,

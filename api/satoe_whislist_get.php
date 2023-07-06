@@ -77,6 +77,7 @@ switch ($tag) {
                 'nama_kategori' => $value['nama_kategori'],
                 'sinopsis' => $value['sinopsis'],
                 'lama_sewa' => $value['lama_sewa'],
+                'penerbit' => $value['penerbit'],
                 'harga_beli' => (int)$value['harga_master'],
                 'diskon_beli' => (int)$jumlah_diskon,
                 'diskon_beli_status' => $status_diskon,

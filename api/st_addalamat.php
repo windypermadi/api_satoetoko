@@ -16,7 +16,7 @@ $data = [
     $label_alamat         = $_POST['label_alamat'],
     $status_alamat_utama         = $_POST['status_alamat_utama'],
     $status_alamat_pengembalian         = $_POST['status_alamat_pengembalian']
-];
+    ];
 
 foreach ($data as $v) {
     if (!empty($v)) {

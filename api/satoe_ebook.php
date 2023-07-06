@@ -44,6 +44,7 @@ switch ($tag) {
 		$data1['judul_master'] = $data->judul_master;
 		$data1['image_master'] = $urlimg . $data->image_master;
 		$data1['status_ebook'] = $data->status_ebook;
+		$data1['penerbit']  = $data->penerbit;
 		$data1['rating_ebook'] = 0;
 		$data1['nama_kategori'] = $data->nama_kategori;
 		$data1['sinopsis'] = $data->sinopsis;

@@ -1,13 +1,14 @@
 <?php
 require_once('../config/koneksi.php');
 include "response.php";
+include "function/function_stok.php";
 $response = new Response();
 
 $limit = $_GET['limit'];
 $offset = $_GET['offset'];
 
 $result2 = array();
-$data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.total_dibeli, a.total_disukai, a.id_sub_kategori,
+$data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen, a.total_dibeli, a.total_disukai, a.id_sub_kategori,
 c.nama_kategori, a.status_master_detail, a.status_varian, a.sku_induk, z.urutan
 FROM table_unggulan z JOIN master_item a ON z.id_master = a.id_master
 JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub
@@ -17,29 +18,14 @@ WHERE a.status_aktif = 'Y' AND z.status_aktif = 1 AND a.status_hapus = 'N' AND a
 ORDER BY z.urutan ASC LIMIT $offset, $limit");
 foreach ($data as $key => $value) {
 
-	$curl = curl_init();
-	curl_setopt_array($curl, array(
-		CURLOPT_URL => 'http://103.137.254.78/test_api_satoe/apiv2_stok.php',
-		CURLOPT_RETURNTRANSFER => true,
-		CURLOPT_ENCODING => '',
-		CURLOPT_MAXREDIRS => 10,
-		CURLOPT_TIMEOUT => 0,
-		CURLOPT_FOLLOWLOCATION => true,
-		CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-		CURLOPT_CUSTOMREQUEST => 'POST',
-		CURLOPT_POSTFIELDS => array('tipe' => 'cek', 'sku' => $value['sku_induk'], 'warehouse' => '01'),
-	));
-
-	$response1 = curl_exec($curl);
-	curl_close($curl);
-	$datastokserver = json_decode($response1, true);
-
 	//! untuk varian harga diskon atau enggak
 	if ($value['status_varian'] == 'Y') {
 		$status_varian_diskon = 'UPTO';
 		$varian = $conn->query("SELECT *, (harga_varian-diskon_rupiah_varian) as harga_varian_final FROM variant WHERE id_master = '$value[id_master]' ORDER BY harga_varian_final ASC")->fetch_all(MYSQLI_ASSOC);
-		// foreach ($varian as $key => $value) {
-		// }
+
+		//! Cek Stok dari pak Bobby
+		$datastokserver = CekStok($varian[0]['sku_induk'], '');
+
 		$min_normal = $varian[0]['harga_varian'];
 		$max_normal = $varian[count($varian) - 1]['harga_varian'];
 
@@ -63,6 +49,10 @@ foreach ($data as $key => $value) {
 		$harga_produk = $harga_produks;
 		$harga_tampil = $harga_tampils;
 	} else {
+
+		//! Cek Stok dari pak Bobby
+		$datastokserver = CekStok($value['sku_induk'], '');
+
 		$jumlah_diskon = $value['diskon_persen'];
 		$status_varian_diskon = 'OFF';
 		if ($value['diskon_persen'] != 0) {
@@ -102,7 +92,7 @@ foreach ($data as $key => $value) {
 		'status_diskon' => $status_diskon,
 		'status_varian_diskon' => $status_varian_diskon,
 		'status_jenis_harga' => $status_jenis_harga,
-		'status_stok' => $datastokserver['pesan'][0]['stok'] > 0 ? 'Y' : 'N',
+		'status_stok' => $datastokserver > 0 ? 'Y' : 'N',
 		'diskon' => $jumlah_diskon . "%",
 		'total_dibeli' => (int)$value['total_dibeli'],
 		'rating_item' => 0,

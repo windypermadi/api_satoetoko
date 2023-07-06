@@ -1,6 +1,7 @@
 <?php
 require_once('../config/koneksi.php');
 include "response.php";
+include "function/function_stok.php";
 $response = new Response();
 
 $idsub = $_GET['id_sub'] ?? '';
@@ -15,66 +16,64 @@ if (!empty($idsub)) {
     $limit = $_GET['limit'] ?? '';
     $offset = $_GET['offset'] ?? '';
 
-    $query = mysqli_query($conn, "SELECT * FROM master_item a 
-            LEFT JOIN stok b ON a.id_master = b.id_barang 
-            WHERE a.id_sub_kategori LIKE '$idsub' $search AND a.status_approve = '2' LIMIT $limit, $offset");
+    $query = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harga_master, a.diskon_rupiah, a.diskon_persen,
+    a.total_dibeli, a.total_disukai, SUM(b.jumlah) as jumlah , a.id_sub_kategori, c.nama_kategori, a.status_master_detail, a.status_varian, a.sku_induk
+    FROM master_item a LEFT JOIN stok b ON a.id_master = b.id_barang
+    JOIN kategori_sub c ON a.id_sub_kategori = c.id_sub
+    LEFT JOIN master_buku_detail d ON a.id_master = d.id_master
+	LEFT JOIN master_fisik_detail e ON a.id_master = e.id_master
+    WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND (d.id_master IS NOT NULL OR e.id_master IS NOT NULL) AND a.id_sub_kategori = '$idsub' $search GROUP BY a.id_master ORDER BY jumlah DESC, a.tanggal_posting DESC LIMIT $offset, $limit");
     foreach ($query as $key => $value) {
 
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => 'http://103.137.254.78/test_api_satoe/apiv2_stok.php',
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => '',
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
-            CURLOPT_POSTFIELDS => array('tipe' => 'cek', 'sku' => $value['sku_induk'], 'warehouse' => '01'),
-        ));
-
-        $response1 = curl_exec($curl);
-        curl_close($curl);
-        $datastokserver = json_decode($response1, true);
-
         //! untuk varian harga diskon atau enggak
-        $varian_harga = 'N';
-        switch ($varian_harga) {
-            case 'N':
-                if ($value['diskon_persen'] != 0) {
-                    $status_diskon = 'Y';
-                    (float)$harga_disc = $value['harga_master'] - $value['diskon_rupiah'];
-                } else {
-                    $status_diskon = 'N';
-                    (float)$harga_disc = $value['harga_master'];
-                }
+        if ($value['status_varian'] == 'Y') {
 
-                $harga_produk = rupiah($value['harga_master']);
-                $harga_tampil = rupiah($harga_disc);
-                break;
-            default:
-                if ($value['diskon_persen'] != 0) {
-                    $status_diskon = 'Y';
-                    (float)$harga_disc = $value['harga_master'] - $value['diskon_rupiah'];
-                } else {
-                    $status_diskon = 'N';
-                    (float)$harga_disc = $value['harga_master'];
-                }
-
-                $harga_produk = "Rp" . number_format($value['harga_master'], 0, ',', '.') . " - " . "Rp" . number_format($value['harga_master'], 0, ',', '.');
-                $harga_tampil = "Rp" . number_format($harga_disc, 0, ',', '.') . " - " . "Rp" . number_format($harga_disc, 0, ',', '.');
-                break;
-        }
-
-        $varian_diskon = 'N';
-        if ($varian_diskon == 'N') {
-            $status_varian_diskon = 'OFF';
-        } else {
             $status_varian_diskon = 'UPTO';
+            $varian = $conn->query("SELECT *, (harga_varian-diskon_rupiah_varian) as harga_varian_final FROM variant WHERE id_master = '$value[id_master]' ORDER BY harga_varian_final ASC")->fetch_all(MYSQLI_ASSOC);
+
+            //! Cek Stok dari pak Bobby
+            $datastokserver = CekStok($varian[0]['sku_induk'], '');
+
+            $min_normal = $varian[0]['harga_varian'];
+            $max_normal = $varian[count($varian) - 1]['harga_varian'];
+
+            $min = $varian[0]['harga_varian_final'];
+            $max = $varian[count($varian) - 1]['harga_varian_final'];
+
+            $jumlah_diskon = $varian[count($varian) - 1]['diskon_persen_varian'];
+
+            //! varian ada diskon
+            if ($varian[0]['diskon_rupiah_varian'] != 0) {
+                $status_diskon = 'Y';
+                (float)$harga_disc = $varian->harga_varian - $varian->diskon_rupiah_varian;
+            } else {
+                $status_diskon = 'N';
+                (float)$harga_disc = $varian->diskon_rupiah_varian;
+            }
+            $harga_produks = $min_normal != $max_normal ?  rupiah($min_normal) . " - " . rupiah($max_normal) : rupiah($min_normal);
+            $harga_tampils = $min_normal != $max_normal ?  rupiah($min) . " - " . rupiah($max) : rupiah($min);
+
+            $harga_produk = $harga_produks;
+            $harga_tampil = $harga_tampils;
+        } else {
+            $jumlah_diskon = $value['diskon_persen'];
+            $status_varian_diskon = 'OFF';
+            if ($value['diskon_persen'] != 0) {
+                $status_diskon = 'Y';
+                (float)$harga_disc = $value['harga_master'] - $value['diskon_rupiah'];
+            } else {
+                $status_diskon = 'N';
+                (float)$harga_disc = $value['harga_master'];
+            }
+
+            $harga_produk = rupiah($value['harga_master']);
+            $harga_tampil = rupiah($harga_disc);
+
+            //! Cek Stok dari pak Bobby
+            $datastokserver = CekStok($value['sku_induk'], '');
         }
 
         $status_jenis_harga = '1';
-
         if ($value['status_master_detail'] == '2') {
             if (substr($value['image_master'], 0, 4) == 'http') {
                 $imagegambar = $value['image_master'];
@@ -98,7 +97,7 @@ if (!empty($idsub)) {
             'status_diskon' => $status_diskon,
             'status_varian_diskon' => $status_varian_diskon,
             'status_jenis_harga' => $status_jenis_harga,
-            'status_stok' => $datastokserver['pesan'][0]['stok'] > 0 ? 'Y' : 'N',
+            'status_stok' => $datastokserver > 0 ? 'Y' : 'N',
             'diskon' => $value['diskon_persen'] . "%",
             'total_dibeli' => (int)$value['total_dibeli'],
             'rating_item' => 0,

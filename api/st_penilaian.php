@@ -374,6 +374,9 @@
                                 $image = $getimagefisik . $value['image_varian'];
                             }
                         }
+
+                        $getReview = $conn->query("SELECT * FROM review WHERE id_barang = '$value[id_variant]' AND id_transaksi = '$id_transaksi' AND id_user = '$value[id_user]'")->num_rows;
+                        $review = $getReview > 0 ? true : false;
                     } else {
                         $getstatusmaster = $conn->query("SELECT status_master_detail FROM master_item WHERE id_master = '$value[id_master]'")->fetch_assoc();
 
@@ -393,6 +396,9 @@
                                 $image = $getimagefisik . $value['image_master'];
                             }
                         }
+
+                        $getReview = $conn->query("SELECT * FROM review WHERE id_barang = '$value[id_master]' AND id_transaksi = '$id_transaksi' AND id_user = '$value[id_user]'")->num_rows;
+                        $review[] = $getReview > 0 ? true : false;
                     }
 
                     $getprodukcoba[] = [
@@ -636,6 +642,15 @@
                     'catatan' => $value['catatan_pembeli'],
                 ];
 
+                $review = in_array(false, $review) ? false : true;
+                $data_review = [
+                    'isReview' => $review,
+                ];
+
+                $catatan = [
+                    'catatan' => $value['catatan_pembeli'],
+                ];
+
                 //! Metode Pembayaran
                 if ($value['metode_pembayaran'] == '0') {
                     $metode_pembayaran = 'Pembayaran Otomatis Midtrans';
@@ -668,6 +683,7 @@
                 $data1['data_order'] = $informasi_pesanan;
                 $data1['data_shipment'] = $informasi_pengiriman;
                 $data1['data_faktur'] = '';
+                $data1['dataReview'] = $data_review;
                 $data1['notifikasi'] = $notif;
                 $data1['catatan'] = $catatan;
 

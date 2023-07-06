@@ -445,6 +445,7 @@
 
                         $judul_master = $getjudulmaster['judul_master'];
                         $variasi = $key['keterangan_varian'];
+                        $id_variant = $key['id_variant'];
                         $master = $getjudulmaster['id_master'];
                         $cabang = $getcabang['nama_cabang'];
 
@@ -720,7 +721,7 @@
             case 'detail':
                 $id_transaksi         = $_GET['id_transaksi'];
 
-                $getproduk = $conn->query("SELECT c.id_master, b.total_harga_sebelum_diskon, b.harga_ongkir, b.total_harga_setelah_diskon, b.voucher_harga, b.voucher_ongkir, c.judul_master, c.image_master, a.jumlah_beli, a.harga_barang, a.diskon_barang, a.harga_diskon, b.invoice, d.id_variant, d.keterangan_varian, d.diskon_rupiah_varian, d.image_varian, b.status_transaksi, b.kurir_pengirim, b.kurir_code, b.kurir_service, b.metode_pembayaran, b.midtrans_transaction_status, b.midtrans_payment_type, b.midtrans_token, b.midtrans_redirect_url, b.alamat_penerima, b.nama_penerima, b.label_alamat, b.telepon_penerima, b.tanggal_transaksi, b.tanggal_dibayar, b.tanggal_diterima, b.tgl_packing, b.nomor_resi, c.status_master_detail, b.st_packing, DATE_ADD(b.tanggal_diterima, INTERVAL 7 DAY) as tanggal_diterima, b.catatan_pembeli, b.biaya_platform, b.id_user
+                $getproduk = $conn->query("SELECT c.id_master, b.total_harga_sebelum_diskon, b.harga_ongkir, b.total_harga_setelah_diskon, b.voucher_harga, b.voucher_ongkir, c.judul_master, c.image_master, a.jumlah_beli, a.harga_barang, a.diskon_barang, a.harga_diskon, b.invoice, d.id_variant, d.keterangan_varian, d.diskon_rupiah_varian, d.image_varian, b.status_transaksi, b.kurir_pengirim, b.kurir_code, b.kurir_service, b.metode_pembayaran, b.midtrans_transaction_status, b.midtrans_payment_type, b.midtrans_token, b.midtrans_redirect_url, b.alamat_penerima, b.nama_penerima, b.label_alamat, b.telepon_penerima, b.tanggal_transaksi, b.tanggal_dibayar, b.tanggal_diterima, b.tgl_packing, b.nomor_resi, c.status_master_detail, b.st_packing, DATE_ADD(b.tanggal_diterima, INTERVAL 7 DAY) as tanggal_diterima, b.catatan_pembeli, b.biaya_platform, b.id_user, b.id_cabang
                         FROM transaksi_detail a 
                         JOIN transaksi b ON a.id_transaksi = b.id_transaksi
                         LEFT JOIN master_item c ON a.id_barang = c.id_master
@@ -755,6 +756,7 @@
                         }
 
                         $getReview = $conn->query("SELECT * FROM review WHERE id_barang = '$value[id_variant]' AND id_transaksi = '$id_transaksi' AND id_user = '$value[id_user]'")->num_rows;
+                        $queryreview = "SELECT * FROM review WHERE id_barang = '$value[id_variant]' AND id_transaksi = '$id_transaksi' AND id_user = '$value[id_user]'";
                         $review[] = $getReview > 0 ? true : false;
                     } else {
                         $getstatusmaster = $conn->query("SELECT status_master_detail FROM master_item WHERE id_master = '$value[id_master]'")->fetch_assoc();
@@ -778,6 +780,7 @@
                         }
 
                         $getReview = $conn->query("SELECT * FROM review WHERE id_barang = '$value[id_master]' AND id_transaksi = '$id_transaksi' AND id_user = '$value[id_user]'")->num_rows;
+                        $queryreview = "SELECT * FROM review WHERE id_barang = '$value[id_master]' AND id_transaksi = '$id_transaksi' AND id_user = '$value[id_user]'";
                         $review[] = $getReview > 0 ? true : false;
                     }
 
@@ -788,6 +791,7 @@
                         "id_master" => $master,
                         "judul_master" => $judul_master,
                         "variasi" => $variasi,
+                        "id_variant" => $id_variant,
                         "image_master" => $image,
                         "status_diskon" => $value['diskon_barang'] != 0 ? 'Y' : 'N',
                         "jumlah_beli" => $value['jumlah_beli'],
@@ -954,7 +958,8 @@
                         'status_transaksi' => $status_transaksi,
                         'ket_status_transaksi' => $status,
                         'ambil_ditempat' => $value['kurir_code'] == '00' ? 'Y' : 'N',
-                        'ket_ambil_ditempat' => $ketambil
+                        'ket_ambil_ditempat' => $ketambil,
+                        'id_cabang' => $value['id_cabang']
                     ];
 
                 switch ($status_ambilditempat) {
@@ -1041,12 +1046,11 @@
                     'status' => $status_notif,
                     'keterangan' => $keterangan,
                 ];
-                // var_dump($review);
-                // die;
-                $review = in_array(false, $review) ? false : true;
 
+                $review = in_array(false, $review) ? false : true;
                 $data_review = [
                     'isReview' => $review,
+                    'query' => $queryreview,
                 ];
 
                 $catatan = [
@@ -1085,7 +1089,7 @@
                 $data1['data_order'] = $informasi_pesanan;
                 $data1['data_shipment'] = $informasi_pengiriman;
                 $data1['data_faktur'] = '';
-                $data1['datareview'] = $data_review;
+                $data1['dataReview'] = $data_review;
                 $data1['notifikasi'] = $notif;
                 $data1['catatan'] = $catatan;
 

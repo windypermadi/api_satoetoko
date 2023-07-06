@@ -1,6 +1,7 @@
 <?php
 require_once('../config/koneksi.php');
 include "response.php";
+include "function/function_stok.php";
 $response = new Response();
 
 $id_master = $_POST['id_master'];
@@ -11,6 +12,9 @@ if (isset($id_master) && isset($id_cabang)) {
                 '$id_master'";
     $cekitemdata = $conn->query($datamaster);
     $data = $cekitemdata->fetch_object();
+
+    //! Cek Stok dari pak Bobby
+    $datastokserver = CekStok($data->sku_induk, '');
 
     if ($data->status_varian == 'Y') {
         $variant = $conn->query("SELECT * FROM variant a JOIN stok b ON a.id_variant = b.id_varian WHERE a.id_master = '$id_master' AND b.id_warehouse = '$id_cabang' AND a.status_acc_var = '2' AND a.status_aktif_var = 'Y' AND a.status_hapus_var = 'N' GROUP BY a.id_variant");
@@ -29,6 +33,9 @@ if (isset($id_master) && isset($id_cabang)) {
                 }
             }
 
+            //! Cek Stok dari pak Bobby
+            $datastokserver = CekStok($value['sku_induk'], '');
+
             $variants[] = [
                 'id_variant' => $value['id_variant'],
                 'keterangan_varian' => $value['keterangan_varian'],
@@ -36,7 +43,7 @@ if (isset($id_master) && isset($id_cabang)) {
                 'diskon_rupiah_varian' => $value['diskon_rupiah_varian'],
                 'diskon_persen_varian' => $value['diskon_persen_varian'],
                 'image_varian' => $imagegambar,
-                'stok' => $value['jumlah'],
+                'stok' => $datastokserver > 0 ? (string)$datastokserver : '0',
             ];
         }
     } else {
@@ -58,7 +65,7 @@ if (isset($id_master) && isset($id_cabang)) {
                 (float)$harga_disc = $value['harga_master'] - ($value['harga_master'] * ($value['diskon_rupiah']));
                 $diskon_format = rupiah($harga_disc);
                 $harga_master = rupiah($value['harga_master']);
-                $stok = $value['jumlah'];
+                $stok = $datastokserver > 0 ? (string)$datastokserver : '0';
             }
 
             if ($data->status_master_detail == '2') {

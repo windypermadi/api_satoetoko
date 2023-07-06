@@ -1,6 +1,7 @@
 <?php
 require_once('../config/koneksi.php');
 include "response.php";
+include "function/function_stok.php";
 $response = new Response();
 
 $id_login         = $_REQUEST['id_login'];
@@ -11,10 +12,11 @@ if (isset($id_login)) {
         case 'semua':
             $warehouse = $conn->query("SELECT * FROM cabang");
             foreach ($warehouse as $kuy => $value) {
-                $data = $conn->query("SELECT * FROM user_keranjang a
+                $data = $conn->query("SELECT *, b.sku_induk as sku_origin, c.sku_induk as sku_varian FROM user_keranjang a
                 JOIN master_item b ON a.id_barang = b.id_master
                 LEFT JOIN variant c ON a.id_variant = c.id_variant
-                WHERE a.id_user = '$id_login' AND a.id_gudang = '$value[id_cabang]'");
+                LEFT JOIN cabang d ON a.id_gudang = d.id_cabang 
+                WHERE a.id_user = '$id_login' AND a.id_gudang = '$value[id_cabang]' AND b.status_aktif = 'Y'");
 
                 foreach ($data as $key) {
 
@@ -28,6 +30,7 @@ if (isset($id_login)) {
                     JOIN master_item c ON b.kd_barang = c.id_master
                     WHERE status_tampil_waktu = 'Y' AND status_remove_flashsale = 'N' AND a.waktu_mulai <= NOW() AND a.waktu_selesai >= NOW() AND b.kd_barang = '$key[id_barang]'")->fetch_object();
 
+                    //? FLASHSALE
                     if (!empty($dataproduct->id_flashsale)) {
                         if ($dataproduct->sisa_stok != 0) {
                             //? tidak varian
@@ -60,18 +63,21 @@ if (isset($id_login)) {
                                 $harga_tampil_int = $harga_disc;
                             }
                             $status_flashsale = false;
-                            $cekstok = $conn->query("SELECT jumlah FROM user_keranjang a 
-                        LEFT JOIN stok b ON a.id_barang = b.id_barang
-                        WHERE a.id_user = '$id_login' AND a.id_barang = '$key[id_barang]'")->fetch_assoc();
+                            //! Cek Stok dari pak Bobby
+                            $cekstok = CekStok($key['sku_origin'], $key['id_gudang']);
                         }
                     } else {
+                        //? TIDAK FLASHSALE
                         $status_flashsale = false;
                         //! INI DIPENDING DULU FLASHSALE VARIAN
                         if ($key['status_varian'] == 'Y') {
 
-                            $cekstok = $conn->query("SELECT jumlah FROM user_keranjang a 
-                    LEFT JOIN stok b ON a.id_variant = b.id_varian
-                    WHERE a.id_user = '$id_login' AND a.id_variant = '$key[id_variant]'")->fetch_assoc();
+                            //! Cek Stok dari pak Bobby
+                            $cekstok = CekStok($key['sku_varian'], $key['id_gudang']);
+
+                            // $cekstok = $conn->query("SELECT jumlah FROM user_keranjang a 
+                            // LEFT JOIN stok b ON a.id_variant = b.id_varian
+                            // WHERE a.id_user = '$id_login' AND a.id_variant = '$key[id_variant]'")->fetch_assoc();
 
                             if ($key['diskon_persen_varian'] != 0) {
                                 $status_diskon = 'Y';
@@ -86,11 +92,18 @@ if (isset($id_login)) {
                             $harga_produk_int = $key['harga_varian'];
                             $harga_tampil_int = $harga_disc;
                         } else {
+                            //! Cek Stok dari pak Bobby
+                            $cekstok = CekStok($key['sku_origin'], $key['kode_cabang']);
+                            // var_dump($key['sku_origin']);
+                            // var_dump($key['id_gudang']);
+                            // var_dump($cekstok);
+                            // die;
 
-                            $cekstok = $conn->query("SELECT jumlah FROM user_keranjang a 
-                    LEFT JOIN stok b ON a.id_barang = b.id_barang
-                    WHERE a.id_user = '$id_login' AND a.id_barang = '$key[id_barang]'")->fetch_assoc();
+                            // $cekstok = $conn->query("SELECT jumlah FROM user_keranjang a 
+                            // LEFT JOIN stok b ON a.id_barang = b.id_barang
+                            // WHERE a.id_user = '$id_login' AND a.id_barang = '$key[id_barang]'")->fetch_assoc();
 
+                            //iki tekan saiki
                             if ($key['diskon_persen'] != 0) {
                                 $status_diskon = 'Y';
                                 $harga_disc = $key['harga_master'] - $key['diskon_rupiah'];
@@ -132,7 +145,7 @@ if (isset($id_login)) {
                         'harga_tampil_int' => $harga_tampil_int,
                         'status_diskon' => $status_diskon,
                         'qty' => $key['qty'],
-                        'stok_saatini' => $cekstok['jumlah'],
+                        'stok_saatini' => $cekstok,
                         'id_cabang' => $key['id_gudang'],
                         'status_flashsale' => $status_flashsale,
                     ];
@@ -158,7 +171,7 @@ if (isset($id_login)) {
                 $data = $conn->query("SELECT * FROM user_keranjang a
                 JOIN master_item b ON a.id_barang = b.id_master
                 LEFT JOIN variant c ON a.id_variant = c.id_variant
-                WHERE a.id_user = '$id_login' AND a.id_gudang = '$value[id_cabang]'");
+                WHERE a.id_user = '$id_login' AND a.id_gudang = '$value[id_cabang]' AND b.status_aktif = 'Y'");
 
                 foreach ($data as $key) {
 

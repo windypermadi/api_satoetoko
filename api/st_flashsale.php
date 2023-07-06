@@ -44,9 +44,17 @@ switch ($tag) {
                     $status_jenis_harga = '1';
 
                     if ($key2['status_master_detail'] == '2') {
-                        $imagegambar = $getimagebukufisik . $key2['image_master'];
+                        if (substr($key2['image_master'], 0, 4) == 'http') {
+                            $imagegambar = $key2['image_master'];
+                        } else {
+                            $imagegambar = $getimagebukufisik . $key2['image_master'];
+                        }
                     } else {
-                        $imagegambar = $getimagefisik . $key2['image_master'];
+                        if (substr($key2['image_master'], 0, 4) == 'http') {
+                            $imagegambar = $key2['image_master'];
+                        } else {
+                            $imagegambar = $getimagefisik . $key2['image_master'];
+                        }
                     }
                 } else {
                     if ($key2['sisa_stok'] != 0) {
@@ -75,9 +83,17 @@ switch ($tag) {
                     $status_jenis_harga = '1';
 
                     if ($key2['status_master_detail'] == '2') {
-                        $imagegambar = $getimagebukufisik . $key2['image_master'];
+                        if (substr($key2['image_master'], 0, 4) == 'http') {
+                            $imagegambar = $key2['image_master'];
+                        } else {
+                            $imagegambar = $getimagebukufisik . $key2['image_master'];
+                        }
                     } else {
-                        $imagegambar = $getimagefisik . $key2['image_master'];
+                        if (substr($key2['image_master'], 0, 4) == 'http') {
+                            $imagegambar = $key2['image_master'];
+                        } else {
+                            $imagegambar = $getimagefisik . $key2['image_master'];
+                        }
                     }
                 }
 
@@ -166,9 +182,17 @@ switch ($tag) {
                     $status_jenis_harga = '1';
 
                     if ($key2['status_master_detail'] == '2') {
-                        $imagegambar = $getimagebukufisik . $key2['image_master'];
+                        if (substr($key2['image_master'], 0, 4) == 'http') {
+                            $imagegambar = $key2['image_master'];
+                        } else {
+                            $imagegambar = $getimagebukufisik . $key2['image_master'];
+                        }
                     } else {
-                        $imagegambar = $getimagefisik . $key2['image_master'];
+                        if (substr($key2['image_master'], 0, 4) == 'http') {
+                            $imagegambar = $key2['image_master'];
+                        } else {
+                            $imagegambar = $getimagefisik . $key2['image_master'];
+                        }
                     }
                 } else {
                     if ($key2['sisa_stok'] != 0) {
@@ -197,9 +221,17 @@ switch ($tag) {
                     $status_jenis_harga = '1';
 
                     if ($key2['status_master_detail'] == '2') {
-                        $imagegambar = $getimagebukufisik . $key2['image_master'];
+                        if (substr($key2['image_master'], 0, 4) == 'http') {
+                            $imagegambar = $key2['image_master'];
+                        } else {
+                            $imagegambar = $getimagebukufisik . $key2['image_master'];
+                        }
                     } else {
-                        $imagegambar = $getimagefisik . $key2['image_master'];
+                        if (substr($key2['image_master'], 0, 4) == 'http') {
+                            $imagegambar = $key2['image_master'];
+                        } else {
+                            $imagegambar = $getimagefisik . $key2['image_master'];
+                        }
                     }
                 }
 

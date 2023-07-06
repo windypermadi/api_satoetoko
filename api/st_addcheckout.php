@@ -1,6 +1,7 @@
 <?php
 require_once('../config/koneksi.php');
 include "response.php";
+include "function/function_stok.php";
 $response = new Response();
 
 $dataraw = json_decode(file_get_contents('php://input'));
@@ -39,6 +40,9 @@ $data_ongkir_kode = $dataraw2["data_ongkir"]["kode"];
 $data_ongkir_produk = $dataraw2["data_ongkir"]["produk"];
 $data_ongkir_harga = $dataraw2["data_ongkir"]["harga"];
 
+//? GET KODE CABANG
+$cabang = $conn->query("SELECT kode_cabang FROM cabang WHERE id_cabang = '$dataraw2[id_cabang]'")->fetch_object();
+
 //? LIST PRODUK
 $dataproduk = $dataraw2["produk"];
 foreach ($dataproduk as $i => $key) {
@@ -46,7 +50,7 @@ foreach ($dataproduk as $i => $key) {
             c.keterangan_varian,b.harga_master, b.diskon_rupiah, c.harga_varian, c.diskon_rupiah_varian, 
             a.qty, c.diskon_rupiah_varian, d.berat as berat_buku, e.berat as berat_fisik, 
             b.status_master_detail, a.id_gudang, COUNT(a.id) as jumlah_produk,
-            f.id_supplier, b.fee_produk FROM user_keranjang a
+            f.id_supplier, b.fee_produk, b.sku_induk, c.sku_induk as sku_varian  FROM user_keranjang a
             JOIN master_item b ON a.id_barang = b.id_master
             LEFT JOIN variant c ON a.id_variant = c.id_variant
             LEFT JOIN master_buku_detail d ON b.id_master = d.id_master
@@ -64,6 +68,10 @@ foreach ($getproduk as $u) {
         $berat_detail = $u->berat_fisik * $u->qty;
     }
     if ($u->id_variant) {
+        //! CEK STOK DI SERVER PAK BOBBY
+        //! Connect database pak booby
+        $stokserver = CekStok($u->sku_varian, $cabang->kode_cabang);
+        //? DENGAN VARIAN
         $diskon = ($u->harga_varian) - ($u->diskon_rupiah_varian);
         $diskon_format = "Rp" . number_format($diskon, 0, ',', '.');
         $harga_varian = "Rp" . number_format($u->harga_varian, 0, ',', '.');
@@ -97,19 +105,22 @@ foreach ($getproduk as $u) {
         sub_total = '$dataraw->harga_normal'");
 
         //! UPDATE STOK PRODUCT
-        $jml = $conn->query("SELECT jumlah FROM stok WHERE id_varian = '$u->id_variant'")->fetch_assoc();
-        $total_dibeli2 = $jml['jumlah'];
-        $hasiljumlah = $jml['jumlah'] - $u->qty;
+        // $jml = $conn->query("SELECT jumlah FROM stok WHERE id_varian = '$u->id_variant'")->fetch_assoc();
+        // $total_dibeli2 = $jml['jumlah'];
+        // $hasiljumlah = $jml['jumlah'] - $u->qty;
 
-        $query[] = $conn->query("UPDATE stok SET jumlah = '$hasiljumlah' WHERE id_varian = '$u->id_variant'");
+        // $query[] = $conn->query("UPDATE stok SET jumlah = '$hasiljumlah' WHERE id_varian = '$u->id_variant'");
 
         //! UPDATE JUMLAH PEMBELIAN BARANG
         // $total_dibeli = $conn->query("SELECT total_dibeli FROM id_master = '$u->id_master'")->fetch_assoc();
         // $total_dibeli3 = $total_dibeli['total_dibeli'];
         // $query[] = $conn->query("UPDATE master_item SET total_dibeli = '$total_dibeli3' + '$total_dibeli2' WHERE id_master = '$u->id_master'");
 
+        //! Pengurangan stok ke pak bobby
+        $datakirimstok = KurangStok($u->sku_varian, $cabang->kode_cabang, $u->qty);
+
         //! UPDATE STOK HISTORY PRODUCT
-        $stokawal = $jml['jumlah'];
+        $stoksekarang = $stokserver - $u->qty;
         $query[] = $conn->query("INSERT INTO stok_history SET 
         id_history = UUID_SHORT(),
         tanggal_input = '$tanggal_sekarang',
@@ -119,8 +130,8 @@ foreach ($getproduk as $u) {
         keterangan = 'TRANSAKSI MASUK',
         masuk = '0',
         keluar = '$u->qty',
-        stok_awal = '$stokawal',  
-        stok_sekarang = '$hasiljumlah'");
+        stok_awal = '$stokserver',  
+        stok_sekarang = '$stoksekarang'");
 
         $ceksaldoawal = $conn->query("SELECT * FROM saldo WHERE id_supplier = '$u->id_supplier' ORDER BY tanggal_posting DESC LIMIT 1")->fetch_object();
 
@@ -137,7 +148,10 @@ foreach ($getproduk as $u) {
         saldo_awal = $ceksaldoawal->saldo_akhir,
         saldo_akhir = $jumlahsaldoakhir");
     } else {
-        //* DENGAN VARIAN
+        //! CEK STOK DI SERVER PAK BOBBY
+        //! Connect database pak booby
+        $stokserver = CekStok($u->sku_induk, $cabang->kode_cabang);
+        //? TANPA VARIAN
         $diskon = ($u->harga_master) - ($u->diskon_rupiah);
         $diskon_format = "Rp" . number_format($diskon, 0, ',', '.');
         $harga_master = "Rp" . number_format($u->harga_master, 0, ',', '.');
@@ -194,19 +208,22 @@ foreach ($getproduk as $u) {
         sub_total = '$dataraw->harga_normal'");
 
         //* UPDATE STOK PRODUCT
-        $jml = $conn->query("SELECT jumlah FROM stok WHERE id_barang = '$u->id_master'")->fetch_assoc();
-        $total_dibeli2 = $jml['jumlah'];
-        $hasiljumlah = $jml['jumlah'] - $u->qty;
+        // $jml = $conn->query("SELECT jumlah FROM stok WHERE id_barang = '$u->id_master'")->fetch_assoc();
+        // $total_dibeli2 = $jml['jumlah'];
+        // $hasiljumlah = $jml['jumlah'] - $u->qty;
 
-        $query[] = $conn->query("UPDATE stok SET jumlah = '$hasiljumlah' WHERE id_barang = '$u->id_master'");
+        // $query[] = $conn->query("UPDATE stok SET jumlah = '$hasiljumlah' WHERE id_barang = '$u->id_master'");
 
         //* UPDATE JUMLAH PEMBELIAN BARANG
         // $total_dibeli = $conn->query("SELECT total_dibeli FROM id_master = '$u->id_master'")->fetch_assoc();
         // $total_dibeli3 = $total_dibeli['total_dibeli'];
         // $query[] = $conn->query("UPDATE master_item SET total_dibeli = '$total_dibeli3' + '$total_dibeli2' WHERE id_master = '$U->id_master'");
 
+        //! Pengurangan stok ke pak bobby
+        $datakirimstok = KurangStok($u->sku_induk, $cabang->kode_cabang, $u->qty);
+
         //* UPDATE STOK HISTORY PRODUCT
-        $stokawal = $jml['jumlah'];
+        $stoksekarang = $stokserver - $u->qty;
         $query[] = $conn->query("INSERT INTO stok_history SET 
         id_history = UUID_SHORT(),
         tanggal_input = '$tanggal_sekarang',
@@ -216,8 +233,8 @@ foreach ($getproduk as $u) {
         keterangan = 'TRANSAKSI MASUK',
         masuk = '0',
         keluar = '$u->qty',
-        stok_awal = '$stokawal',  
-        stok_sekarang = '$hasiljumlah'");
+        stok_awal = '$stokserver',  
+        stok_sekarang = '$stoksekarang'");
 
         $ceksaldoawal = $conn->query("SELECT * FROM saldo WHERE id_supplier = '$u->id_supplier' ORDER BY tanggal_posting DESC LIMIT 1")->fetch_object();
 

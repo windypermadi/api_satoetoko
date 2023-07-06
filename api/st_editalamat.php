@@ -29,12 +29,14 @@
 
     if ($valid == '1') {
 
+        $cek = $conn->query("SELECT id_user FROM user_alamat WHERE id = '$id'")->fetch_object();
+
         if ($status_alamat_utama == 'Y') {
-            $query = mysqli_query($conn, "UPDATE user_alamat SET status_alamat_utama = 'N' WHERE id = '$id'");
+            $query = mysqli_query($conn, "UPDATE user_alamat SET status_alamat_utama = 'N' WHERE id_user = '$cek->id_user'");
         }
 
         if ($status_alamat_pengembalian == 'Y') {
-            $query = mysqli_query($conn, "UPDATE user_alamat SET status_alamat_pengembalian = 'N' WHERE id = '$id'");
+            $query = mysqli_query($conn, "UPDATE user_alamat SET status_alamat_pengembalian = 'N' WHERE id_user = '$cek->id_user'");
         }
 
         $query2 = mysqli_query($conn, "UPDATE user_alamat SET

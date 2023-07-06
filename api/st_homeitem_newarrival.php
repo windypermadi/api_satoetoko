@@ -1,6 +1,7 @@
 <?php
 require_once('../config/koneksi.php');
 include "response.php";
+include "function/function_stok.php";
 $response = new Response();
 
 $limit = $_GET['limit'];
@@ -16,27 +17,15 @@ $data = $conn->query("SELECT a.id_master, a.image_master, a.judul_master, a.harg
     WHERE a.status_aktif = 'Y' AND a.status_approve = '2' AND a.status_hapus = 'N' AND (d.id_master IS NOT NULL OR e.id_master IS NOT NULL) GROUP BY a.id_master ORDER BY jumlah DESC, a.tanggal_posting DESC LIMIT $offset, $limit");
 foreach ($data as $key => $value) {
 
-    $curl = curl_init();
-    curl_setopt_array($curl, array(
-        CURLOPT_URL => 'http://103.137.254.78/test_api_satoe/apiv2_stok.php',
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_POSTFIELDS => array('tipe' => 'cek', 'sku' => $value['sku_induk'], 'warehouse' => '01'),
-    ));
-
-    $response1 = curl_exec($curl);
-    curl_close($curl);
-    $datastokserver = json_decode($response1, true);
-
     //! untuk varian harga diskon atau enggak
     if ($value['status_varian'] == 'Y') {
+
         $status_varian_diskon = 'UPTO';
         $varian = $conn->query("SELECT *, (harga_varian-diskon_rupiah_varian) as harga_varian_final FROM variant WHERE id_master = '$value[id_master]' ORDER BY harga_varian_final ASC")->fetch_all(MYSQLI_ASSOC);
+
+        //! Cek Stok dari pak Bobby
+        $datastokserver = CekStok($varian[0]['sku_induk'], '');
+
         // foreach ($varian as $key => $value) {
         // }
         $min_normal = $varian[0]['harga_varian'];
@@ -73,6 +62,9 @@ foreach ($data as $key => $value) {
 
         $harga_produk = rupiah($value['harga_master']);
         $harga_tampil = rupiah($harga_disc);
+
+        //! Cek Stok dari pak Bobby
+        $datastokserver = CekStok($value['sku_induk'], '');
     }
 
     $status_jenis_harga = '1';
@@ -100,7 +92,7 @@ foreach ($data as $key => $value) {
         'status_diskon' => $status_diskon,
         'status_varian_diskon' => $status_varian_diskon,
         'status_jenis_harga' => $status_jenis_harga,
-        'status_stok' => $datastokserver['pesan'][0]['stok'] > 0 ? 'Y' : 'N',
+        'status_stok' => $datastokserver > 0 ? 'Y' : 'N',
         'diskon' => $jumlah_diskon . "%",
         'total_dibeli' => (int)$value['total_dibeli'],
         'rating_item' => 0,

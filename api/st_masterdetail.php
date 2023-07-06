@@ -1,6 +1,7 @@
 <?php
 require_once('../config/koneksi.php');
 include "response.php";
+include "function/function_stok.php";
 $response = new Response();
 
 $id_master = $_GET['id_master'];
@@ -41,9 +42,12 @@ if (isset($id_master)) {
     }
 
     $datastok = mysqli_fetch_object($conn->query("SELECT sum(jumlah) as jumlah, alamat_cabang FROM stok a JOIN cabang b ON a.id_warehouse = b.id_cabang WHERE a.id_barang = '$id_master';"));
-    $warehousedata = "SELECT * FROM stok a LEFT JOIN cabang b ON a.id_warehouse = b.id_cabang WHERE a.id_barang = '$id_master' AND b.status_aktif = 'Y' AND b.status_hapus = 'N' GROUP BY a.id_warehouse";
+    $warehousedata = "SELECT * FROM cabang GROUP BY id_cabang";
     $warehouseget = $conn->query($warehousedata);
     $warehousecek = $conn->query($warehousedata)->num_rows;
+
+    //! Cek Stok dari pak Bobby
+    $datastokserver = CekStok($data->sku_induk, '');
 
     if ($warehousecek > 0) {
         foreach ($warehouseget as $key => $value) {
@@ -52,12 +56,12 @@ if (isset($id_master)) {
                 if ($sisa_stok_flash != 0) {
                     $stokwarehouse = $sisa_stok_flash;
                 } else {
-                    $stokwarehouse = $value['jumlah'];
+                    $stokwarehouse = $datastokserver > 0 ? $datastokserver : 0;
                 }
             } else if ($status_flashsale == '1') {
-                $stokwarehouse = $value['jumlah'];
+                $stokwarehouse = $datastokserver > 0 ? $datastokserver : 0;
             } else {
-                $stokwarehouse = $value['jumlah'];
+                $stokwarehouse = $datastokserver > 0 ? $datastokserver : 0;
             }
 
             $warehousedatas[] = [
@@ -106,7 +110,7 @@ if (isset($id_master)) {
             $deskripsi = $datanew->sinopsis;
 
             $imageurl = $conn->query("SELECT b.image_master, a.gambar_1, a.gambar_2, a.gambar_3 FROM master_buku_detail a
-LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data->id_master'");
+            LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data->id_master'");
             $imageurls = array();
             while ($key = mysqli_fetch_object($imageurl)) {
                 if (substr($key->image_master, 0, 4) == 'http') {
@@ -160,6 +164,10 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
             if ($datanew->status_varian == 'Y') {
                 $variant = $conn->query("SELECT * FROM variant a JOIN stok b ON a.id_variant = b.id_varian WHERE a.id_master = '$id_master' GROUP BY a.id_variant");
                 foreach ($variant as $key => $value) {
+
+                    //! Cek Stok dari pak Bobby
+                    $datastokserver = CekStok($value['sku_induk'], '');
+
                     if (substr($value['image_varian'], 0, 4) == 'http') {
                         $imagegambar = $value['image_varian'];
                     } else {
@@ -173,7 +181,7 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
                         'diskon_rupiah_varian' => $value['diskon_rupiah_varian'],
                         'diskon_persen_varian' => $value['diskon_persen_varian'],
                         'image_varian' => $imagegambar,
-                        'stok' => $value['jumlah'],
+                        'stok' => $datastokserver > 0 ? $datastokserver : '0',
                     ];
 
                     $url_variants[] = [
@@ -181,10 +189,40 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
                         'keterangan' => 'image',
                         'image_varian' => $imagegambar
                     ];
+
+                    $jumlahstokvar = $jumlahstokvar + $datastokserver;
                 }
             } else {
                 $variants = [];
                 $url_variants = [];
+            }
+
+            if ($warehousecek > 0) {
+                foreach ($warehouseget as $key => $value) {
+
+                    if ($status_flashsale == '2') {
+                        if ($sisa_stok_flash != 0) {
+                            $stokwarehouse = $sisa_stok_flash;
+                        } else {
+                            $stokwarehouse = $datastokserver > 0 ? $datastokserver : 0;
+                        }
+                    } else if ($status_flashsale == '1') {
+                        $stokwarehouse = $datastokserver > 0 ? $datastokserver : 0;
+                    } else {
+                        $stokwarehouse = $datastokserver > 0 ? $datastokserver : 0;
+                    }
+
+                    $warehousedatasvar[] = [
+                        'id_cabang' => $value['id_cabang'] != null ? $value['id_cabang'] : '',
+                        'kode_cabang' => $value['kode_cabang'],
+                        'nama_cabang' => $value['nama_cabang'],
+                        'alamat_lengkap_cabang' => $value['alamat_lengkap_cabang'],
+                        'alamat_cabang' => $value['alamat_cabang'],
+                        'stok' => (string)$jumlahstokvar
+                    ];
+                }
+            } else {
+                $warehousedatasvar = [];
             }
             break;
         case '3':
@@ -262,6 +300,10 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
             if ($datanew->status_varian == 'Y') {
                 $variant = $conn->query("SELECT * FROM variant a JOIN stok b ON a.id_variant = b.id_varian WHERE a.id_master = '$id_master' GROUP BY a.id_variant");
                 foreach ($variant as $key => $value) {
+
+                    //! Cek Stok dari pak Bobby
+                    $datastokserver = CekStok($value['sku_induk'], '');
+
                     if (substr($value['image_varian'], 0, 4) == 'http') {
                         $imagegambar = $value['image_varian'];
                     } else {
@@ -275,7 +317,7 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
                         'diskon_rupiah_varian' => $value['diskon_rupiah_varian'],
                         'diskon_persen_varian' => $value['diskon_persen_varian'],
                         'image_varian' => substr($value['image_varian'], 0, 4) == 'http' ? $value['image_varian'] :  $getimagefisik . $value['image_varian'],
-                        'stok' => $value['jumlah'],
+                        'stok' => $datastokserver > 0 ? $datastokserver : '0',
                     ];
 
                     $url_variants[] = [
@@ -284,10 +326,40 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
                         'image_varian' => substr($value['image_varian'], 0, 4) == 'http' ? $value['image_varian'] :  $getimagefisik . $value['image_varian']
                     ];
                 }
+                $jumlahstokvar = $jumlahstokvar + $datastokserver;
             } else {
                 $variants = [];
                 $url_variants = [];
             }
+
+            if ($warehousecek > 0) {
+                foreach ($warehouseget as $key => $value) {
+
+                    if ($status_flashsale == '2') {
+                        if ($sisa_stok_flash != 0) {
+                            $stokwarehouse = $sisa_stok_flash;
+                        } else {
+                            $stokwarehouse = $datastokserver > 0 ? $datastokserver : 0;
+                        }
+                    } else if ($status_flashsale == '1') {
+                        $stokwarehouse = $datastokserver > 0 ? $datastokserver : 0;
+                    } else {
+                        $stokwarehouse = $datastokserver > 0 ? $datastokserver : 0;
+                    }
+
+                    $warehousedatasvar[] = [
+                        'id_cabang' => $value['id_cabang'] != null ? $value['id_cabang'] : '',
+                        'kode_cabang' => $value['kode_cabang'],
+                        'nama_cabang' => $value['nama_cabang'],
+                        'alamat_lengkap_cabang' => $value['alamat_lengkap_cabang'],
+                        'alamat_cabang' => $value['alamat_cabang'],
+                        'stok' => (string)$jumlahstokvar
+                    ];
+                }
+            } else {
+                $warehousedatasvar = [];
+            }
+
             break;
         default:
             $response->data = Null;
@@ -425,22 +497,8 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
 
     $cektotalterjual = $conn->query("SELECT COUNT(a.id_barang) as jumlah FROM transaksi_detail a JOIN transaksi b ON a.id_transaksi = b.id_transaksi WHERE b.status_transaksi = '7' AND a.id_barang = '$id_master'")->fetch_object();
 
-    $curl = curl_init();
-    curl_setopt_array($curl, array(
-        CURLOPT_URL => '103.137.254.78/test_api_satoe/apiv2_stok.php',
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'POST',
-        CURLOPT_POSTFIELDS => array('tipe' => 'cek', 'sku' => $datanew->sku_induk, 'warehouse' => '01'),
-    ));
-
-    $response1 = curl_exec($curl);
-    curl_close($curl);
-    $datastokserver = json_decode($response1, true);
+    //! Cek Stok dari pak Bobby
+    $datastokserver = CekStok($datanew->sku_induk, '');
 
     $data1['id_master'] = $datanew->id_master;
     $data1['judul_master'] = $datanew->judul_master;
@@ -455,8 +513,8 @@ LEFT JOIN master_item b ON a.id_master = b.id_master WHERE a.id_master = '$data-
     $data1['total_dibeli'] = $cektotalterjual->jumlah . " terjual";
     $data1['rating_item'] = 0;
     $data1['status_whislist'] = $cekwhislist > 0 ? 'Y' : 'N';
-    $data1['stok'] = $datastokserver['pesan'][0]['stok'] > 0 ? (string)$datastokserver['pesan'][0]['stok'] : '0';
-    $data1['warehouse'] = $warehousedatas;
+    $data1['stok'] = $datanew->status_varian == 'Y' ? (string)$jumlahstokvar : (string)$datastokserver;
+    $data1['warehouse'] = $datanew->status_varian == 'Y' ? $warehousedatasvar : $warehousedatas;
 
     if ($datanew->status_bahaya == '1') {
         $bahaya = 'Tidak Berbahaya';
